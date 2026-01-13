@@ -1,0 +1,32 @@
+mybatis-flex:
+  datasource:
+    master:
+      url: jdbc:mysql://127.0.0.1:3306/warlock?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+      username: root
+      password: 123456
+spring:
+  quartz:
+    job-store-type: jdbc  # 启用数据库存储
+    jdbc:
+#      initialize-schema: always  # 自动建表（首次启动时）
+      initialize-schema: never  # 生产环境建议手动建表
+    properties:
+      org:
+        quartz:
+          scheduler:
+            instanceName: WarlockScheduler
+            instanceId: AUTO
+          jobStore:
+            dataSource: myDS
+          dataSource:
+            myDS:
+              driver: com.mysql.cj.jdbc.Driver
+              URL: jdbc:mysql://127.0.0.1:3306/warlock?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+              user: root
+              password: 123456
+              # 使用 HikariCP 连接池配置
+              provider: hikaricp
+          threadPool:
+            threadCount: 25
+            threadPriority: 5
+            class: org.quartz.simpl.SimpleThreadPool
