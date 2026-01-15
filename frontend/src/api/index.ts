@@ -2,6 +2,7 @@ import {createAlova} from 'alova';
 import adapterFetch from 'alova/fetch';
 import VueHook from 'alova/vue';
 import {getToken} from "/@/utils/auth.ts";
+import {useAppStore} from "/@/store";
 
 export const globalInstance = createAlova({
     baseURL: `${window.location.origin}/${import.meta.env.VITE_API_BASE_URL}`,
@@ -18,9 +19,13 @@ export const globalInstance = createAlova({
         if (token && (!method.meta?.authRole || method.meta?.authRole !== 'refreshToken')) {
             method.config.headers.Authorization = `Bearer ${token.accessToken}`;
         }
+        const appStore = useAppStore();
+        appStore.showLoading();
     },
     responded: {
         onSuccess: async (response, method) => {
+            const appStore = useAppStore();
+            appStore.hideLoading();
             if (response.status >= 400) {
                 throw new Error(response.statusText);
             }
@@ -41,6 +46,12 @@ export const globalInstance = createAlova({
             // appStore.hideLoading();
             const tip = `[${method.type}] - [${method.url}] - ${error.message}`;
             window.$message?.warning(tip);
+            const appStore = useAppStore();
+            appStore.hideLoading();
+        },
+        onComplete: () => {
+            const appStore = useAppStore();
+            appStore.hideLoading();
         }
     }
 });
