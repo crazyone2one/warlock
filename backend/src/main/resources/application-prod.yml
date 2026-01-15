@@ -30,3 +30,31 @@ spring:
             threadCount: 25
             threadPriority: 5
             class: org.quartz.simpl.SimpleThreadPool
+jwt:
+  secret: 5oiR5piv5Lit5Zu95Lq677yM5oiR54ix5Lit5Zu944CCQ2hpbmEgTk8gMe+8gQ==
+  access-token-validity: 43200000 #12h
+  refresh-token-validity: 604800000 # 7d
+# 文件传输配置 FileTransferConfiguration
+transfer:
+  slave:
+    - "150622004499":
+        host: 172.16.2.10
+        port: 8841
+        username: root
+        password: zkah@123
+        localPath: /app/files
+        remotePath: /app/files
+    - "150622020001":
+        host: 172.16.2.15
+        port: 8841
+        username: root
+        password: zkah@123
+        localPath: /app/files
+        remotePath: /home/app/ftp
+    - "150622007792":
+        host: 172.16.2.15
+        port: 8841
+        username: root
+        password: zkah@123
+        localPath: /app/files
+        remotePath: /home/app/jg-ftp
