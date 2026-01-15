@@ -11,4 +11,5 @@ import cn.master.horde.entity.SystemUser;
  */
 public interface SystemUserService extends IService<SystemUser> {
 
+    SystemUser getUserInfoById(String id);
 }

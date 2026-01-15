@@ -1,31 +1,52 @@
 <script setup lang="ts">
-import { NButton, NCard, NForm, NFormItem, NInput, NCheckbox } from 'naive-ui'
-import { reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import {type FormInst} from 'naive-ui'
+import {useRouter} from 'vue-router'
+import {useForm} from "alova/client";
+import {authApi} from "/@/api/methods/auth.ts";
+import {ref} from "vue";
+import {setToken} from "/@/utils/auth.ts";
+import {useAppStore, useUserStore} from "/@/store";
 
 const router = useRouter()
-
-const formValue = reactive({
-  username: '',
-  password: '',
-  remember: false
+const formRef = ref<FormInst | null>(null)
+const userStore = useUserStore()
+const appStore = useAppStore()
+const {send, form,loading} = useForm(formValue => authApi.login(formValue), {
+  initialForm: {username: '', password: ''},
+  immediate: false,
+  resetAfterSubmiting: true
 })
-
 const rules = {
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' }
+    {required: true, message: '请输入用户名', trigger: 'blur'}
   ],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+    {required: true, message: '请输入密码', trigger: 'blur'},
   ]
 }
 
 const handleLogin = () => {
-  // 这里应该调用API进行登录验证
-  console.log('登录信息：', formValue)
-  // 登录成功后跳转到首页
-  router.push('/')
+  formRef.value?.validate(error => {
+    if (!error) {
+      send().then(res => {
+        const {accessToken, refreshToken} = res
+        setToken(accessToken, refreshToken)
+        authApi.getUserInfo().then(res => {
+          userStore.setInfo(res)
+          appStore.setCurrentProjectId(res.lastProjectId || '');
+        })
+
+        window.$message.success('登录成功');
+        const {redirect, ...othersQuery} = router.currentRoute.value.query;
+        router.push({
+          name: redirect as string || 'Dashboard',
+          query: {
+            ...othersQuery,
+          }
+        })
+      })
+    }
+  })
 }
 </script>
 
@@ -33,30 +54,30 @@ const handleLogin = () => {
   <div class="login-container">
     <n-card class="login-card" :bordered="false" size="small">
       <h2 class="title">登录</h2>
-      <n-form :model="formValue" :rules="rules" class="login-form">
+      <n-form ref="formRef" :model="form" :rules="rules" class="login-form">
         <n-form-item path="username" first>
           <n-input
-            v-model:value="formValue.username"
-            placeholder="用户名"
-            @keyup.enter="handleLogin"
+              v-model:value="form.username"
+              placeholder="用户名"
+              @keyup.enter="handleLogin"
           />
         </n-form-item>
         <n-form-item path="password" first>
           <n-input
-            v-model:value="formValue.password"
-            type="password"
-            placeholder="密码"
-            @keyup.enter="handleLogin"
+              v-model:value="form.password"
+              type="password"
+              placeholder="密码"
+              @keyup.enter="handleLogin"
           />
         </n-form-item>
-        <div class="remember-forgot">
-          <n-checkbox v-model:checked="formValue.remember">记住我</n-checkbox>
-        </div>
+        <!--        <div class="remember-forgot">-->
+        <!--          <n-checkbox v-model:checked="formValue.remember">记住我</n-checkbox>-->
+        <!--        </div>-->
         <n-button
-          type="primary"
-          :block="true"
-          :loading="false"
-          @click="handleLogin"
+            type="primary"
+            :block="true"
+            :loading="loading"
+            @click="handleLogin"
         >
           登录
         </n-button>
@@ -83,7 +104,7 @@ const handleLogin = () => {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
   animation: rotate 20s linear infinite;
 }
 

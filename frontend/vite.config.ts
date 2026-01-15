@@ -13,7 +13,13 @@ export default defineConfig(({mode}) => {
         },
         // 例如：使用 env var 有条件地设置开发服务器端口。
         server: !isProduction ? {
-            port: env.APP_PORT ? Number(env.APP_PORT) : 5173,
+            proxy:{
+                '/front': {
+                    target: 'http://127.0.0.1:8080/',
+                    changeOrigin: true,
+                    rewrite: (path: string) => path.replace(new RegExp('^/front'), ''),
+                },
+            },
             watch: {
                 usePolling: true
             }

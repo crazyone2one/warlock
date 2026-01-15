@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import {h, ref} from 'vue'
 import {type MenuOption} from 'naive-ui'
-import {RouterLink, useRoute} from "vue-router";
+import {RouterLink} from "vue-router";
+import {listenerRouteChange} from "/@/utils/route-listener.ts";
+import {useAppStore} from "/@/store";
 
-const collapsed = ref(false)
-
-const route = useRoute()
-const activeKey = ref<string | null>(route.name as string)
+const appStore = useAppStore()
+const activeKey = ref<string | null>(null)
 const renderIcon = (icon: string) => {
   return () => h('div', {class: icon})
 }
@@ -32,19 +32,24 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon('i-solar:user-outline')
   },
 ]
+listenerRouteChange((route) => {
+  activeKey.value = route.name as string
+})
 </script>
 
 <template>
-  <n-layout-sider bordered collapse-mode="width"
+  <n-layout-sider bordered
+                  collapse-mode="width"
                   :collapsed-width="60"
                   :width="220"
-                  :collapsed="collapsed"
+                  :collapsed="appStore.getMenuCollapse"
                   show-trigger
                   :native-scrollbar="false"
-                  @collapse="collapsed = true"
-                  @expand="collapsed = false">
+                  @collapse="appStore.setMenuCollapse(true)"
+                  @expand="appStore.setMenuCollapse(false)">
     <n-menu v-model:value="activeKey"
-            :options="menuOptions" :collapsed="collapsed"
+            :options="menuOptions"
+            :collapsed="appStore.getMenuCollapse"
             :collapsed-width="64"
             :collapsed-icon-size="22"
     />

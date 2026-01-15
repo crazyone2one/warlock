@@ -1,12 +1,13 @@
 <script setup lang="ts">
 
-import {NConfigProvider} from "naive-ui";
+import ProviderView from "/@/components/ProviderView.vue";
+import BaseView from "/@/components/BaseView.vue";
 </script>
 
 <template>
-  <n-config-provider>
-    <router-view/>
-  </n-config-provider>
+  <provider-view>
+    <base-view/>
+  </provider-view>
 
 </template>
 

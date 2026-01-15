@@ -1,17 +1,14 @@
 package cn.master.horde.controller;
 
-import com.mybatisflex.core.paginate.Page;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.beans.factory.annotation.Autowired;
+import cn.master.horde.core.security.CustomUserDetails;
 import cn.master.horde.entity.SystemUser;
 import cn.master.horde.service.SystemUserService;
-import org.springframework.web.bind.annotation.RestController;
+import com.mybatisflex.core.paginate.Page;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 /**
@@ -21,11 +18,11 @@ import java.util.List;
  * @since 2026-01-14
  */
 @RestController
-@RequestMapping("/systemUser")
+@RequiredArgsConstructor
+@RequestMapping("/system-user")
 public class SystemUserController {
 
-    @Autowired
-    private SystemUserService systemUserService;
+    private final SystemUserService systemUserService;
 
     /**
      * 保存用户。
@@ -79,6 +76,16 @@ public class SystemUserController {
     @GetMapping("getInfo/{id}")
     public SystemUser getInfo(@PathVariable String id) {
         return systemUserService.getById(id);
+    }
+
+    @GetMapping("get-user-info")
+    public SystemUser getInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        assert authentication != null;
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        assert customUserDetails != null;
+        String userId = customUserDetails.getUserId();
+        return systemUserService.getUserInfoById(userId);
     }
 
     /**
