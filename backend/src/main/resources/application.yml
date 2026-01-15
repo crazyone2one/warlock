@@ -3,7 +3,3 @@ spring:
     name: warlock
   profiles:
     active: dev
-  autoconfigure:
-    exclude:
-      # disable Redisson
-      - org.redisson.spring.starter.RedissonAutoConfigurationV4
