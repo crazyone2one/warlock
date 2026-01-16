@@ -4,21 +4,26 @@ import cn.master.horde.common.result.BizException;
 import cn.master.horde.common.result.ResultCode;
 import cn.master.horde.common.service.CurrentUserService;
 import cn.master.horde.dao.BasePageRequest;
+import cn.master.horde.dao.ProjectSwitchRequest;
 import cn.master.horde.entity.SystemProject;
 import cn.master.horde.entity.SystemSchedule;
+import cn.master.horde.entity.SystemUser;
 import cn.master.horde.mapper.SystemProjectMapper;
 import cn.master.horde.service.SystemProjectService;
 import cn.master.horde.service.SystemScheduleService;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryChain;
+import com.mybatisflex.core.update.UpdateChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.Strings;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 import static cn.master.horde.entity.table.SystemProjectTableDef.SYSTEM_PROJECT;
+import static cn.master.horde.entity.table.SystemUserTableDef.SYSTEM_USER;
 
 /**
  * 项目 服务层实现。
@@ -86,6 +91,17 @@ public class SystemProjectServiceImpl extends ServiceImpl<SystemProjectMapper, S
         if (CollectionUtils.isNotEmpty(taskList)) {
             taskList.forEach(task -> systemScheduleService.pauseTask(task.getId()));
         }
+    }
+
+    @Override
+    public void switchProject(ProjectSwitchRequest request, String currentUserId) {
+        if (!Strings.CS.equals(request.userId(), currentUserId)) {
+            throw new BizException(ResultCode.VALIDATE_FAILED, "无权限");
+        }
+        queryChain().where(SYSTEM_PROJECT.ID.eq(request.projectId())).oneOpt()
+                .orElseThrow(() -> new BizException(ResultCode.VALIDATE_FAILED, "项目不存在"));
+        UpdateChain.of(SystemUser.class).set(SYSTEM_USER.LAST_PROJECT_ID, request.projectId())
+                .where(SYSTEM_USER.ID.eq(request.userId())).update();
     }
 
     private void checkProjectExistByNameAndNum(SystemProject project) {

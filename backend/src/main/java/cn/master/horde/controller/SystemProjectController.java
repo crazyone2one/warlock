@@ -2,6 +2,7 @@ package cn.master.horde.controller;
 
 import cn.master.horde.common.service.CurrentUserService;
 import cn.master.horde.dao.BasePageRequest;
+import cn.master.horde.dao.ProjectSwitchRequest;
 import cn.master.horde.entity.SystemProject;
 import cn.master.horde.service.SystemProjectService;
 import com.mybatisflex.core.paginate.Page;
@@ -96,5 +97,10 @@ public class SystemProjectController {
     @GetMapping("/disable/{id}")
     public void disable(@PathVariable String id) {
         systemProjectService.disable(id, CurrentUserService.getCurrentUsername());
+    }
+
+    @PostMapping("/switch")
+    public void switchProject(@RequestBody ProjectSwitchRequest request) {
+        systemProjectService.switchProject(request, CurrentUserService.getCurrentUserId());
     }
 }

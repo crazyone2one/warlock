@@ -17,10 +17,10 @@ import {
     NMenu,
     NModal,
     NResult,
-    NSwitch
+    NSwitch,NSelect
 } from 'naive-ui'
 
 export const naive = create({
     components: [NButton, NLayout, NLayoutSider, NLayoutHeader, NLayoutContent, NLayoutFooter, NResult, NMenu, NFlex,
-        NIcon, NDropdown, NCard, NForm, NFormItem, NInput, NDataTable, NModal, NSwitch]
+        NIcon, NDropdown, NCard, NForm, NFormItem, NInput, NDataTable, NModal, NSwitch, NSelect]
 })

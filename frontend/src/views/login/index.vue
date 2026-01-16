@@ -11,7 +11,7 @@ const router = useRouter()
 const formRef = ref<FormInst | null>(null)
 const userStore = useUserStore()
 const appStore = useAppStore()
-const {send, form,loading} = useForm(formValue => authApi.login(formValue), {
+const {send, form, loading} = useForm(formValue => authApi.login(formValue), {
   initialForm: {username: '', password: ''},
   immediate: false,
   resetAfterSubmiting: true
@@ -44,6 +44,7 @@ const handleLogin = () => {
             ...othersQuery,
           }
         })
+        appStore.initProjectList()
       })
     }
   })
