@@ -132,7 +132,7 @@ public class SystemScheduleServiceImpl extends ServiceImpl<SystemScheduleMapper,
     @Override
     public void pauseTask(String id) {
         SystemSchedule schedule = checkScheduleExit(id);
-        scheduleManager.pauseJob(new JobKey(schedule.getJobKey(), schedule.getJob()));
+        scheduleManager.pauseJob(new JobKey(schedule.getJobKey(), schedule.getProjectId()));
     }
 
     private SystemSchedule checkScheduleExit(String id) {

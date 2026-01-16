@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {h, onMounted, ref} from 'vue'
 import type {IProjectItem} from "/@/api/types.ts";
-import {type DataTableColumns, type DataTableRowKey, NFlex, NInput} from "naive-ui";
+import {type DataTableColumns, type DataTableRowKey, NFlex, NInput, NSwitch} from "naive-ui";
 import {usePagination, useRequest} from "alova/client";
 import {projectApi} from "/@/api/methods/project.ts";
 import WPagination from "/@/components/WPagination.vue";
@@ -19,6 +19,11 @@ const columns: DataTableColumns<IProjectItem> = [
   {title: '名称', key: 'name', ellipsis: {tooltip: true}},
   {title: '描述', key: 'description', ellipsis: {tooltip: true}},
   {
+    title: '状态', key: 'enable', render(row) {
+      return h(NSwitch, {value: row.enable, onUpdateValue: (value: boolean) => handleChangeProjectStatus(value, row)})
+    }
+  },
+  {
     title: '操作', key: 'actions', fixed: 'right', width: 200,
     render(row) {
       return h(WDataTableAction, {
@@ -34,7 +39,22 @@ const checkedRowKeys = ref<DataTableRowKey[]>([])
 const handleCheck = (rowKeys: DataTableRowKey[]) => {
   checkedRowKeys.value = rowKeys
 }
-
+const {send: enableOrDisableProject} = useRequest((id, enable) => projectApi.enableOrDisableProject(id, enable), {immediate: false})
+const handleChangeProjectStatus = (value: boolean, record: IProjectItem) => {
+  window.$dialog.warning({
+    title: `${value ? '启用' : '禁用'}项目`,
+    autoFocus: false,
+    content: () => `修改项目状态后，相关联的任务将被${value ? '启用' : '禁用'}`,
+    positiveText: `${value ? '启用' : '禁用'}`,
+    negativeText: '取消',
+    onPositiveClick() {
+      enableOrDisableProject(record.id, value).then(() => {
+        fetchData()
+        window.$message.success(`${value ? '启用' : '禁用'}成功`)
+      })
+    }
+  })
+}
 const {page, pageSize, total, data, send: fetchData} = usePagination((page, pageSize) => {
   const params = {page, pageSize, keyword: keyword.value}
   return projectApi.queryProjectPage(params)

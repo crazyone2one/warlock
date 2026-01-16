@@ -20,4 +20,8 @@ public interface SystemProjectService extends IService<SystemProject> {
     boolean updateProject(SystemProject systemProject);
 
     void removeProject(String id);
+
+    void enable(String id, String currentUserId);
+
+    void disable(String id, String currentUserId);
 }
