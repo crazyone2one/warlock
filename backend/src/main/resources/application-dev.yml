@@ -4,6 +4,8 @@ mybatis-flex:
       url: jdbc:mysql://127.0.0.1:3306/warlock?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
       username: root
       password: 123456
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 spring:
   quartz:
     job-store-type: jdbc  # 启用数据库存储

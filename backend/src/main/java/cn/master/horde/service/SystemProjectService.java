@@ -1,5 +1,7 @@
 package cn.master.horde.service;
 
+import cn.master.horde.dao.BasePageRequest;
+import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.service.IService;
 import cn.master.horde.entity.SystemProject;
 
@@ -11,4 +13,11 @@ import cn.master.horde.entity.SystemProject;
  */
 public interface SystemProjectService extends IService<SystemProject> {
 
+    boolean saveProject(SystemProject systemProject);
+
+    Page<SystemProject> getProjectPage(BasePageRequest page);
+
+    boolean updateProject(SystemProject systemProject);
+
+    void removeProject(String id);
 }
