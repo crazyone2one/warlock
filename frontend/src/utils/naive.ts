@@ -14,10 +14,10 @@ import {
     NLayoutHeader,
     NLayoutSider,
     NMenu,
-    NResult
+    NResult,NDataTable,NModal
 } from 'naive-ui'
 
 export const naive = create({
     components: [NButton, NLayout, NLayoutSider, NLayoutHeader, NLayoutContent, NLayoutFooter, NResult, NMenu, NFlex,
-        NIcon, NDropdown, NCard, NForm, NFormItem, NInput]
+        NIcon, NDropdown, NCard, NForm, NFormItem, NInput, NDataTable, NModal]
 })

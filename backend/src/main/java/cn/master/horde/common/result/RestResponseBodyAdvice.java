@@ -1,6 +1,7 @@
 package cn.master.horde.common.result;
 
 import cn.master.horde.util.JsonHelper;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -16,6 +17,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * @author : 11's papa
  * @since : 2026/1/15, 星期四
  **/
+@NullMarked
 @RestControllerAdvice
 public class RestResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     @Override

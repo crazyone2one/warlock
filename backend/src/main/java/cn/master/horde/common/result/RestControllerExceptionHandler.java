@@ -1,6 +1,7 @@
 package cn.master.horde.common.result;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -15,12 +16,14 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author : 11's papa
  * @since : 2026/1/15, 星期四
  **/
 @Slf4j
+@NullMarked
 @RestControllerAdvice
 public class RestControllerExceptionHandler {
     /**
@@ -65,6 +68,10 @@ public class RestControllerExceptionHandler {
     @ExceptionHandler(BizException.class)
     public ResponseEntity<ResultHolder> handleCustomException(BizException ex) {
         IResultCode errorCode = ex.getErrorCode();
+        if (Objects.isNull(errorCode)) {
+            return ResponseEntity.internalServerError()
+                    .body(ResultHolder.error(ResultCode.FAILED.getCode(), ex.getMessage()));
+        }
         int code = errorCode.getCode();
         String message = errorCode.getMessage();
         if (errorCode instanceof ResultCode) {

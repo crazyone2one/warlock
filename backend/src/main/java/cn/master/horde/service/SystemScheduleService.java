@@ -8,6 +8,8 @@ import org.quartz.Job;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;
 
+import java.util.List;
+
 /**
  * 定时任务 服务层。
  *
@@ -32,4 +34,6 @@ public interface SystemScheduleService extends IService<SystemSchedule> {
     void pauseTask(String id);
 
     void resumeTask(String id);
+
+    List<SystemSchedule> getTaskByProjectId(String projectId);
 }

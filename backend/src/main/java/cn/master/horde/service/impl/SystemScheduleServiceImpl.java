@@ -3,6 +3,7 @@ package cn.master.horde.service.impl;
 import cn.master.horde.common.constants.ApplicationNumScope;
 import cn.master.horde.common.job.ScheduleManager;
 import cn.master.horde.common.result.BizException;
+import cn.master.horde.common.result.ResultCode;
 import cn.master.horde.common.service.CurrentUserService;
 import cn.master.horde.common.service.NumGenerator;
 import cn.master.horde.dao.ScheduleConfig;
@@ -135,16 +136,18 @@ public class SystemScheduleServiceImpl extends ServiceImpl<SystemScheduleMapper,
     }
 
     private SystemSchedule checkScheduleExit(String id) {
-        SystemSchedule schedule = getById(id);
-        if (schedule == null) {
-            throw new BizException("定时任务不存在");
-        }
-        return schedule;
+        return queryChain().where(SYSTEM_SCHEDULE.ID.eq(id)).oneOpt()
+                .orElseThrow(() -> new BizException(ResultCode.VALIDATE_FAILED, "定时任务不存在"));
     }
 
     @Override
     public void resumeTask(String id) {
         SystemSchedule schedule = checkScheduleExit(id);
         scheduleManager.resumeJob(new JobKey(schedule.getJobKey(), schedule.getProjectId()));
+    }
+
+    @Override
+    public List<SystemSchedule> getTaskByProjectId(String projectId) {
+        return queryChain().where(SYSTEM_SCHEDULE.PROJECT_ID.eq(projectId)).list();
     }
 }

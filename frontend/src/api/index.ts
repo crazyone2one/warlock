@@ -27,6 +27,8 @@ export const globalInstance = createAlova({
             const appStore = useAppStore();
             appStore.hideLoading();
             if (response.status >= 400) {
+                const json = await response.json();
+                window.$message?.error((response.status === 500 ? '系统错误' : json.messageDetail)  || `${response.statusText}`);
                 throw new Error(response.statusText);
             }
             const json = await response.json();

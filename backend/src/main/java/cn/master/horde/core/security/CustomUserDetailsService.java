@@ -3,6 +3,7 @@ package cn.master.horde.core.security;
 import cn.master.horde.entity.SystemUser;
 import cn.master.horde.entity.UserRoleRelation;
 import com.mybatisflex.core.query.QueryChain;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,6 +15,7 @@ import java.util.List;
  * @author : 11's papa
  * @since : 2026/1/14, 星期三
  **/
+@NullMarked
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
     @Override
