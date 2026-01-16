@@ -5,7 +5,9 @@ import type {IProjectItem} from "/@/api/types.ts";
 import type {FormInst, FormRules} from "naive-ui";
 import {useForm} from "alova/client";
 import {projectApi} from "/@/api/methods/project.ts";
+import {useAppStore} from "/@/store";
 
+const appStore = useAppStore()
 const showModal = defineModel<boolean>('showModal', {type: Boolean, default: false});
 const {
   currentProject = {description: "", enable: true, name: "", id: '', num: ''}
@@ -39,6 +41,7 @@ const handleSubmit = () => {
       send().then(() => {
         handleCancel(true)
         window.$message.success('保存成功')
+        appStore.initProjectList()
       })
     }
   })

@@ -1,5 +1,6 @@
 import {defineStore} from "pinia";
 import type {AppState} from "/@/store/modules/app/types.ts";
+import {projectApi} from "/@/api/methods/project.ts";
 
 const useAppStore = defineStore("app", {
     persist: true,
@@ -40,7 +41,12 @@ const useAppStore = defineStore("app", {
         resetInfo() {
             this.$reset();
         },
-
+        initProjectList() {
+            this.projectList = [];
+            projectApi.queryProjectList().then(res => {
+                this.projectList = res;
+            });
+        }
     },
 });
 export default useAppStore
