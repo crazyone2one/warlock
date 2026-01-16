@@ -1,5 +1,6 @@
 package cn.master.horde.controller;
 
+import cn.master.horde.common.service.CurrentUserService;
 import cn.master.horde.dao.BasePageRequest;
 import cn.master.horde.entity.SystemProject;
 import cn.master.horde.service.SystemProjectService;
@@ -87,4 +88,13 @@ public class SystemProjectController {
         return systemProjectService.getProjectPage(page);
     }
 
+    @GetMapping("/enable/{id}")
+    public void enable(@PathVariable String id) {
+        systemProjectService.enable(id, CurrentUserService.getCurrentUsername());
+    }
+
+    @GetMapping("/disable/{id}")
+    public void disable(@PathVariable String id) {
+        systemProjectService.disable(id, CurrentUserService.getCurrentUsername());
+    }
 }

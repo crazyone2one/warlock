@@ -64,6 +64,30 @@ public class SystemProjectServiceImpl extends ServiceImpl<SystemProjectMapper, S
         }
     }
 
+    @Override
+    public void enable(String id, String currentUserId) {
+        queryChain().where(SYSTEM_PROJECT.ID.eq(id)).oneOpt()
+                .orElseThrow(() -> new BizException(ResultCode.VALIDATE_FAILED, "项目不存在"));
+        updateChain().set(SYSTEM_PROJECT.ENABLE, true).set(SYSTEM_PROJECT.UPDATE_USER, currentUserId)
+                .where(SYSTEM_PROJECT.ID.eq(id)).update();
+        List<SystemSchedule> taskList = systemScheduleService.getTaskByProjectId(id);
+        if (CollectionUtils.isNotEmpty(taskList)) {
+            taskList.forEach(task -> systemScheduleService.resumeTask(task.getId()));
+        }
+    }
+
+    @Override
+    public void disable(String id, String currentUserId) {
+        queryChain().where(SYSTEM_PROJECT.ID.eq(id)).oneOpt()
+                .orElseThrow(() -> new BizException(ResultCode.VALIDATE_FAILED, "项目不存在"));
+        updateChain().set(SYSTEM_PROJECT.ENABLE, false).set(SYSTEM_PROJECT.UPDATE_USER, currentUserId)
+                .where(SYSTEM_PROJECT.ID.eq(id)).update();
+        List<SystemSchedule> taskList = systemScheduleService.getTaskByProjectId(id);
+        if (CollectionUtils.isNotEmpty(taskList)) {
+            taskList.forEach(task -> systemScheduleService.pauseTask(task.getId()));
+        }
+    }
+
     private void checkProjectExistByNameAndNum(SystemProject project) {
         boolean exists = QueryChain.of(SystemProject.class).where(SYSTEM_PROJECT.NAME.eq(project.getName())
                 .and(SYSTEM_PROJECT.ID.ne(project.getId()))
