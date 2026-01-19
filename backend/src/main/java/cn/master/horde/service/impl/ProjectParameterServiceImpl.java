@@ -49,6 +49,12 @@ public class ProjectParameterServiceImpl extends ServiceImpl<ProjectParameterMap
         }
     }
 
+    @Override
+    public ProjectParameter getParameterByProjectIdAndType(String projectId, String type) {
+        return queryChain().where(PROJECT_PARAMETER.PROJECT_ID.eq(projectId)
+                .and(PROJECT_PARAMETER.PARAMETER_TYPE.eq(type))).one();
+    }
+
     private void checkExistByProjectIdAndParameterType(ProjectParameter projectParameter) {
         boolean exists = queryChain()
                 .where(PROJECT_PARAMETER.PROJECT_ID.eq(projectParameter.getProjectId())

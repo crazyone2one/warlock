@@ -29,7 +29,6 @@ public class ProjectParameterController {
      * 保存项目级参数。
      *
      * @param projectParameter 项目级参数
-     * @return {@code true} 保存成功，{@code false} 保存失败
      */
     @PostMapping("save")
     @Operation(description = "保存项目级参数")
@@ -75,13 +74,14 @@ public class ProjectParameterController {
     /**
      * 根据主键获取项目级参数。
      *
-     * @param id 项目级参数主键
+     * @param projectId 项目级参数主键
      * @return 项目级参数详情
      */
-    @GetMapping("getInfo/{id}")
-    @Operation(description = "根据主键获取项目级参数")
-    public ProjectParameter getInfo(@PathVariable @Parameter(description = "项目级参数主键") String id) {
-        return projectParameterService.getById(id);
+    @GetMapping("getInfo/{projectId}/{type}")
+    @Operation(description = "根据项目id/类型获取项目")
+    public ProjectParameter getInfo(@PathVariable @Parameter(description = "项目id") String projectId,
+                                    @PathVariable @Parameter(description = "参数类型") String type) {
+        return projectParameterService.getParameterByProjectIdAndType(projectId, type);
     }
 
     /**
