@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {type DataTableColumns, type DataTableRowKey, NInput} from "naive-ui";
+import {type DataTableColumns, type DataTableRowKey, NButton, NInput} from "naive-ui";
 import type {IProjectItem, IScheduleInfo} from "/@/api/types.ts";
 import {h, onMounted, ref} from "vue";
 import WDataTableAction from "/@/components/WDataTableAction.vue";
-import {usePagination} from "alova/client";
+import {usePagination, useRequest} from "alova/client";
 import {scheduleApi} from "/@/api/methods/schedule.ts";
 import WDataTableToolBar from "/@/components/WDataTableToolBar.vue";
 import WPagination from "/@/components/WPagination.vue";
@@ -35,7 +35,7 @@ const columns: DataTableColumns<IScheduleInfo> = [
   {title: '名称', key: 'name', ellipsis: {tooltip: true}, width: 220},
   {
     title: '运行规则',
-    key: 'value', width: 220,
+    key: 'value', width: 120,
     render: (row) => h(WCronSelect, {
       modelValue: row.value,
       onChangeCron: (v) => handleChangeCron(v, row),
@@ -53,7 +53,7 @@ const columns: DataTableColumns<IScheduleInfo> = [
         onRePassParameter: (key) => handleTableMoreAction(key, row)
       }, {
         default: () => [
-          h('div', null, {default: () => 'once'}),
+          h(NButton, {text: true}, {default: () => 'once'}),
         ]
       })
     }
@@ -63,8 +63,12 @@ const checkedRowKeys = ref<DataTableRowKey[]>([])
 const handleCheck = (rowKeys: DataTableRowKey[]) => {
   checkedRowKeys.value = rowKeys
 }
+const {send: updateScheduleCron} = useRequest((param) => scheduleApi.updateScheduleCron(param), {immediate: false})
 const handleChangeCron = (value: string, record: IScheduleInfo) => {
-  window.$message.info(`修改任务${record.name}的运行规则为${value}`)
+  updateScheduleCron({id: record.id, cron: value,}).then(() => {
+    window.$message.info(`运行规则修改成功`)
+    fetchData()
+  })
 }
 const handleAdd = () => {
   showEditModal.value = true
@@ -98,7 +102,7 @@ onMounted(() => {
                   :row-key="(row: IProjectItem) => row.id"
                   @update:checked-row-keys="handleCheck"/>
     <w-pagination v-model:page="page" v-model:page-size="pageSize" :count="total||0"/>
-    <edit-schedule v-model:show-modal="showEditModal"/>
+    <edit-schedule v-model:show-modal="showEditModal" @cancel="fetchData"/>
   </n-card>
 </template>
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import WModal from "/@/components/WModal.vue";
 import {ref} from "vue";
-import {type FormInst, NFormItemGi, NGrid} from "naive-ui";
+import {type FormInst} from "naive-ui";
 import {useForm} from "alova/client";
 import {scheduleApi} from "/@/api/methods/schedule.ts";
 import {useAppStore} from "/@/store";
@@ -40,8 +40,10 @@ const handleCancel = (shouldSearch: boolean) => {
 const handleSubmit = () => {
   formRef.value?.validate((error) => {
     if (!error) {
-      console.log(model.value)
-      window.$message.success('保存成功')
+      send().then(() => {
+        handleCancel(true)
+        window.$message.success('保存成功')
+      })
     }
   })
 }
