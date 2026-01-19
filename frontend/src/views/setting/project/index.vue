@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import {h, onMounted, ref} from 'vue'
 import type {IProjectItem} from "/@/api/types.ts";
-import {type DataTableColumns, type DataTableRowKey, NFlex, NInput, NSwitch} from "naive-ui";
+import {type DataTableColumns, type DataTableRowKey, NButton, NFlex, NInput, NSwitch} from "naive-ui";
 import {usePagination, useRequest} from "alova/client";
 import {projectApi} from "/@/api/methods/project.ts";
 import WPagination from "/@/components/WPagination.vue";
 import WDataTableToolBar from "/@/components/WDataTableToolBar.vue";
 import WDataTableAction from "/@/components/WDataTableAction.vue";
 import EditProjectModal from "/@/views/setting/project/EditProjectModal.vue";
+import ProjectConfigModal from "/@/views/setting/project/ProjectConfigModal.vue";
 
 const keyword = ref('')
 const confirmName = ref('')
 const showEditProjectModal = ref(false)
+const showConfigModal = ref(false)
 const currentProject = ref<IProjectItem | null>(null)
 const columns: DataTableColumns<IProjectItem> = [
   {type: 'selection', fixed: 'left', options: ['all', 'none']},
@@ -30,11 +32,19 @@ const columns: DataTableColumns<IProjectItem> = [
         showEdit: true,
         onRePassParameter: (key) => handleTableMoreAction(key, row)
       }, {
-        default: () => h('div', null, {default: () => 'xx'})
+        default: () => h(NButton, {
+          text: true,
+          size: 'small',
+          onClick: () => handleEditConfig(row)
+        }, {default: () => '参数配置'})
       })
     }
   }
 ]
+const handleEditConfig = (row: IProjectItem) => {
+  showConfigModal.value = true
+  currentProject.value = row
+}
 const handleTableMoreAction = (key: string, row: IProjectItem) => {
   switch (key) {
     case 'edit':
@@ -152,6 +162,7 @@ onMounted(() => {
     <w-pagination v-model:page="page" v-model:page-size="pageSize" :count="total||0"/>
     <edit-project-modal v-model:show-modal="showEditProjectModal" v-model:current-project="currentProject"
                         @cancel="handleCancel"/>
+    <project-config-modal v-model:show-modal="showConfigModal" v-model:current-project="currentProject"/>
   </n-card>
 </template>
 

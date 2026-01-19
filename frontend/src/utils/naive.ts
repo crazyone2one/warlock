@@ -7,6 +7,8 @@ import {
     NFlex,
     NForm,
     NFormItem,
+    NFormItemGi,
+    NGrid,
     NIcon,
     NInput,
     NLayout,
@@ -17,10 +19,13 @@ import {
     NMenu,
     NModal,
     NResult,
-    NSwitch,NSelect
+    NSelect,
+    NSwitch,
+    NTabPane,
+    NTabs
 } from 'naive-ui'
 
 export const naive = create({
     components: [NButton, NLayout, NLayoutSider, NLayoutHeader, NLayoutContent, NLayoutFooter, NResult, NMenu, NFlex,
-        NIcon, NDropdown, NCard, NForm, NFormItem, NInput, NDataTable, NModal, NSwitch, NSelect]
+        NIcon, NDropdown, NCard, NForm, NFormItem, NInput, NDataTable, NModal, NSwitch, NSelect, NTabs, NTabPane, NGrid, NFormItemGi]
 })

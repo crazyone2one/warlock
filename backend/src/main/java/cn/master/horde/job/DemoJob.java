@@ -1,24 +1,35 @@
 package cn.master.horde.job;
 
-import cn.master.horde.common.config.FileTransferConfiguration;
 import cn.master.horde.common.job.BaseScheduleJob;
 import cn.master.horde.common.service.SensorService;
+import cn.master.horde.dao.SlaveParameter;
 import cn.master.horde.util.FileHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionContext;
-
-import java.time.LocalDateTime;
+import org.quartz.JobKey;
+import org.quartz.TriggerKey;
 
 /**
  * @author : 11's papa
  * @since : 2026/1/15, 星期四
  **/
+@Slf4j
 public class DemoJob extends BaseScheduleJob {
-    protected DemoJob(SensorService sensorService, FileHelper fileHelper, FileTransferConfiguration fileTransferConfiguration) {
-        super(sensorService, fileHelper, fileTransferConfiguration);
+    protected DemoJob(SensorService sensorService, FileHelper fileHelper) {
+        super(sensorService, fileHelper);
     }
 
     @Override
     protected void businessExecute(JobExecutionContext context) {
-        System.out.println("DemoJob execute" + LocalDateTime.now());
+        SlaveParameter slaveParameter = slaveConfig();
+        log.info(slaveParameter.getHost());
+    }
+
+    public static JobKey getJobKey(String resourceId) {
+        return new JobKey(resourceId, DemoJob.class.getName());
+    }
+
+    public static TriggerKey getTriggerKey(String resourceId) {
+        return new TriggerKey(resourceId, DemoJob.class.getName());
     }
 }

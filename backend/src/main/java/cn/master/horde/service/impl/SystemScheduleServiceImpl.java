@@ -44,7 +44,9 @@ public class SystemScheduleServiceImpl extends ServiceImpl<SystemScheduleMapper,
     @Transactional(rollbackFor = Exception.class)
     public void addSchedule(SystemSchedule schedule) throws ClassNotFoundException {
         schedule.setNum(NumGenerator.nextNum(schedule.getProjectId(), ApplicationNumScope.TASK));
-        schedule.setCreateUser(CurrentUserService.getCurrentUsername());
+        String currentUserId = CurrentUserService.getCurrentUserId();
+        schedule.setCreateUser(currentUserId);
+        schedule.setUpdateUser(currentUserId);
         mapper.insertSelective(schedule);
         if (BooleanUtils.isTrue(schedule.getEnable())) {
             Class<?> targetClass = Class.forName(schedule.getJob());
