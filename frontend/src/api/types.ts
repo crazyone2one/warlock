@@ -14,6 +14,7 @@ export interface ITableQueryParams {
 
     [key: string]: string | number | object | undefined;
 }
+
 export interface IPageResponse<T> {
     [x: string]: any;
 
@@ -24,7 +25,7 @@ export interface IPageResponse<T> {
     records: T[];
 }
 
-export interface IProjectItem{
+export interface IProjectItem {
     id: string;
     name: string;
     description: string;
@@ -32,4 +33,47 @@ export interface IProjectItem{
     num: string;
     updateTime: number;
     createTime: number;
+}
+
+export interface IScheduleInfo {
+    id: string;
+    name: string;
+    resourceType?: string;
+    projectName: string;
+    num: number;
+    enable: boolean;
+    value: string;
+    triggerStatus?: string;
+    lastTime?: number;
+    nextTime?: number;
+    createUser?: string
+    runConfig?: IScheduleConfig;
+}
+
+export interface IScheduleConfig {
+    jobKey: string
+    cron: string
+    enable: boolean
+    runConfig: IRunConfig
+}
+
+export interface IRunConfig {
+    [key: string]: any;
+}
+
+export interface ICreateScheduleTask {
+    id: string;
+    name: string;
+    enable: boolean;
+    value: string;
+    jobKey: string;
+    projectId: string;
+    job: string;
+    type: string
+    resourceType: string
+    runConfig?: IScheduleConfig;
+}
+export interface IUpdateScheduleCron {
+    id: string
+    cron: string
 }

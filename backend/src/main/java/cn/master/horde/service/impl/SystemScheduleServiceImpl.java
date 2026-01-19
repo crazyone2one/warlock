@@ -8,9 +8,12 @@ import cn.master.horde.common.service.CurrentUserService;
 import cn.master.horde.common.service.NumGenerator;
 import cn.master.horde.dao.ScheduleConfig;
 import cn.master.horde.dao.ScheduleCronRequest;
+import cn.master.horde.dao.ScheduleDTO;
+import cn.master.horde.dao.SchedulePageRequest;
 import cn.master.horde.entity.SystemSchedule;
 import cn.master.horde.mapper.SystemScheduleMapper;
 import cn.master.horde.service.SystemScheduleService;
+import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static cn.master.horde.entity.table.SystemProjectTableDef.SYSTEM_PROJECT;
 import static cn.master.horde.entity.table.SystemScheduleTableDef.SYSTEM_SCHEDULE;
 
 /**
@@ -107,7 +111,7 @@ public class SystemScheduleServiceImpl extends ServiceImpl<SystemScheduleMapper,
             addOrUpdateCronJob(schedule, new JobKey(schedule.getJobKey(), schedule.getProjectId()),
                     new TriggerKey(schedule.getJobKey(), schedule.getProjectId()), jobClassCast);
         } else {
-            throw new BizException("指定的类不是有效的Job类: " + schedule.getJob());
+            throw new BizException(ResultCode.VALIDATE_FAILED, "指定的类不是有效的Job类: " + schedule.getJob());
         }
     }
 
@@ -117,6 +121,7 @@ public class SystemScheduleServiceImpl extends ServiceImpl<SystemScheduleMapper,
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteTask(String id) {
         SystemSchedule schedule = checkScheduleExit(id);
         mapper.delete(schedule);
@@ -149,5 +154,32 @@ public class SystemScheduleServiceImpl extends ServiceImpl<SystemScheduleMapper,
     @Override
     public List<SystemSchedule> getTaskByProjectId(String projectId) {
         return queryChain().where(SYSTEM_SCHEDULE.PROJECT_ID.eq(projectId)).list();
+    }
+
+    @Override
+    public Page<ScheduleDTO> page(SchedulePageRequest request) {
+        QueryChain<SystemSchedule> systemScheduleQueryChain = queryChain()
+                .select(SYSTEM_SCHEDULE.ID, SYSTEM_SCHEDULE.NAME, SYSTEM_SCHEDULE.ENABLE, SYSTEM_SCHEDULE.VALUE)
+                .select(SYSTEM_SCHEDULE.CREATE_USER, SYSTEM_SCHEDULE.CREATE_TIME, SYSTEM_SCHEDULE.NUM, SYSTEM_SCHEDULE.PROJECT_ID)
+                .select(SYSTEM_SCHEDULE.CONFIG.as("runConfig"))
+                .select(SYSTEM_SCHEDULE.RESOURCE_TYPE, SYSTEM_SCHEDULE.JOB_KEY)
+                .select(SYSTEM_PROJECT.NAME.as("projectName"))
+                .select("QRTZ_TRIGGERS.PREV_FIRE_TIME AS last_time")
+                .select("QRTZ_TRIGGERS.NEXT_FIRE_TIME AS nextTime")
+                .select("QRTZ_TRIGGERS.TRIGGER_STATE AS triggerStatus")
+                .from(SYSTEM_SCHEDULE)
+                .leftJoin(SYSTEM_PROJECT).on(SYSTEM_PROJECT.ID.eq(SYSTEM_SCHEDULE.PROJECT_ID))
+                .leftJoin("QRTZ_TRIGGERS").on("QRTZ_TRIGGERS.TRIGGER_NAME = system_schedule.job_key");
+        return systemScheduleQueryChain
+                .where(SYSTEM_SCHEDULE.NAME.like(request.getKeyword()).or(SYSTEM_SCHEDULE.NUM.like(request.getKeyword())))
+                .and(SYSTEM_SCHEDULE.PROJECT_ID.eq(request.getProjectId()))
+                .and(SYSTEM_SCHEDULE.RESOURCE_TYPE.eq(request.getResourceType()))
+                .orderBy(SYSTEM_SCHEDULE.ENABLE.desc(), SYSTEM_SCHEDULE.NUM.desc())
+                .pageAs(new Page<>(request.getPage(), request.getPageSize()), ScheduleDTO.class);
+    }
+
+    @Override
+    public SystemSchedule getByJobKey(String jobKey) {
+        return queryChain().where(SYSTEM_SCHEDULE.JOB_KEY.eq(jobKey)).oneOpt().orElseThrow(() -> new BizException(ResultCode.VALIDATE_FAILED, "定时任务不存在"));
     }
 }
