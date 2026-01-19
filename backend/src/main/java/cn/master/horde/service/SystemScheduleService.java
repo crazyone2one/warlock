@@ -2,8 +2,13 @@ package cn.master.horde.service;
 
 import cn.master.horde.dao.ScheduleConfig;
 import cn.master.horde.dao.ScheduleCronRequest;
+import cn.master.horde.dao.ScheduleDTO;
+import cn.master.horde.dao.SchedulePageRequest;
 import cn.master.horde.entity.SystemSchedule;
+import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.service.IService;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.quartz.Job;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;
@@ -36,4 +41,9 @@ public interface SystemScheduleService extends IService<SystemSchedule> {
     void resumeTask(String id);
 
     List<SystemSchedule> getTaskByProjectId(String projectId);
+
+    Page<ScheduleDTO> page(SchedulePageRequest request);
+
+    SystemSchedule getByJobKey(@NotBlank(message = "{api_scenario.id.not_blank}") @Size(min = 1, max = 50, message = "{api_scenario.id.length_range}") String jobKey);
+
 }

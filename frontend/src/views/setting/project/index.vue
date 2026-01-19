@@ -27,14 +27,24 @@ const columns: DataTableColumns<IProjectItem> = [
     title: '操作', key: 'actions', fixed: 'right', width: 200,
     render(row) {
       return h(WDataTableAction, {
-        onEditProject: () => handleEditProject(row),
-        onDeleteProject: () => handleDeleteProject(row)
+        showEdit: true,
+        onRePassParameter: (key) => handleTableMoreAction(key, row)
       }, {
         default: () => h('div', null, {default: () => 'xx'})
       })
     }
   }
 ]
+const handleTableMoreAction = (key: string, row: IProjectItem) => {
+  switch (key) {
+    case 'edit':
+      handleEditProject(row)
+      break;
+    case 'delete':
+      handleDeleteProject(row)
+      break;
+  }
+}
 const checkedRowKeys = ref<DataTableRowKey[]>([])
 const handleCheck = (rowKeys: DataTableRowKey[]) => {
   checkedRowKeys.value = rowKeys
