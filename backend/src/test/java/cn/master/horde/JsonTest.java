@@ -2,10 +2,14 @@ package cn.master.horde;
 
 import cn.master.horde.dao.ScheduleConfigParameter;
 import cn.master.horde.util.JsonHelper;
+import com.mybatisflex.core.datasource.DataSourceKey;
+import com.mybatisflex.core.row.Db;
+import com.mybatisflex.core.row.Row;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,9 +20,12 @@ import java.util.Map;
 public class JsonTest {
     @Test
     public void testJson() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("name", "papa");
-        map.put("sensorId", "123");
-        System.out.println(JsonHelper.objectToType(ScheduleConfigParameter.class).apply(map));
+        try{
+            DataSourceKey.use("ds-slave150622007792");
+            List<Row> rows = Db.selectAll("system_users");
+            System.out.println(rows);
+        }finally{
+            DataSourceKey.clear();
+        }
     }
 }
