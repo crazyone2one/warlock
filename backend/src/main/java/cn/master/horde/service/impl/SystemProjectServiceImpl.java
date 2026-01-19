@@ -9,6 +9,7 @@ import cn.master.horde.entity.SystemProject;
 import cn.master.horde.entity.SystemSchedule;
 import cn.master.horde.entity.SystemUser;
 import cn.master.horde.mapper.SystemProjectMapper;
+import cn.master.horde.service.ProjectParameterService;
 import cn.master.horde.service.SystemProjectService;
 import cn.master.horde.service.SystemScheduleService;
 import com.mybatisflex.core.paginate.Page;
@@ -35,6 +36,7 @@ import static cn.master.horde.entity.table.SystemUserTableDef.SYSTEM_USER;
 @RequiredArgsConstructor
 public class SystemProjectServiceImpl extends ServiceImpl<SystemProjectMapper, SystemProject> implements SystemProjectService {
     private final SystemScheduleService systemScheduleService;
+    private final ProjectParameterService projectParameterService;
 
     @Override
     public boolean saveProject(SystemProject systemProject) {
@@ -63,6 +65,9 @@ public class SystemProjectServiceImpl extends ServiceImpl<SystemProjectMapper, S
         queryChain().where(SYSTEM_PROJECT.ID.eq(id)).oneOpt()
                 .orElseThrow(() -> new BizException(ResultCode.VALIDATE_FAILED, "项目不存在"));
         mapper.deleteById(id);
+        // 删除项目参数
+        projectParameterService.deleteParameterByProjectId(id);
+        // 删除项目任务
         List<SystemSchedule> taskList = systemScheduleService.getTaskByProjectId(id);
         if (CollectionUtils.isNotEmpty(taskList)) {
             taskList.forEach(task -> systemScheduleService.deleteTask(task.getId()));

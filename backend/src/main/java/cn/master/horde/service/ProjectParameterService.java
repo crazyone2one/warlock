@@ -1,7 +1,7 @@
 package cn.master.horde.service;
 
-import com.mybatisflex.core.service.IService;
 import cn.master.horde.entity.ProjectParameter;
+import com.mybatisflex.core.service.IService;
 
 /**
  * 项目级参数 服务层。
@@ -12,4 +12,6 @@ import cn.master.horde.entity.ProjectParameter;
 public interface ProjectParameterService extends IService<ProjectParameter> {
 
     void saveParameter(ProjectParameter projectParameter);
+
+    void deleteParameterByProjectId(String projectId);
 }
