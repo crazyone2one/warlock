@@ -6,8 +6,10 @@ import cn.master.horde.dao.SlaveParameter;
 import cn.master.horde.entity.ProjectParameter;
 import cn.master.horde.util.FileHelper;
 import cn.master.horde.util.JsonHelper;
+import com.github.benmanes.caffeine.cache.Cache;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.core.row.Row;
+import org.apache.commons.lang3.ObjectUtils;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -23,10 +25,12 @@ import static cn.master.horde.entity.table.ProjectParameterTableDef.PROJECT_PARA
 public abstract class BaseScheduleJob implements Job {
     protected final SensorService sensorService;
     protected final FileHelper fileHelper;
+    protected final Cache<String, SlaveParameter> slaveCache;
 
-    protected BaseScheduleJob(SensorService sensorService, FileHelper fileHelper) {
+    protected BaseScheduleJob(SensorService sensorService, FileHelper fileHelper, Cache<String, SlaveParameter> slaveCache) {
         this.sensorService = sensorService;
         this.fileHelper = fileHelper;
+        this.slaveCache = slaveCache;
     }
 
     protected String projectId;
@@ -52,10 +56,21 @@ public abstract class BaseScheduleJob implements Job {
         return sensorService.getSensorFromRedis(projectNum, key, tableName);
     }
 
-    protected SlaveParameter slaveConfig() {
-        return QueryChain.of(ProjectParameter.class).where(PROJECT_PARAMETER.PROJECT_ID.eq(projectId))
+    /**
+     * 获取从站配置
+     *
+     * @return 从站配置
+     */
+    protected SlaveParameter sshSlaveConfig() {
+        SlaveParameter slaveParameter = slaveCache.getIfPresent(projectId);
+        if (ObjectUtils.isNotEmpty(slaveParameter)) {
+            return slaveParameter;
+        }
+        SlaveParameter parameter = QueryChain.of(ProjectParameter.class).where(PROJECT_PARAMETER.PROJECT_ID.eq(projectId))
                 .and(PROJECT_PARAMETER.PARAMETER_TYPE.eq("ssh")).oneOpt()
                 .map(ssh -> JsonHelper.objectToType(SlaveParameter.class).apply(ssh.getParameters()))
                 .orElseThrow(() -> new RuntimeException("Slave parameter not found"));
+        slaveCache.put(projectId, parameter);
+        return parameter;
     }
 }
