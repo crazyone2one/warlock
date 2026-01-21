@@ -149,7 +149,7 @@ watchEffect(() => {
           <n-grid :cols="12" :x-gap="12">
             <n-form-item-gi :span="12" label="Name" path="parameters.name">
               <n-input v-model:value="form.parameters.name" clearable placeholder="输入节点名称"/>
-              <w-tip content="ds节点名称：ds-slave+项目编号"/>
+              <w-tip content="ds节点名称：ds-slave123"/>
             </n-form-item-gi>
             <n-form-item-gi :span="12" label="URL" path="parameters.url">
               <n-input v-model:value="form.parameters.url" clearable placeholder="输入URL,127.0.0.1:3306/database">
