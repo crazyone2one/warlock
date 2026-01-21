@@ -1,5 +1,6 @@
 package cn.master.horde.service.impl;
 
+import cn.master.horde.common.config.DataSourceParameter;
 import cn.master.horde.common.result.BizException;
 import cn.master.horde.common.result.ResultCode;
 import cn.master.horde.common.service.CurrentUserService;
@@ -9,12 +10,18 @@ import cn.master.horde.mapper.ProjectParameterMapper;
 import cn.master.horde.service.ProjectParameterService;
 import cn.master.horde.util.JsonHelper;
 import com.github.benmanes.caffeine.cache.Cache;
+import com.mybatisflex.core.FlexGlobalConfig;
+import com.mybatisflex.core.datasource.FlexDataSource;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 import static cn.master.horde.entity.table.ProjectParameterTableDef.PROJECT_PARAMETER;
 
@@ -30,17 +37,20 @@ public class ProjectParameterServiceImpl extends ServiceImpl<ProjectParameterMap
     private final Cache<String, SlaveParameter> slaveCache;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void saveParameter(ProjectParameter projectParameter) {
         checkExistByProjectIdAndParameterType(projectParameter);
         String userId = CurrentUserService.getCurrentUserId();
         projectParameter.setCreateUser(userId);
         projectParameter.setUpdateUser(userId);
         mapper.insertSelective(projectParameter);
+        setDataSource(projectParameter.getParameters());
         slaveCache.put(projectParameter.getProjectId(),
                 JsonHelper.objectToType(SlaveParameter.class).apply(projectParameter.getParameters()));
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteParameterByProjectId(String projectId) {
         List<ProjectParameter> list = queryChain().where(PROJECT_PARAMETER.PROJECT_ID.eq(projectId)).list();
         if (CollectionUtils.isNotEmpty(list)) {
@@ -53,6 +63,24 @@ public class ProjectParameterServiceImpl extends ServiceImpl<ProjectParameterMap
     public ProjectParameter getParameterByProjectIdAndType(String projectId, String type) {
         return queryChain().where(PROJECT_PARAMETER.PROJECT_ID.eq(projectId)
                 .and(PROJECT_PARAMETER.PARAMETER_TYPE.eq(type))).one();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateParameter(ProjectParameter projectParameter) {
+        updateById(projectParameter);
+        setDataSource(projectParameter.getParameters());
+    }
+
+    private void setDataSource(Map<String, String> parameters) {
+        FlexDataSource dataSource = FlexGlobalConfig.getDefaultConfig().getDataSource();
+        DataSourceParameter parameter = JsonHelper.objectToType(DataSourceParameter.class).apply(parameters);
+        java.util.Properties properties = new java.util.Properties();
+        properties.put("jdbcUrl", parameter.getUrl());
+        properties.put("username", parameter.getUsername());
+        properties.put("password", parameter.getPassword());
+        HikariConfig hikariConfig = new HikariConfig(properties);
+        dataSource.addDataSource(parameter.getName(), new HikariDataSource(hikariConfig));
     }
 
     private void checkExistByProjectIdAndParameterType(ProjectParameter projectParameter) {

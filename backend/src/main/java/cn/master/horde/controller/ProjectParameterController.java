@@ -56,8 +56,8 @@ public class ProjectParameterController {
      */
     @PutMapping("update")
     @Operation(description = "根据主键更新项目级参数")
-    public boolean update(@RequestBody @Parameter(description = "项目级参数主键") ProjectParameter projectParameter) {
-        return projectParameterService.updateById(projectParameter);
+    public void update(@RequestBody @Parameter(description = "项目级参数主键") ProjectParameter projectParameter) {
+        projectParameterService.updateParameter(projectParameter);
     }
 
     /**

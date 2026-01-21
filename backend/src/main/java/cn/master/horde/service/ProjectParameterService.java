@@ -16,4 +16,6 @@ public interface ProjectParameterService extends IService<ProjectParameter> {
     void deleteParameterByProjectId(String projectId);
 
     ProjectParameter getParameterByProjectIdAndType(String projectId, String type);
+
+    void updateParameter(ProjectParameter projectParameter);
 }

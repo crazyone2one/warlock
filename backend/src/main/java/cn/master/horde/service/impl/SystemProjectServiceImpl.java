@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.Strings;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -39,6 +40,7 @@ public class SystemProjectServiceImpl extends ServiceImpl<SystemProjectMapper, S
     private final ProjectParameterService projectParameterService;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean saveProject(SystemProject systemProject) {
         checkProjectExistByNameAndNum(systemProject);
         systemProject.setCreateUser(CurrentUserService.getCurrentUsername());
@@ -55,12 +57,14 @@ public class SystemProjectServiceImpl extends ServiceImpl<SystemProjectMapper, S
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean updateProject(SystemProject systemProject) {
         checkProjectExistByNameAndNum(systemProject);
         return updateById(systemProject);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void removeProject(String id) {
         queryChain().where(SYSTEM_PROJECT.ID.eq(id)).oneOpt()
                 .orElseThrow(() -> new BizException(ResultCode.VALIDATE_FAILED, "项目不存在"));
@@ -75,6 +79,7 @@ public class SystemProjectServiceImpl extends ServiceImpl<SystemProjectMapper, S
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void enable(String id, String currentUserId) {
         queryChain().where(SYSTEM_PROJECT.ID.eq(id)).oneOpt()
                 .orElseThrow(() -> new BizException(ResultCode.VALIDATE_FAILED, "项目不存在"));
@@ -87,6 +92,7 @@ public class SystemProjectServiceImpl extends ServiceImpl<SystemProjectMapper, S
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void disable(String id, String currentUserId) {
         queryChain().where(SYSTEM_PROJECT.ID.eq(id)).oneOpt()
                 .orElseThrow(() -> new BizException(ResultCode.VALIDATE_FAILED, "项目不存在"));
@@ -99,6 +105,7 @@ public class SystemProjectServiceImpl extends ServiceImpl<SystemProjectMapper, S
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void switchProject(ProjectSwitchRequest request, String currentUserId) {
         if (!Strings.CS.equals(request.userId(), currentUserId)) {
             throw new BizException(ResultCode.VALIDATE_FAILED, "无权限");
