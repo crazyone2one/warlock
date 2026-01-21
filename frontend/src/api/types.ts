@@ -47,6 +47,7 @@ export interface IScheduleInfo {
     lastTime?: number;
     nextTime?: number;
     createUser?: string
+    jobKey: string;
     runConfig?: IScheduleConfig;
 }
 

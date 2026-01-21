@@ -22,10 +22,10 @@ import {
     NSelect,
     NSwitch,
     NTabPane,
-    NTabs
+    NTabs,NDrawer,NDrawerContent
 } from 'naive-ui'
 
 export const naive = create({
     components: [NButton, NLayout, NLayoutSider, NLayoutHeader, NLayoutContent, NLayoutFooter, NResult, NMenu, NFlex,
-        NIcon, NDropdown, NCard, NForm, NFormItem, NInput, NDataTable, NModal, NSwitch, NSelect, NTabs, NTabPane, NGrid, NFormItemGi]
+        NIcon, NDropdown, NCard, NForm, NFormItem, NInput, NDataTable, NModal, NSwitch, NSelect, NTabs, NTabPane, NGrid, NFormItemGi, NDrawer, NDrawerContent]
 })

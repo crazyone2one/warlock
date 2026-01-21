@@ -49,11 +49,15 @@ public class SystemScheduleServiceImpl extends ServiceImpl<SystemScheduleMapper,
         schedule.setUpdateUser(currentUserId);
         mapper.insertSelective(schedule);
         if (BooleanUtils.isTrue(schedule.getEnable())) {
-            Class<?> targetClass = Class.forName(schedule.getJob());
-            @SuppressWarnings("unchecked")
-            Class<? extends Job> jobClass = (Class<? extends Job>) targetClass;
-            addOrUpdateCronJob(schedule, new JobKey(schedule.getJobKey(), schedule.getProjectId()),
-                    new TriggerKey(schedule.getJobKey(), schedule.getProjectId()), jobClass);
+            Class<?> jobClass = Class.forName(schedule.getJob());
+            if (Job.class.isAssignableFrom(jobClass)) {
+                @SuppressWarnings("unchecked")
+                Class<? extends Job> jobClassCast = (Class<? extends Job>) jobClass;
+                addOrUpdateCronJob(schedule, new JobKey(schedule.getJobKey(), schedule.getProjectId()),
+                        new TriggerKey(schedule.getJobKey(), schedule.getProjectId()), jobClassCast);
+            } else {
+                throw new BizException(ResultCode.VALIDATE_FAILED, "指定的类不是有效的Job类: " + schedule.getJob());
+            }
         }
     }
 

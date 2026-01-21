@@ -1,5 +1,6 @@
 package cn.master.horde.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.Table;
@@ -104,6 +105,7 @@ public class SystemSchedule implements Serializable {
      * 配置（JSON格式）
      */
     @Column(typeHandler = JacksonTypeHandler.class)
+    @JsonProperty("runConfig")
     private Map<String, Object> config;
 
     /**
