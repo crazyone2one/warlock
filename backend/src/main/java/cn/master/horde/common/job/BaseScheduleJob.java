@@ -41,7 +41,6 @@ public abstract class BaseScheduleJob implements Job {
     @Override
     public void execute(JobExecutionContext context) {
         JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
-
         this.projectId = jobDataMap.getString("projectId");
         this.projectNum = jobDataMap.getString("projectNum");
         this.projectName = jobDataMap.getString("projectName");
