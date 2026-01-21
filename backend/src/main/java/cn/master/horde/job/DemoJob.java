@@ -24,13 +24,14 @@ public class DemoJob extends BaseScheduleJob {
     protected void businessExecute(JobExecutionContext context) {
         SlaveParameter slaveParameter = sshSlaveConfig();
         log.info(slaveParameter.getHost());
+        log.info(scheduleConfigParameter.getField("k1", String.class));
     }
 
-    public static JobKey getJobKey(String resourceId) {
-        return new JobKey(resourceId, DemoJob.class.getName());
+    public static JobKey getJobKey(String projectId, String jobKey) {
+        return new JobKey(jobKey, projectId);
     }
 
-    public static TriggerKey getTriggerKey(String resourceId) {
-        return new TriggerKey(resourceId, DemoJob.class.getName());
+    public static TriggerKey getTriggerKey(String projectId, String jobKey) {
+        return new TriggerKey(jobKey, projectId);
     }
 }

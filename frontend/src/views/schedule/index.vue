@@ -9,13 +9,17 @@ import WDataTableToolBar from "/@/components/WDataTableToolBar.vue";
 import WPagination from "/@/components/WPagination.vue";
 import EditSchedule from "/@/views/schedule/components/EditSchedule.vue";
 import WCronSelect from "/@/components/WCronSelect.vue";
+import ScheduleConfigModal from "/@/views/schedule/components/ScheduleConfigModal.vue";
 
 const keyword = ref('')
+const currentScheduleId = ref('')
 const showEditModal = ref(false)
+const showConfigDrawer = ref(false)
 const tableMoreAction = [
   {label: '恢复', key: 'resume',},
   {label: '暂停', key: 'pause',},
 ]
+const {send: deleteSchedule} = useRequest(id => scheduleApi.deleteSchedule(id), {immediate: false})
 const handleTableMoreAction = (key: string, row: IScheduleInfo) => {
   switch (key) {
     case 'resume':
@@ -25,7 +29,10 @@ const handleTableMoreAction = (key: string, row: IScheduleInfo) => {
       window.$message.info(`暂停任务${row.name}`)
       break;
     case 'delete':
-      window.$message.info(`删除任务${row.name}`)
+      deleteSchedule(row.id).then(() => {
+        window.$message.info(`删除任务${row.name}成功`)
+        fetchData()
+      })
       break;
   }
 }
@@ -53,12 +60,17 @@ const columns: DataTableColumns<IScheduleInfo> = [
         onRePassParameter: (key) => handleTableMoreAction(key, row)
       }, {
         default: () => [
+          h(NButton, {text: true, onClick: () => handleEditConfig(row)}, {default: () => '参数配置'}),
           h(NButton, {text: true}, {default: () => 'once'}),
         ]
       })
     }
   }
 ]
+const handleEditConfig = (row: IScheduleInfo) => {
+  showConfigDrawer.value = true
+  currentScheduleId.value = row.id
+}
 const checkedRowKeys = ref<DataTableRowKey[]>([])
 const handleCheck = (rowKeys: DataTableRowKey[]) => {
   checkedRowKeys.value = rowKeys
@@ -103,6 +115,8 @@ onMounted(() => {
                   @update:checked-row-keys="handleCheck"/>
     <w-pagination v-model:page="page" v-model:page-size="pageSize" :count="total||0"/>
     <edit-schedule v-model:show-modal="showEditModal" @cancel="fetchData"/>
+    <schedule-config-modal v-model:show-modal="showConfigDrawer"
+                           v-model:schedule-id="currentScheduleId"/>
   </n-card>
 </template>
 

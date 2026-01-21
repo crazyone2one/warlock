@@ -103,7 +103,7 @@ public class SystemScheduleController {
 
     @PostMapping(value = "/schedule-config")
     @Operation(summary = "定时任务配置")
-    public String scheduleConfig(@Validated @RequestBody BaseScheduleConfigRequest request) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void scheduleConfig(@Validated @RequestBody BaseScheduleConfigRequest request) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         SystemSchedule schedule = systemScheduleService.getByJobKey(request.getJobKey());
         ScheduleConfig scheduleConfig = ScheduleConfig.builder()
                 .key(schedule.getJobKey())
@@ -114,13 +114,13 @@ public class SystemScheduleController {
                 .config(request.getRunConfig())
                 .build();
         Class<?> targetClass = Class.forName(schedule.getJob());
-        Method getJobKey = targetClass.getMethod("getJobKey", String.class);
-        Method getTriggerKey = targetClass.getMethod("getTriggerKey", String.class);
+        Method getJobKey = targetClass.getMethod("getJobKey", String.class, String.class);
+        Method getTriggerKey = targetClass.getMethod("getTriggerKey", String.class, String.class);
         @SuppressWarnings("unchecked")
         Class<? extends Job> jobClass = (Class<? extends Job>) targetClass;
-        return systemScheduleService.scheduleConfig(scheduleConfig,
-                (JobKey) getJobKey.invoke(scheduleConfig.getKey(), schedule.getProjectId()),
-                (TriggerKey) getTriggerKey.invoke(scheduleConfig.getKey(), schedule.getProjectId()),
+        systemScheduleService.scheduleConfig(scheduleConfig,
+                (JobKey) getJobKey.invoke(null, schedule.getProjectId(), schedule.getJobKey()),
+                (TriggerKey) getTriggerKey.invoke(null, schedule.getProjectId(), schedule.getJobKey()),
                 jobClass,
                 "admin");
     }

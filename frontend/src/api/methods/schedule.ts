@@ -17,4 +17,5 @@ export const scheduleApi = {
     deleteSchedule: (id: string) => globalInstance.Delete(`/system-schedule/remove/${id}`),
     // 配置定时任务运行参数
     updateScheduleConfig: (data: IScheduleConfig) => globalInstance.Post('/system-schedule/schedule-config', data),
+    getScheduleInfo: (id: string) => globalInstance.Get<IScheduleInfo>(`/system-schedule/getInfo/${id}`)
 }
