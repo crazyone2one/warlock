@@ -1,5 +1,6 @@
 package cn.master.horde.controller;
 
+import cn.master.horde.common.annotation.Loggable;
 import cn.master.horde.core.security.JwtTokenProvider;
 import cn.master.horde.dao.AuthenticationRequest;
 import cn.master.horde.dao.AuthenticationResponse;
@@ -34,6 +35,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
 
+    @Loggable("用户登录")
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));

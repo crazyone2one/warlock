@@ -22,4 +22,12 @@ public class JsonHelper {
     public static <T> Function<Object, T> objectToType(Class<T> clazz) {
         return o -> objectMapper.convertValue(o, clazz);
     }
+
+    public static String objectToString(Object object) {
+        try {
+            return objectMapper.writeValueAsString(object);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -7,7 +7,7 @@ import {
   NLoadingBarProvider,
   NMessageProvider,
   NNotificationProvider,
-  useOsTheme
+  useOsTheme, zhCN, dateZhCN
 } from "naive-ui";
 import {computed} from "vue";
 
@@ -16,7 +16,7 @@ const theme = computed(() => (osTheme.value === 'dark' ? darkTheme : null))
 </script>
 
 <template>
-  <n-config-provider :theme="theme">
+  <n-config-provider :theme="theme" :locale="zhCN" :date-locale="dateZhCN">
     <n-global-style/>
     <n-loading-bar-provider>
       <n-message-provider>

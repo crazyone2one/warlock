@@ -51,7 +51,7 @@ public class UserRole implements Serializable {
     private Boolean builtin;
 
     /**
-     * 角色类型: SYSTEM, ORGANIZAION, PROJECT
+     * 角色类型: SYSTEM, PROJECT
      */
     private String type;
 
