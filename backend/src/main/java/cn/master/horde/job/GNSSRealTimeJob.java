@@ -3,7 +3,7 @@ package cn.master.horde.job;
 import cn.master.horde.common.constants.WkkSensorEnum;
 import cn.master.horde.common.job.BaseScheduleJob;
 import cn.master.horde.common.service.SensorService;
-import cn.master.horde.dao.SlaveParameter;
+import cn.master.horde.dto.SlaveParameter;
 import cn.master.horde.util.DateFormatUtils;
 import cn.master.horde.util.FileHelper;
 import cn.master.horde.util.JsonHelper;

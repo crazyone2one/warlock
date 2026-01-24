@@ -1,4 +1,4 @@
-package cn.master.horde.dao;
+package cn.master.horde.dto;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;

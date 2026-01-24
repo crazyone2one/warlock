@@ -4,7 +4,7 @@ import cn.master.horde.common.config.DataSourceParameter;
 import cn.master.horde.common.result.BizException;
 import cn.master.horde.common.result.ResultCode;
 import cn.master.horde.common.service.CurrentUserService;
-import cn.master.horde.dao.SlaveParameter;
+import cn.master.horde.dto.SlaveParameter;
 import cn.master.horde.entity.ProjectParameter;
 import cn.master.horde.mapper.ProjectParameterMapper;
 import cn.master.horde.service.ProjectParameterService;

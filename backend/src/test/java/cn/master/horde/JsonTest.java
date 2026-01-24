@@ -1,16 +1,15 @@
 package cn.master.horde;
 
-import cn.master.horde.dao.ScheduleConfigParameter;
+import cn.master.horde.dto.PermissionDefinitionItem;
 import cn.master.horde.util.JsonHelper;
 import com.mybatisflex.core.datasource.DataSourceKey;
 import com.mybatisflex.core.row.Db;
 import com.mybatisflex.core.row.Row;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import tools.jackson.core.type.TypeReference;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author : 11's papa
@@ -20,12 +19,39 @@ import java.util.Map;
 public class JsonTest {
     @Test
     public void testJson() {
-        try{
-            DataSourceKey.use("ds-slave150622007792");
-            List<Row> rows = Db.selectAll("system_users");
-            System.out.println(rows);
-        }finally{
-            DataSourceKey.clear();
-        }
+        String json = "[\n" +
+                "  {\n" +
+                "    \"id\": \"SYSTEM\",\n" +
+                "    \"name\": \"permission.system.name\",\n" +
+                "    \"type\": \"SYSTEM\",\n" +
+                "    \"children\": [\n" +
+                "      {\n" +
+                "        \"id\": \"SYSTEM_USER\",\n" +
+                "        \"name\": \"permission.system_user.name\",\n" +
+                "        \"permissions\": [\n" +
+                "          {\n" +
+                "            \"id\": \"SYSTEM_USER:READ\"\n" +
+                "          },\n" +
+                "          {\n" +
+                "            \"id\": \"SYSTEM_USER:READ+ADD\"\n" +
+                "          },\n" +
+                "          {\n" +
+                "            \"id\": \"SYSTEM_USER:READ+IMPORT\"\n" +
+                "          },\n" +
+                "          {\n" +
+                "            \"id\": \"SYSTEM_USER:READ+UPDATE\"\n" +
+                "          },\n" +
+                "          {\n" +
+                "            \"id\": \"SYSTEM_USER:READ+DELETE\"\n" +
+                "          }\n" +
+                "        ]\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"order\": 1\n" +
+                "  }\n" +
+                "]\n";
+        List<PermissionDefinitionItem> temp = JsonHelper.toObject(json, new TypeReference<>() {
+        });
+        System.out.println(temp);
     }
 }

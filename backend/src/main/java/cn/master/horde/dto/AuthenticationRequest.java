@@ -1,4 +1,4 @@
-package cn.master.horde.dao;
+package cn.master.horde.dto;
 
 /**
  * @author : 11's papa

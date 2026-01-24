@@ -1,4 +1,4 @@
-package cn.master.horde.common.aop;
+package cn.master.horde.common.aspect;
 
 import cn.master.horde.entity.OperationLog;
 import cn.master.horde.service.OperationLogService;
@@ -55,7 +55,7 @@ public class LoggingAspect {
         opLog.setMethodName(methodName);
         opLog.setUri(uri);
         opLog.setHttpMethod(method);
-        opLog.setArgs(JsonHelper.objectToString(args));
+        opLog.setArgs(JsonHelper.objectToString(safeArgs));
         long duration = System.currentTimeMillis() - start;
         try {
             Object result = joinPoint.proceed();

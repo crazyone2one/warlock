@@ -1,6 +1,7 @@
 package cn.master.horde.core.security;
 
 import cn.master.horde.entity.SystemUser;
+import cn.master.horde.entity.UserRole;
 import cn.master.horde.entity.UserRoleRelation;
 import com.mybatisflex.core.query.QueryChain;
 import org.jspecify.annotations.NullMarked;
@@ -22,10 +23,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return QueryChain.of(SystemUser.class).where(SystemUser::getUserName).eq(username).oneOpt()
                 .map(user -> {
-                    List<String> list = QueryChain.of(UserRoleRelation.class)
+                    List<String> roleIds = QueryChain.of(UserRoleRelation.class)
                             .where(UserRoleRelation::getUserId).eq(user.getId()).list()
                             .stream().map(UserRoleRelation::getRoleId).toList();
-                    return new CustomUserDetails(user, list);
+                    List<String> roles = QueryChain.of(UserRole.class).where(UserRole::getId).in(roleIds).list().stream()
+                            .map(UserRole::getCode).toList();
+                    return new CustomUserDetails(user, roles);
                 })
                 .orElseThrow(() -> new UsernameNotFoundException("用户不存在"));
     }

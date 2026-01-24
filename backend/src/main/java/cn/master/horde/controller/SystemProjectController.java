@@ -1,12 +1,13 @@
 package cn.master.horde.controller;
 
 import cn.master.horde.common.service.CurrentUserService;
-import cn.master.horde.dao.BasePageRequest;
-import cn.master.horde.dao.ProjectSwitchRequest;
+import cn.master.horde.dto.BasePageRequest;
+import cn.master.horde.dto.ProjectSwitchRequest;
 import cn.master.horde.entity.SystemProject;
 import cn.master.horde.service.SystemProjectService;
 import com.mybatisflex.core.paginate.Page;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,6 +33,7 @@ public class SystemProjectController {
      * @return {@code true} 保存成功，{@code false} 保存失败
      */
     @PostMapping("save")
+    @PreAuthorize("hasPermission('SYSTEM_PROJECT:READ+UPDATE')")
     public boolean save(@RequestBody SystemProject systemProject) {
         return systemProjectService.saveProject(systemProject);
     }
@@ -42,6 +44,7 @@ public class SystemProjectController {
      * @param id 主键
      */
     @DeleteMapping("remove/{id}")
+    @PreAuthorize("hasPermission('SYSTEM_PROJECT:READ+DELETE')")
     public void remove(@PathVariable String id) {
         systemProjectService.removeProject(id);
     }
@@ -53,6 +56,7 @@ public class SystemProjectController {
      * @return {@code true} 更新成功，{@code false} 更新失败
      */
     @PostMapping("update")
+    @PreAuthorize("hasPermission('SYSTEM_PROJECT:READ+UPDATE')")
     public boolean update(@RequestBody SystemProject systemProject) {
         return systemProjectService.updateProject(systemProject);
     }
@@ -63,6 +67,7 @@ public class SystemProjectController {
      * @return 所有数据
      */
     @GetMapping("list")
+    @PreAuthorize("hasPermission('SYSTEM_PROJECT:READ')")
     public List<SystemProject> list() {
         return systemProjectService.list();
     }
@@ -74,6 +79,7 @@ public class SystemProjectController {
      * @return 项目详情
      */
     @GetMapping("getInfo/{id}")
+    @PreAuthorize("hasPermission('SYSTEM_PROJECT:READ')")
     public SystemProject getInfo(@PathVariable String id) {
         return systemProjectService.getById(id);
     }
@@ -85,16 +91,19 @@ public class SystemProjectController {
      * @return 分页对象
      */
     @PostMapping("page")
+    @PreAuthorize("hasPermission('SYSTEM_PROJECT:READ')")
     public Page<SystemProject> page(@Validated @RequestBody BasePageRequest page) {
         return systemProjectService.getProjectPage(page);
     }
 
     @GetMapping("/enable/{id}")
+    @PreAuthorize("hasPermission('SYSTEM_PROJECT:READ+UPDATE')")
     public void enable(@PathVariable String id) {
         systemProjectService.enable(id, CurrentUserService.getCurrentUsername());
     }
 
     @GetMapping("/disable/{id}")
+    @PreAuthorize("hasPermission('SYSTEM_PROJECT:READ+UPDATE')")
     public void disable(@PathVariable String id) {
         systemProjectService.disable(id, CurrentUserService.getCurrentUsername());
     }

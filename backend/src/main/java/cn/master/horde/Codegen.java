@@ -19,7 +19,7 @@ public class Codegen {
         dataSource.setPassword("123456");
 
         //创建配置内容，两种风格都可以。
-        GlobalConfig globalConfig = createGlobalConfigUseStyle1("project_parameter");
+        GlobalConfig globalConfig = createGlobalConfigUseStyle1("user_role_permission");
         //GlobalConfig globalConfig = createGlobalConfigUseStyle2();
 
         //通过 datasource 和 globalConfig 创建代码生成器

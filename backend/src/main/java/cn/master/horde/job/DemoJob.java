@@ -2,7 +2,7 @@ package cn.master.horde.job;
 
 import cn.master.horde.common.job.BaseScheduleJob;
 import cn.master.horde.common.service.SensorService;
-import cn.master.horde.dao.SlaveParameter;
+import cn.master.horde.dto.SlaveParameter;
 import cn.master.horde.util.FileHelper;
 import com.github.benmanes.caffeine.cache.Cache;
 import lombok.extern.slf4j.Slf4j;

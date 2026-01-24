@@ -7,9 +7,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author : 11's papa
@@ -20,17 +20,16 @@ public record CustomUserDetails(SystemUser user, List<String> roles) implements 
     public String getUserId() {
         return this.user.getId();
     }
+
     public String getUserProjectId() {
         return this.user.getLastProjectId();
     }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<SimpleGrantedAuthority> simpleGrantedAuthorities = new ArrayList<>();
-        for (String role : roles) {
-            SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(role);
-            simpleGrantedAuthorities.add(simpleGrantedAuthority);
-        }
-        return simpleGrantedAuthorities;
+        return roles.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
     }
 
     @Override

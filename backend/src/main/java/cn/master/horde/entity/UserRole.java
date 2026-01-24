@@ -39,6 +39,7 @@ public class UserRole implements Serializable {
      * 角色名称
      */
     private String name;
+    private String code;
 
     /**
      * 描述

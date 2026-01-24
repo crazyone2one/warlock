@@ -1,0 +1,110 @@
+[
+  {
+    "id": "SYSTEM",
+    "name": "permission.system.name",
+    "type": "SYSTEM",
+    "children": [
+      {
+        "id": "SYSTEM_USER",
+        "name": "permission.system_user.name",
+        "permissions": [
+          {
+            "id": "SYSTEM_USER:READ"
+          },
+          {
+            "id": "SYSTEM_USER:READ+ADD"
+          },
+          {
+            "id": "SYSTEM_USER:READ+IMPORT"
+          },
+          {
+            "id": "SYSTEM_USER:READ+UPDATE"
+          },
+          {
+            "id": "SYSTEM_USER:READ+INVITE",
+            "name": "permission.system_user.invite"
+          },
+          {
+            "id": "SYSTEM_USER:READ+DELETE"
+          }
+        ]
+      },
+      {
+        "id": "SYSTEM_PROJECT",
+        "name": "permission.system_organization_project.name",
+        "permissions": [
+          {
+            "id": "SYSTEM_PROJECT:READ"
+          },
+          {
+            "id": "SYSTEM_PROJECT:READ+ADD"
+          },
+          {
+            "id": "SYSTEM_PROJECT:READ+UPDATE"
+          },
+          {
+            "id": "SYSTEM_PROJECT:READ+DELETE"
+          }
+        ]
+      },
+      {
+        "id": "SYSTEM_USER_ROLE",
+        "name": "permission.system_user_role.name",
+        "permissions": [
+          {
+            "id": "SYSTEM_USER_ROLE:READ"
+          },
+          {
+            "id": "SYSTEM_USER_ROLE:READ+ADD"
+          },
+          {
+            "id": "SYSTEM_USER_ROLE:READ+UPDATE"
+          },
+          {
+            "id": "SYSTEM_USER_ROLE:READ+DELETE"
+          }
+        ]
+      },
+      {
+        "id": "SYSTEM_LOG",
+        "name": "permission.system_operation_log.name",
+        "permissions": [
+          {
+            "id": "SYSTEM_LOG:READ"
+          }
+        ]
+      },
+      {
+        "id": "SYSTEM_TASK_CENTER",
+        "name": "permission.organization_task_center.name",
+        "permissions": [
+          {
+            "id": "SYSTEM_CASE_TASK_CENTER:READ",
+            "name": "permission.case_task_center.read"
+          },
+          {
+            "id": "SYSTEM_CASE_TASK_CENTER:EXEC+STOP",
+            "name": "permission.case_task_center.exec"
+          },
+          {
+            "id": "SYSTEM_CASE_TASK_CENTER:READ+DELETE",
+            "name": "permission.case_task_center.delete"
+          },
+          {
+            "id": "SYSTEM_SCHEDULE_TASK_CENTER:READ",
+            "name": "permission.schedule_task_center.read"
+          },
+          {
+            "id": "SYSTEM_SCHEDULE_TASK_CENTER:READ+UPDATE",
+            "name": "permission.schedule_task_center.update"
+          },
+          {
+            "id": "SYSTEM_SCHEDULE_TASK_CENTER:READ+DELETE",
+            "name": "permission.schedule_task_center.delete"
+          }
+        ]
+      }
+    ],
+    "order": 1
+  }
+]

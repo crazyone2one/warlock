@@ -1,4 +1,4 @@
-package cn.master.horde.dao;
+package cn.master.horde.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

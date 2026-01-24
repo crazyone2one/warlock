@@ -1,4 +1,4 @@
-package cn.master.horde.dao;
+package cn.master.horde.dto;
 
 import cn.master.horde.entity.SystemSchedule;
 import lombok.Builder;

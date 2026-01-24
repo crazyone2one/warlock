@@ -1,6 +1,6 @@
 package cn.master.horde.util;
 
-import cn.master.horde.dao.SlaveParameter;
+import cn.master.horde.dto.SlaveParameter;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,4 +1,4 @@
-package cn.master.horde.dao;
+package cn.master.horde.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mybatisflex.annotation.Column;

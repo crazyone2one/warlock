@@ -1,8 +1,8 @@
 package cn.master.horde.common.job;
 
 import cn.master.horde.common.service.SensorService;
-import cn.master.horde.dao.ScheduleConfigParameter;
-import cn.master.horde.dao.SlaveParameter;
+import cn.master.horde.dto.ScheduleConfigParameter;
+import cn.master.horde.dto.SlaveParameter;
 import cn.master.horde.entity.ProjectParameter;
 import cn.master.horde.util.FileHelper;
 import cn.master.horde.util.JsonHelper;

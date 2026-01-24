@@ -1,6 +1,6 @@
 package cn.master.horde.util;
 
-import cn.master.horde.dao.SlaveParameter;
+import cn.master.horde.dto.SlaveParameter;
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.scp.client.ScpClient;

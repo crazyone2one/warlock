@@ -1,7 +1,7 @@
 package cn.master.horde.service;
 
-import cn.master.horde.dao.BasePageRequest;
-import cn.master.horde.dao.ProjectSwitchRequest;
+import cn.master.horde.dto.BasePageRequest;
+import cn.master.horde.dto.ProjectSwitchRequest;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.service.IService;
 import cn.master.horde.entity.SystemProject;

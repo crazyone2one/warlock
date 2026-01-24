@@ -1,9 +1,9 @@
 package cn.master.horde.service;
 
-import cn.master.horde.dao.ScheduleConfig;
-import cn.master.horde.dao.ScheduleCronRequest;
-import cn.master.horde.dao.ScheduleDTO;
-import cn.master.horde.dao.SchedulePageRequest;
+import cn.master.horde.dto.ScheduleConfig;
+import cn.master.horde.dto.ScheduleCronRequest;
+import cn.master.horde.dto.ScheduleDTO;
+import cn.master.horde.dto.SchedulePageRequest;
 import cn.master.horde.entity.SystemSchedule;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.service.IService;
