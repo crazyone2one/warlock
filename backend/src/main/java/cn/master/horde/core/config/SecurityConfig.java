@@ -2,9 +2,13 @@ package cn.master.horde.core.config;
 
 import cn.master.horde.core.filter.RestAuthenticationFilter;
 import cn.master.horde.core.security.CustomUserDetailsService;
+import cn.master.horde.core.security.OptimizedPermissionEvaluator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -57,5 +61,17 @@ public class SecurityConfig {
         ProviderManager providerManager = new ProviderManager(provider);
         providerManager.setEraseCredentialsAfterAuthentication(false);
         return providerManager;
+    }
+
+    @Bean
+    public PermissionEvaluator permissionEvaluator() {
+        return new OptimizedPermissionEvaluator();
+    }
+
+    @Bean
+    public MethodSecurityExpressionHandler methodSecurityExpressionHandler(PermissionEvaluator permissionEvaluator) {
+        DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+        handler.setPermissionEvaluator(permissionEvaluator);
+        return handler;
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -16,13 +17,18 @@ import java.util.stream.Collectors;
  * @since : 2026/1/14, 星期三
  **/
 @NullMarked
-public record CustomUserDetails(SystemUser user, List<String> roles) implements UserDetails {
+public record CustomUserDetails(SystemUser user, List<String> roles, Set<String> permissions) implements UserDetails {
+    // private final Set<String> permissions; // 扁平化权限集合，如 {"SYSTEM_USER:READ", "PROJECT:CREATE"}
     public String getUserId() {
         return this.user.getId();
     }
 
     public String getUserProjectId() {
         return this.user.getLastProjectId();
+    }
+
+    public Set<String> getPermissions() {
+        return permissions;
     }
 
     @Override

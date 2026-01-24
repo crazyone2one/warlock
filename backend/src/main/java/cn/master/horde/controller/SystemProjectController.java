@@ -67,7 +67,7 @@ public class SystemProjectController {
      * @return 所有数据
      */
     @GetMapping("list")
-    @PreAuthorize("hasPermission('SYSTEM_PROJECT:READ')")
+    @PreAuthorize("hasPermission('SYSTEM_PROJECT','READ')")
     public List<SystemProject> list() {
         return systemProjectService.list();
     }
