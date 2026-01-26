@@ -1,4 +1,4 @@
-package cn.master.horde.dto;
+package cn.master.horde.dto.permission;
 
 import lombok.Data;
 

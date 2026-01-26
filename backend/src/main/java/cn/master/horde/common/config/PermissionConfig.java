@@ -1,7 +1,7 @@
 package cn.master.horde.common.config;
 
-import cn.master.horde.dto.PermissionCache;
-import cn.master.horde.dto.PermissionDefinitionItem;
+import cn.master.horde.dto.permission.PermissionCache;
+import cn.master.horde.dto.permission.PermissionDefinitionItem;
 import cn.master.horde.util.JsonHelper;
 import io.micrometer.core.instrument.util.IOUtils;
 import org.apache.commons.lang3.StringUtils;

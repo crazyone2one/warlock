@@ -1,6 +1,7 @@
 package cn.master.horde.controller;
 
 import cn.master.horde.core.security.CustomUserDetails;
+import cn.master.horde.dto.UserDTO;
 import cn.master.horde.entity.SystemUser;
 import cn.master.horde.service.SystemUserService;
 import com.mybatisflex.core.paginate.Page;
@@ -79,7 +80,7 @@ public class SystemUserController {
     }
 
     @GetMapping("get-user-info")
-    public SystemUser getInfo() {
+    public UserDTO getInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         assert authentication != null;
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();

@@ -6,6 +6,8 @@ import cn.master.horde.mapper.UserRoleRelationMapper;
 import cn.master.horde.service.UserRoleRelationService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * 用户-角色关联表 服务层实现。
  *
@@ -15,4 +17,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserRoleRelationServiceImpl extends ServiceImpl<UserRoleRelationMapper, UserRoleRelation>  implements UserRoleRelationService{
 
+    @Override
+    public List<UserRoleRelation> selectByUserId(String userId) {
+        return queryChain().where(UserRoleRelation::getUserId).eq(userId).list();
+    }
 }

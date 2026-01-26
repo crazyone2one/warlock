@@ -1,5 +1,6 @@
 package cn.master.horde.service;
 
+import cn.master.horde.dto.UserDTO;
 import com.mybatisflex.core.service.IService;
 import cn.master.horde.entity.SystemUser;
 
@@ -11,5 +12,5 @@ import cn.master.horde.entity.SystemUser;
  */
 public interface SystemUserService extends IService<SystemUser> {
 
-    SystemUser getUserInfoById(String id);
+    UserDTO getUserInfoById(String id);
 }

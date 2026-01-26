@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -37,13 +39,18 @@ public class RestControllerExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResultHolder handleValidationExceptions(MethodArgumentNotValidException ex) {
         // 提取所有验证错误信息，构建字段名到错误消息的映射
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            assert errorMessage != null;
-            errors.put(fieldName, errorMessage);
-        });
+        Map<String, Object> errors = new HashMap<>();
+        List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> {
+                    assert error.getDefaultMessage() != null;
+                    assert error.getRejectedValue() != null;
+                    return new FieldError(
+                            error.getField(),
+                            error.getDefaultMessage(),
+                            error.getRejectedValue().toString()
+                    );
+                }).toList();
+        errors.put("fieldErrors", fieldErrors);
         // 返回验证失败的统一响应结果
         return ResultHolder.error(ResultCode.VALIDATE_FAILED.getCode(), ResultCode.VALIDATE_FAILED.getMessage(), errors);
     }
@@ -56,6 +63,26 @@ public class RestControllerExceptionHandler {
                         getStackTraceAsString(ex)));
     }
 
+    /**
+     * 处理认证异常
+     *
+     * @param ex 异常对象
+     * @return 响应结果
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ResultHolder> handleAuthenticationException(AuthenticationException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ResultHolder.error(ResultCode.UNAUTHORIZED.getCode(),
+                        ResultCode.UNAUTHORIZED.getMessage(),
+                        getStackTraceAsString(ex)));
+    }
+
+    /**
+     * 处理权限不足异常
+     *
+     * @param ex 异常对象
+     * @return 响应结果
+     */
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ResultHolder> handleAccessDeniedException(AccessDeniedException ex) {

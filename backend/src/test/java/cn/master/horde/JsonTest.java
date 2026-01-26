@@ -1,10 +1,7 @@
 package cn.master.horde;
 
-import cn.master.horde.dto.PermissionDefinitionItem;
+import cn.master.horde.dto.permission.PermissionDefinitionItem;
 import cn.master.horde.util.JsonHelper;
-import com.mybatisflex.core.datasource.DataSourceKey;
-import com.mybatisflex.core.row.Db;
-import com.mybatisflex.core.row.Row;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import tools.jackson.core.type.TypeReference;

@@ -1,4 +1,4 @@
-package cn.master.horde.dto;
+package cn.master.horde.dto.permission;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
