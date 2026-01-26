@@ -3,3 +3,16 @@ spring:
     name: warlock
   profiles:
     active: dev
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      maximum-pool-size: 100
+      minimum-idle: 10
+      connection-timeout: 3000000
+      auto-commit: true
+      max-lifetime: 1800000
+      idle-timeout: 300000
+      connection-test-query: SELECT 1
+  messages:
+    basename: i18n/commons,i18n/project,i18n/system
+    default-locale: zh_CN

@@ -27,8 +27,7 @@ spring:
               # 使用 HikariCP 连接池配置
               provider: hikaricp
           threadPool:
-            threadCount: 25
-            threadPriority: 5
+            threadCount: 10
             class: org.quartz.simpl.SimpleThreadPool
   data:
     redis:
