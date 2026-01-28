@@ -7,37 +7,18 @@ import type {
   UserGroupAuthSetting
 } from "/@/api/types/user-group.ts";
 import {useI18n} from "vue-i18n";
-import {computed, h, inject, ref, watchEffect} from "vue";
-import type {AuthScopeEnumType} from "/@/utils/common-enum.ts";
+import {computed, h, ref, watchEffect} from "vue";
 import {useRequest} from "alova/client";
 import {userGroupApi} from "/@/api/methods/userGroup.ts";
 
-const props = withDefaults(
-    defineProps<{
-      current: CurrentUserGroupItem;
-      savePermission?: string[];
-      showBottom?: boolean;
-      disabled?: boolean;
-      scroll?: {
-        x?: number | string;
-        y?: number | string;
-        minWidth?: number | string;
-        maxHeight?: number | string;
-      };
-    }>(),
-    {
-      showBottom: true,
-      disabled: false,
-      scroll() {
-        return {
-          x: '800px',
-          y: '100%',
-        };
-      },
-    }
-);
+const {current = {id: '', name: '', code: ''}, showBottom = true, disabled = false} = defineProps<{
+  current: CurrentUserGroupItem;
+  savePermission?: string[];
+  showBottom?: boolean;
+  disabled?: boolean;
+}>();
 const {t} = useI18n();
-const systemType = inject<AuthScopeEnumType>('systemType');
+// const systemType = inject<AuthScopeEnumType>('systemType');
 // 表格的总全选
 const allChecked = ref(false);
 const allIndeterminate = ref(false);
@@ -45,13 +26,13 @@ const allIndeterminate = ref(false);
 const canSave = ref(false);
 const systemAdminDisabled = computed(() => {
   const adminArr = ['admin', 'org_admin', 'project_admin'];
-  const {code} = props.current;
+  const {code} = current;
   if (adminArr.includes(code)) {
     // 系统管理员,组织管理员，项目管理员都不可编辑
     return true;
   }
 
-  return props.disabled;
+  return disabled;
 });
 const columns: DataTableColumns<AuthTableItem> = [
   {title: () => t('system.userGroup.function'), key: 'ability', width: 100},
@@ -64,7 +45,7 @@ const columns: DataTableColumns<AuthTableItem> = [
             h('span', null, t('system.userGroup.auth')),
             h(NCheckbox, {
               checked: allChecked.value, indeterminate: allIndeterminate.value,
-              disabled: systemAdminDisabled.value || props.disabled
+              disabled: systemAdminDisabled.value || disabled
             }, {})
           ]
         }
@@ -87,7 +68,7 @@ const columns: DataTableColumns<AuthTableItem> = [
             }),
             h(NCheckbox, {
               checked: row.enable, indeterminate: row.indeterminate,
-              disabled: systemAdminDisabled.value || props.disabled,
+              disabled: systemAdminDisabled.value || disabled,
               onUpdateChecked: (value) => handleRowAuthChange(value, index)
             }, {})
           ]
@@ -158,13 +139,15 @@ const setAutoRead = (record: AuthTableItem, currentValue: string) => {
 const handleRowAuthChange = (value: boolean, rowIndex: number) => {
   if (!tableData.value) return;
   const tmpArr = tableData.value;
-  tmpArr[rowIndex].indeterminate = false;
+  const tmpRow = tmpArr[rowIndex];
+  if (!tmpRow) return;
+  tmpRow.indeterminate = false;
   if (value) {
-    tmpArr[rowIndex].enable = true;
-    tmpArr[rowIndex].perChecked = tmpArr[rowIndex].permissions?.map((item) => item.id);
+    tmpRow.enable = true;
+    tmpRow.perChecked = tmpRow.permissions?.map((item) => item.id);
   } else {
-    tmpArr[rowIndex].enable = false;
-    tmpArr[rowIndex].perChecked = [];
+    tmpRow.enable = false;
+    tmpRow.perChecked = [];
   }
   tableData.value = [...tmpArr];
   handleAllChange();
@@ -235,8 +218,8 @@ const initData = (id: string) => {
 }
 // 恢复默认值
 const handleReset = () => {
-  if (props.current.id) {
-    initData(props.current.id);
+  if (current.id) {
+    initData(current.id);
   }
 };
 const {send: saveData} = useRequest(p => userGroupApi.saveGlobalUSetting(p), {immediate: false})
@@ -251,17 +234,17 @@ const handleSave = () => {
     });
   });
   saveData({
-    userRoleId: props.current.id,
+    userRoleId: current.id,
     permissions,
   }).then(() => {
     canSave.value = false;
     window.$message.success(t('common.saveSuccess'));
-    initData(props.current.id);
+    initData(current.id);
   })
 }
 watchEffect(() => {
-  if (props.current.id) {
-    initData(props.current.id);
+  if (current.id) {
+    initData(current.id);
   }
 });
 defineExpose({
@@ -277,12 +260,12 @@ defineExpose({
       <n-data-table :columns="columns" :data="tableData"/>
     </div>
     <div
-        v-if="props.showBottom && props.current.code !== 'admin' && !systemAdminDisabled"
-        v-permission="props.savePermission || []"
+        v-if="showBottom && current.code !== 'admin' && !systemAdminDisabled"
+        v-permission="savePermission || []"
         class="footer"
     >
       <n-button :disabled="!canSave" @click="handleReset">{{ t('system.userGroup.reset') }}</n-button>
-      <n-button v-permission="props.savePermission || []" :disabled="!canSave" type="primary"
+      <n-button v-permission="savePermission || []" :disabled="!canSave" type="primary"
                 @click="handleSave">
         {{ t('system.userGroup.save') }}
       </n-button>

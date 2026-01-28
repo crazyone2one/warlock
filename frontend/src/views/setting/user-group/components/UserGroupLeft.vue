@@ -22,7 +22,13 @@ const emit = defineEmits<{
   (e: 'addUserSuccess', id: string): void;
 }>();
 const userGroupList = ref<UserGroupItem[]>([]);
-const currentItem = ref<CurrentUserGroupItem>({id: '', name: '', internal: false, type: AuthScopeEnum.SYSTEM});
+const currentItem = ref<CurrentUserGroupItem>({
+  id: '',
+  name: '',
+  code: '',
+  internal: false,
+  type: AuthScopeEnum.SYSTEM
+});
 const currentId = ref('');
 
 const showSystem = computed(() => systemType === AuthScopeEnum.SYSTEM);
@@ -31,28 +37,14 @@ const systemUserGroupVisible = ref(false);
 const systemUserGroupList = computed(() => {
   return userGroupList.value.filter((ele) => ele.type === AuthScopeEnum.SYSTEM);
 });
-const projectToggle = ref(true);
+
 const projectUserGroupVisible = ref(false);
-const showProject = computed(() => systemType === AuthScopeEnum.SYSTEM || systemType === AuthScopeEnum.PROJECT);
-// 项目用户组列表
-const projectUserGroupList = computed(() => {
-  return userGroupList.value.filter((ele) => ele.type === AuthScopeEnum.PROJECT);
-});
+
 const isSystemShowAll = computed(() => {
   return hasAnyPermission([...props.updatePermission, 'SYSTEM_USER_ROLE:READ+DELETE']);
 });
-const isProjectShowAll = computed(() => {
-  return hasAnyPermission([...props.updatePermission, 'PROJECT_GROUP:READ+DELETE']);
-});
+
 const systemMoreAction = [
-  {
-    label: t('system.userGroup.rename'),
-    danger: false,
-    eventTag: 'rename',
-    permission: props.updatePermission,
-  }
-]
-const projectMoreAction = [
   {
     label: t('system.userGroup.rename'),
     danger: false,
@@ -94,8 +86,8 @@ const handleAddMember = () => {
   emit('addUserSuccess', currentItem.value.id);
 }
 const handleListItemClick = (element: UserGroupItem) => {
-  const {id, name, type, internal} = element;
-  currentItem.value = {id, name, type, internal};
+  const {id, name, type, internal, code} = element;
+  currentItem.value = {id, name, type, internal, code};
   currentId.value = id;
   emit('handleSelect', element);
 }
@@ -131,7 +123,7 @@ defineExpose({
                 <div class="i-solar:add-circle-linear cursor-pointer" @click="handleCreateUG(AuthScopeEnum.SYSTEM)"/>
               </n-icon>
             </template>
-            {{ `创建${t('system.userGroup.systemUserGroup')}`}}
+            {{ `创建${t('system.userGroup.systemUserGroup')}` }}
           </n-tooltip>
 
         </user-group-popover>
@@ -171,67 +163,67 @@ defineExpose({
         </div>
       </Transition>
     </div>
-    <div v-if="showProject" v-permission="['PROJECT_GROUP:READ']" class="mt-2">
-      <n-flex justify="space-between" class="px-[4px] py-[7px]">
-        <div class="flex flex-row items-center gap-1">
-          <n-icon v-if="projectToggle" size="18">
-            <div class="i-solar:alt-arrow-down-bold cursor-pointer" @click="projectToggle = false"/>
-          </n-icon>
-          <n-icon v-else size="16">
-            <div class="i-solar:alt-arrow-up-bold cursor-pointer" @click="projectToggle = true"/>
-          </n-icon>
-          <div class="text-[14px]">
-            {{ t('system.userGroup.projectUserGroup') }}
-          </div>
-        </div>
-        <user-group-popover :list="projectUserGroupList" :visible="projectUserGroupVisible"
-                            :auth-scope="AuthScopeEnum.PROJECT"
-                            @cancel="projectUserGroupVisible = false">
-          <n-tooltip trigger="hover" placement="right">
-            <template #trigger>
-              <n-icon v-permission="props.addPermission" size="20">
-                <div class="i-solar:add-circle-linear cursor-pointer" @click="projectUserGroupVisible = true"/>
-              </n-icon>
-            </template>
-            {{ `创建${t('system.userGroup.projectUserGroup')}`}}
-          </n-tooltip>
+    <!--    <div v-if="showProject" v-permission="['PROJECT_GROUP:READ']" class="mt-2">-->
+    <!--      <n-flex justify="space-between" class="px-[4px] py-[7px]">-->
+    <!--        <div class="flex flex-row items-center gap-1">-->
+    <!--          <n-icon v-if="projectToggle" size="18">-->
+    <!--            <div class="i-solar:alt-arrow-down-bold cursor-pointer" @click="projectToggle = false"/>-->
+    <!--          </n-icon>-->
+    <!--          <n-icon v-else size="16">-->
+    <!--            <div class="i-solar:alt-arrow-up-bold cursor-pointer" @click="projectToggle = true"/>-->
+    <!--          </n-icon>-->
+    <!--          <div class="text-[14px]">-->
+    <!--            {{ t('system.userGroup.projectUserGroup') }}-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--        <user-group-popover :list="projectUserGroupList" :visible="projectUserGroupVisible"-->
+    <!--                            :auth-scope="AuthScopeEnum.PROJECT"-->
+    <!--                            @cancel="projectUserGroupVisible = false">-->
+    <!--          <n-tooltip trigger="hover" placement="right">-->
+    <!--            <template #trigger>-->
+    <!--              <n-icon v-permission="props.addPermission" size="20">-->
+    <!--                <div class="i-solar:add-circle-linear cursor-pointer" @click="projectUserGroupVisible = true"/>-->
+    <!--              </n-icon>-->
+    <!--            </template>-->
+    <!--            {{ `创建${t('system.userGroup.projectUserGroup')}`}}-->
+    <!--          </n-tooltip>-->
 
-        </user-group-popover>
-      </n-flex>
-      <Transition>
-        <div v-if="projectToggle">
-          <div v-for="(item) in projectUserGroupList" :key="item.id" class="list-item"
-               :class="{'!bg-sky-500/50': item.id === currentId}"
-               @click="handleListItemClick(item)">
-            <user-group-popover :list="projectUserGroupList" :visible="false"
-                                :auth-scope="item.type"
-                                @cancel="projectUserGroupVisible = false">
-              <div class="flex max-w-[100%] grow flex-row items-center justify-between">
-                <div :class="{'!text-[#18a058]': item.id === currentId}" class="cursor-pointer">
-                  {{ item.name }}
-                </div>
-                <div
-                    v-if=" item.type === systemType || (isProjectShowAll && !item.internal && (item.scopeId !== 'global' || !isGlobalDisable) && projectMoreAction.length > 0)"
-                    class="list-item-action flex flex-row items-center gap-[8px] opacity-0"
-                    :class="{ '!opacity-100': item.id === currentId }">
-                  <div v-if="item.type === systemType">
-                    <n-icon v-permission="props.updatePermission" size="20">
-                      <div class="i-solar:add-circle-linear" @click="handleAddMember"/>
-                    </n-icon>
-                  </div>
-                  <m-more-action
-                      v-if="isProjectShowAll &&!item.internal &&(item.scopeId !== 'global' || !isGlobalDisable) && projectMoreAction.length > 0"
-                      :list="projectMoreAction">
+    <!--        </user-group-popover>-->
+    <!--      </n-flex>-->
+    <!--      <Transition>-->
+    <!--        <div v-if="projectToggle">-->
+    <!--          <div v-for="(item) in projectUserGroupList" :key="item.id" class="list-item"-->
+    <!--               :class="{'!bg-sky-500/50': item.id === currentId}"-->
+    <!--               @click="handleListItemClick(item)">-->
+    <!--            <user-group-popover :list="projectUserGroupList" :visible="false"-->
+    <!--                                :auth-scope="item.type"-->
+    <!--                                @cancel="projectUserGroupVisible = false">-->
+    <!--              <div class="flex max-w-[100%] grow flex-row items-center justify-between">-->
+    <!--                <div :class="{'!text-[#18a058]': item.id === currentId}" class="cursor-pointer">-->
+    <!--                  {{ item.name }}-->
+    <!--                </div>-->
+    <!--                <div-->
+    <!--                    v-if=" item.type === systemType || (isProjectShowAll && !item.internal && (item.scopeId !== 'global' || !isGlobalDisable) && projectMoreAction.length > 0)"-->
+    <!--                    class="list-item-action flex flex-row items-center gap-[8px] opacity-0"-->
+    <!--                    :class="{ '!opacity-100': item.id === currentId }">-->
+    <!--                  <div v-if="item.type === systemType">-->
+    <!--                    <n-icon v-permission="props.updatePermission" size="20">-->
+    <!--                      <div class="i-solar:add-circle-linear" @click="handleAddMember"/>-->
+    <!--                    </n-icon>-->
+    <!--                  </div>-->
+    <!--                  <m-more-action-->
+    <!--                      v-if="isProjectShowAll &&!item.internal &&(item.scopeId !== 'global' || !isGlobalDisable) && projectMoreAction.length > 0"-->
+    <!--                      :list="projectMoreAction">-->
 
-                  </m-more-action>
-                </div>
-              </div>
+    <!--                  </m-more-action>-->
+    <!--                </div>-->
+    <!--              </div>-->
 
-            </user-group-popover>
-          </div>
-        </div>
-      </Transition>
-    </div>
+    <!--            </user-group-popover>-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--      </Transition>-->
+    <!--    </div>-->
   </n-flex>
 </template>
 
@@ -241,6 +233,7 @@ defineExpose({
   height: 38px;
   border-radius: 4px;
   @apply flex cursor-pointer items-center hover:bg-[rgb(var(--primary-9))];
+
   &:hover .list-item-action {
     opacity: 1;
   }
