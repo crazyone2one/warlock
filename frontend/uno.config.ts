@@ -1,4 +1,4 @@
-import {defineConfig, presetIcons,presetWind3} from 'unocss'
+import {defineConfig, presetIcons, presetWind3} from 'unocss'
 
 export default defineConfig({
     presets: [
@@ -9,6 +9,9 @@ export default defineConfig({
             }
         })
     ],
+    safelist: ['i-solar:share-circle-linear', 'i-solar:document-medicine-linear',
+        'i-solar:file-text-outline', 'i-solar:settings-linear',
+        'i-solar:user-outline', 'i-solar:shield-user-linear'],
     // rules:[
     //     [/^m-([.\d]+)$/, ([_, num]) => ({ margin: `${num}px` })],
     //     [/^mt-([.\d]+)$/, ([_, num]) => ({ 'margin-top': `${num}px` })]
