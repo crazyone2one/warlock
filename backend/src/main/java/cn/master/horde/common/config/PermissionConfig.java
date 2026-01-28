@@ -32,8 +32,7 @@ public class PermissionConfig {
                 continue;
             }
 
-            List<PermissionDefinitionItem> temp = JsonHelper.toObject(content, new TypeReference<>() {
-            });
+            List<PermissionDefinitionItem> temp = JsonHelper.parseArray(content, PermissionDefinitionItem.class);
             if (permissionDefinition == null) {
                 permissionDefinition = temp;
             } else {

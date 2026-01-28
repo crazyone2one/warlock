@@ -6,6 +6,7 @@ import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -77,5 +78,9 @@ public class JsonHelper {
      */
     public static String objectToString(Object object) {
         return objectMapper.writeValueAsString(object);
+    }
+
+    public static <T> List<T> parseArray(String content, Class<T> valueType) {
+        return objectMapper.readValue(content, objectMapper.getTypeFactory().constructCollectionType(List.class, valueType));
     }
 }

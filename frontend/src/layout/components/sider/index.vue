@@ -1,37 +1,46 @@
 <script setup lang="ts">
-import {h, ref} from 'vue'
+import {computed, h, ref} from 'vue'
 import {type MenuOption} from 'naive-ui'
-import {RouterLink} from "vue-router";
+import {type RouteMeta, type RouteRecordRaw, RouterLink} from "vue-router";
 import {listenerRouteChange} from "/@/utils/route-listener.ts";
 import {useAppStore} from "/@/store";
+import useMenuTree from "/@/layout/components/sider/useMenuTree.ts";
+import {generateMenus} from "/@/layout/components/sider/utils.ts";
+import {useI18n} from "vue-i18n";
 
+export interface IMenu {
+  label: string
+  key: string
+  icon?: string
+  name: string
+  params?: { [key: string]: string }
+  children?: IMenu[]
+  meta?: RouteMeta
+}
+
+const {t} = useI18n()
 const appStore = useAppStore()
 const activeKey = ref<string | null>(null)
-const renderIcon = (icon: string) => {
-  return () => h('div', {class: icon})
-}
-const menuOptions: MenuOption[] = [
-  {
-    label: () => h(RouterLink, {to: {name: 'Dashboard'}}, {default: () => 'Dashboard'}),
-    key: 'Dashboard',
-    icon: renderIcon('i-solar:share-circle-linear')
-  },
-  {
-    label: () => h(RouterLink, {to: {name: 'Schedule'}}, {default: () => 'Schedule'}),
-    key: 'Schedule',
-    icon: renderIcon('i-solar:document-medicine-linear')
-  },
-  {
-    label: () => h(RouterLink, {to: {name: 'Project'}}, {default: () => 'Project'}),
-    key: 'Project',
-    icon: renderIcon('i-solar:file-text-outline')
-  },
-  {
-    label: () => h(RouterLink, {to: {name: 'User'}}, {default: () => 'User'}),
-    key: 'User',
-    icon: renderIcon('i-solar:user-outline')
-  },
-]
+
+const {menuTree} = useMenuTree();
+const menus = computed(() => {
+  return generateMenus(menuTree.value as RouteRecordRaw[])
+})
+const options = computed(() => (menus.value ? mapping(menus.value) : []))
+const mapping = (items: IMenu[]): MenuOption[] =>
+    items.map(item => {
+      return ({
+        ...item,
+        key: item.name,
+        label: item.children ? t(item.label) :
+            item.name != null ? () => h(RouterLink, {
+              to:
+                  {name: item.name}
+            }, {default: () => t(item.label)}) : t(item.label),
+        icon: item.icon != null ? () => h("div", {class: item.icon}) : undefined,
+        children: item.children && mapping(item.children)
+      })
+    })
 listenerRouteChange((route) => {
   activeKey.value = route.name as string
 })
@@ -48,7 +57,7 @@ listenerRouteChange((route) => {
                   @collapse="appStore.setMenuCollapse(true)"
                   @expand="appStore.setMenuCollapse(false)">
     <n-menu v-model:value="activeKey"
-            :options="menuOptions"
+            :options="options"
             :collapsed="appStore.getMenuCollapse"
             :collapsed-width="64"
             :collapsed-icon-size="22"

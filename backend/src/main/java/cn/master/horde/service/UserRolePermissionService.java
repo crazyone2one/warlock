@@ -1,5 +1,6 @@
 package cn.master.horde.service;
 
+import cn.master.horde.dto.request.PermissionSettingUpdateRequest;
 import com.mybatisflex.core.service.IService;
 import cn.master.horde.entity.UserRolePermission;
 
@@ -11,4 +12,5 @@ import cn.master.horde.entity.UserRolePermission;
  */
 public interface UserRolePermissionService extends IService<UserRolePermission> {
 
+    void updatePermissionSetting(PermissionSettingUpdateRequest request);
 }

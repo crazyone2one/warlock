@@ -49,7 +49,7 @@ public class UserRole implements Serializable {
     /**
      * 是否是内置角色
      */
-    private Boolean builtin;
+    private Boolean internal;
 
     /**
      * 角色类型: SYSTEM, PROJECT

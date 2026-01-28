@@ -94,7 +94,7 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
     private boolean isSuperUser(String id) {
         return QueryChain.of(UserRoleRelation.class)
                 .innerJoin(UserRole.class).on(USER_ROLE_RELATION.ROLE_ID.eq(USER_ROLE.ID)
-                        .and(USER_ROLE.CODE.eq("ROLE_ADMIN")))
+                        .and(USER_ROLE.CODE.eq("admin")))
                 .where(USER_ROLE_RELATION.USER_ID.eq(id))
                 .exists();
     }

@@ -1,17 +1,20 @@
 package cn.master.horde.controller;
 
-import com.mybatisflex.core.paginate.Page;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.beans.factory.annotation.Autowired;
+import cn.master.horde.common.annotation.Loggable;
+import cn.master.horde.common.constants.Created;
+import cn.master.horde.common.constants.Updated;
+import cn.master.horde.dto.permission.PermissionDefinitionItem;
+import cn.master.horde.dto.request.PermissionSettingUpdateRequest;
+import cn.master.horde.dto.request.UserRoleUpdateRequest;
 import cn.master.horde.entity.UserRole;
 import cn.master.horde.service.UserRoleService;
-import org.springframework.web.bind.annotation.RestController;
+import com.mybatisflex.core.paginate.Page;
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 /**
@@ -21,62 +24,44 @@ import java.util.List;
  * @since 2026-01-14
  */
 @RestController
-@RequestMapping("/userRole")
+@RequiredArgsConstructor
+@RequestMapping("/user/role")
 public class UserRoleController {
 
-    @Autowired
-    private UserRoleService userRoleService;
+    private final UserRoleService userRoleService;
 
-    /**
-     * 保存用户角色表。
-     *
-     * @param userRole 用户角色表
-     * @return {@code true} 保存成功，{@code false} 保存失败
-     */
     @PostMapping("save")
-    public boolean save(@RequestBody UserRole userRole) {
-        return userRoleService.save(userRole);
+    @Loggable("保存自定义用户组")
+    @PreAuthorize("hasPermission('SYSTEM_USER_ROLE','READ+ADD')")
+    public void save(@Validated({Created.class}) @RequestBody UserRoleUpdateRequest request) {
+        userRoleService.add(request);
     }
 
-    /**
-     * 根据主键删除用户角色表。
-     *
-     * @param id 主键
-     * @return {@code true} 删除成功，{@code false} 删除失败
-     */
-    @DeleteMapping("remove/{id}")
-    public boolean remove(@PathVariable String id) {
-        return userRoleService.removeById(id);
+    @GetMapping("remove/{id}")
+    @Operation(summary = "删除自定义全用户组")
+    @PreAuthorize("hasPermission('SYSTEM_USER_ROLE','READ+DELETE')")
+    public void remove(@PathVariable String id) {
+        userRoleService.delete(id);
     }
 
-    /**
-     * 根据主键更新用户角色表。
-     *
-     * @param userRole 用户角色表
-     * @return {@code true} 更新成功，{@code false} 更新失败
-     */
-    @PutMapping("update")
-    public boolean update(@RequestBody UserRole userRole) {
-        return userRoleService.updateById(userRole);
+    @PostMapping("update")
+    @Loggable("更新自定义全局用户组")
+    @PreAuthorize("hasPermission('SYSTEM_USER_ROLE','READ+UPDATE')")
+    @Operation(summary = "更新自定义用户组")
+    public void update(@Validated({Updated.class}) @RequestBody UserRoleUpdateRequest request) {
+        userRoleService.updateUserRole(request);
     }
 
-    /**
-     * 查询所有用户角色表。
-     *
-     * @return 所有数据
-     */
     @GetMapping("list")
+    @Operation(summary = "查询所有用户角色表")
+    @PreAuthorize("hasPermission('SYSTEM_USER_ROLE','READ')")
     public List<UserRole> list() {
         return userRoleService.list();
     }
 
-    /**
-     * 根据主键获取用户角色表。
-     *
-     * @param id 用户角色表主键
-     * @return 用户角色表详情
-     */
     @GetMapping("getInfo/{id}")
+    @Operation(summary = "根据主键获取用户角色表")
+    @PreAuthorize("hasPermission('SYSTEM_USER_ROLE','READ')")
     public UserRole getInfo(@PathVariable String id) {
         return userRoleService.getById(id);
     }
@@ -88,8 +73,23 @@ public class UserRoleController {
      * @return 分页对象
      */
     @GetMapping("page")
+    @PreAuthorize("hasPermission('SYSTEM_USER_ROLE','READ')")
     public Page<UserRole> page(Page<UserRole> page) {
         return userRoleService.page(page);
     }
 
+    @GetMapping("/permission/setting/{id}")
+    @Operation(summary = "获取用户组对应的权限配置")
+    @PreAuthorize("hasPermission('SYSTEM_USER_ROLE','READ')")
+    public List<PermissionDefinitionItem> getPermissionSetting(@PathVariable String id) {
+        return userRoleService.getPermissionSetting(id);
+    }
+
+    @Loggable("更新用户角色权限配置")
+    @PostMapping("/permission/update")
+    @Operation(summary = "更新用户组对应的权限配置")
+    @PreAuthorize("hasPermission('SYSTEM_USER_ROLE','READ+UPDATE')")
+    public void updatePermissionSetting(@Validated @RequestBody PermissionSettingUpdateRequest request) {
+        userRoleService.updatePermissionSetting(request);
+    }
 }
