@@ -1,10 +1,14 @@
 package cn.master.horde.service;
 
+import cn.master.horde.dto.UserSelectOption;
 import cn.master.horde.dto.permission.PermissionDefinitionItem;
 import cn.master.horde.dto.request.PermissionSettingUpdateRequest;
 import cn.master.horde.dto.request.UserRoleUpdateRequest;
 import cn.master.horde.entity.UserRole;
+import cn.master.horde.entity.UserRoleRelation;
 import com.mybatisflex.core.service.IService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
 
@@ -29,4 +33,10 @@ public interface UserRoleService extends IService<UserRole> {
     List<PermissionDefinitionItem> getPermissionSetting(String id);
 
     void updatePermissionSetting(PermissionSettingUpdateRequest request);
+
+    void checkRoleIsGlobalAndHaveMember(@Valid @NotEmpty List<String> roleIdList, boolean isSystem);
+
+    List<UserRole> selectByUserRoleRelations(List<UserRoleRelation> userRoleRelations);
+
+    List<UserSelectOption> getSystemRoleList();
 }

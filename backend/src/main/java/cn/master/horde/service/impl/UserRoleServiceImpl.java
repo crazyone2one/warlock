@@ -5,6 +5,7 @@ import cn.master.horde.common.constants.UserRoleScope;
 import cn.master.horde.common.constants.UserRoleType;
 import cn.master.horde.common.result.BizException;
 import cn.master.horde.common.service.CurrentUserService;
+import cn.master.horde.dto.UserSelectOption;
 import cn.master.horde.dto.permission.Permission;
 import cn.master.horde.dto.permission.PermissionCache;
 import cn.master.horde.dto.permission.PermissionDefinitionItem;
@@ -181,6 +182,42 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
         // 内置管理员级别用户组无法更改权限
         checkAdminUserRole(userRole);
         userRolePermissionService.updatePermissionSetting(request);
+    }
+
+    @Override
+    public void checkRoleIsGlobalAndHaveMember(List<String> roleIdList, boolean isSystem) {
+        List<String> globalRoleList = queryChain().where(USER_ROLE.ID.in(roleIdList))
+                .and(USER_ROLE.SCOPE_ID.eq(UserRoleScope.GLOBAL))
+                .and(USER_ROLE.TYPE.eq("SYSTEM").when(isSystem)).list()
+                .stream()
+                .map(UserRole::getId).toList();
+        if (globalRoleList.size() != roleIdList.size()) {
+            throw new BizException(Translator.get("role.not.global"));
+        }
+    }
+
+    @Override
+    public List<UserRole> selectByUserRoleRelations(List<UserRoleRelation> userRoleRelations) {
+        if (CollectionUtils.isNotEmpty(userRoleRelations)) {
+            return mapper.selectListByIds(userRoleRelations.stream().map(UserRoleRelation::getRoleId).distinct().toList());
+        }
+        return List.of();
+    }
+
+    @Override
+    public List<UserSelectOption> getSystemRoleList() {
+        List<UserRole> userRoles = queryChain().where(USER_ROLE.SCOPE_ID.eq(UserRoleScope.GLOBAL)
+                .and(USER_ROLE.TYPE.eq(UserRoleType.SYSTEM.name()))).list();
+        List<UserSelectOption> returnList = new ArrayList<>();
+        userRoles.forEach(userRole -> {
+            UserSelectOption option = new UserSelectOption();
+            option.setId(userRole.getId());
+            option.setName(Translator.get(userRole.getName()));
+            option.setDisabled(userRole.getId().equals(MEMBER.getValue()));
+            option.setCloseable(!userRole.getId().equals(MEMBER.getValue()));
+            returnList.add(option);
+        });
+        return returnList;
     }
 
     private void checkAdminUserRole(UserRole userRole) {

@@ -17,6 +17,7 @@ const currentTable = ref('auth');
 const currentUserGroupItem = ref<CurrentUserGroupItem>({
   id: '',
   name: '',
+  code: '',
   type: AuthScopeEnum.SYSTEM,
   internal: true,
 });

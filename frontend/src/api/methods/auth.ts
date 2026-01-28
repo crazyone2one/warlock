@@ -7,5 +7,5 @@ export const authApi = {
         method.meta = {authRole: null,};
         return method;
     },
-    getUserInfo: () => globalInstance.Get<UserState>('/system-user/get-user-info', {}),
+    getUserInfo: () => globalInstance.Get<UserState>('/system/user/get-user-info', {}),
 }

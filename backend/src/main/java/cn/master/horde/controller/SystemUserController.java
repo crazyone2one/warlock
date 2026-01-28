@@ -1,14 +1,26 @@
 package cn.master.horde.controller;
 
+import cn.master.horde.common.annotation.Loggable;
+import cn.master.horde.common.constants.Created;
+import cn.master.horde.common.constants.Updated;
+import cn.master.horde.common.service.CurrentUserService;
 import cn.master.horde.core.security.CustomUserDetails;
-import cn.master.horde.dto.UserDTO;
+import cn.master.horde.dto.*;
+import cn.master.horde.dto.request.UserBatchCreateRequest;
+import cn.master.horde.dto.request.UserChangeEnableRequest;
+import cn.master.horde.dto.request.UserEditRequest;
 import cn.master.horde.entity.SystemUser;
 import cn.master.horde.service.SystemUserService;
+import cn.master.horde.service.UserRoleService;
 import com.mybatisflex.core.paginate.Page;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,20 +32,17 @@ import java.util.List;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/system-user")
+@RequestMapping("/system/user")
 public class SystemUserController {
 
     private final SystemUserService systemUserService;
+    private final UserRoleService userRoleService;
 
-    /**
-     * 保存用户。
-     *
-     * @param systemUser 用户
-     * @return {@code true} 保存成功，{@code false} 保存失败
-     */
+    @Loggable("添加用户")
+    @PreAuthorize("hasPermission('SYSTEM_USER','READ+ADD')")
     @PostMapping("save")
-    public boolean save(@RequestBody SystemUser systemUser) {
-        return systemUserService.save(systemUser);
+    public UserBatchCreateResponse save(@Validated({Created.class}) @RequestBody UserBatchCreateRequest request) {
+        return systemUserService.saveUser(request);
     }
 
     /**
@@ -43,19 +52,30 @@ public class SystemUserController {
      * @return {@code true} 删除成功，{@code false} 删除失败
      */
     @DeleteMapping("remove/{id}")
+    @PreAuthorize("hasPermission('SYSTEM_USER','READ+DELETE')")
     public boolean remove(@PathVariable String id) {
         return systemUserService.removeById(id);
     }
 
-    /**
-     * 根据主键更新用户。
-     *
-     * @param systemUser 用户
-     * @return {@code true} 更新成功，{@code false} 更新失败
-     */
-    @PutMapping("update")
-    public boolean update(@RequestBody SystemUser systemUser) {
-        return systemUserService.updateById(systemUser);
+    @Loggable("修改用户")
+    @PreAuthorize("hasPermission('SYSTEM_USER','READ+UPDATE')")
+    @PostMapping("update")
+    public UserEditRequest update(@Validated({Updated.class}) @RequestBody UserEditRequest request) {
+        return systemUserService.updateUser(request);
+    }
+
+    @Loggable("启用/禁用用户")
+    @PreAuthorize("hasPermission('SYSTEM_USER','READ+UPDATE')")
+    @PostMapping("/update/enable")
+    public TableBatchProcessResponse update(@Validated @RequestBody UserChangeEnableRequest request) {
+        return systemUserService.updateUserEnable(request, CurrentUserService.getCurrentUserId(), CurrentUserService.getCurrentUsername());
+    }
+
+    @Loggable("删除用户")
+    @PreAuthorize("hasPermission('SYSTEM_USER','READ+DELETE')")
+    @PostMapping("/delete")
+    public TableBatchProcessResponse delete(@Validated @RequestBody UserChangeEnableRequest request) {
+        return systemUserService.deleteUser(request, CurrentUserService.getCurrentUserId(), CurrentUserService.getCurrentUsername());
     }
 
     /**
@@ -68,15 +88,12 @@ public class SystemUserController {
         return systemUserService.list();
     }
 
-    /**
-     * 根据主键获取用户。
-     *
-     * @param id 用户主键
-     * @return 用户详情
-     */
-    @GetMapping("getInfo/{id}")
-    public SystemUser getInfo(@PathVariable String id) {
-        return systemUserService.getById(id);
+
+    @GetMapping("/get/{keyword}")
+    @Operation(summary = "通过email或id查找用户")
+    @PreAuthorize("hasPermission('SYSTEM_USER','READ')")
+    public UserDTO getInfo(@PathVariable String keyword) {
+        return systemUserService.getUserDTOByKeyword(keyword);
     }
 
     @GetMapping("get-user-info")
@@ -89,15 +106,31 @@ public class SystemUserController {
         return systemUserService.getUserInfoById(userId);
     }
 
-    /**
-     * 分页查询用户。
-     *
-     * @param page 分页对象
-     * @return 分页对象
-     */
-    @GetMapping("page")
-    public Page<SystemUser> page(Page<SystemUser> page) {
-        return systemUserService.page(page);
+    @PostMapping("page")
+    @Operation(summary = "系统设置-用户-分页查找用户")
+    @PreAuthorize("hasPermission('SYSTEM_USER','READ')")
+    public Page<UserTableResponse> page(@Validated @RequestBody BasePageRequest request) {
+        return systemUserService.pageUser(request);
     }
 
+    @PostMapping("/reset/password")
+    @Operation(summary = "系统设置-系统-用户-重置用户密码")
+    @PreAuthorize("hasPermission('SYSTEM_USER','READ+UPDATE')")
+    public TableBatchProcessResponse resetPassword(@Validated @RequestBody TableBatchProcessDTO request) {
+        return systemUserService.resetPassword(request, CurrentUserService.getCurrentUserId());
+    }
+
+    @PostMapping(value = "/import", consumes = {"multipart/form-data"})
+    @Operation(summary = "系统设置-系统-用户-导入用户")
+    @PreAuthorize("hasPermission('SYSTEM_USER','READ+IMPORT')")
+    public UserImportResponse importUser(@RequestPart(value = "file", required = false) MultipartFile excelFile) {
+        return systemUserService.importByExcel(excelFile, CurrentUserService.getCurrentUserId());
+    }
+
+    @GetMapping("/get/system/role")
+    @Operation(summary = "系统设置-系统-用户-查找系统级用户组")
+    @PreAuthorize("hasPermission('SYSTEM_USER','READ')")
+    public List<UserSelectOption> getGlobalSystemRole() {
+        return userRoleService.getSystemRoleList();
+    }
 }

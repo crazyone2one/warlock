@@ -7,7 +7,8 @@ package cn.master.horde.common.result;
 public enum SystemResultCode implements IResultCode{
     GLOBAL_USER_ROLE_PERMISSION(101001, "global_user_role_permission_error"),
     GLOBAL_USER_ROLE_EXIST(101002, "global_user_role_exist_error"),
-    ADMIN_USER_ROLE_PERMISSION(100019, "internal_admin_user_role_permission_error")
+    ADMIN_USER_ROLE_PERMISSION(100019, "internal_admin_user_role_permission_error"),
+    INVITE_EMAIL_EXIST(101513, "user_email_already_exists"),
     ;
     private final int code;
     private final String message;

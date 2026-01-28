@@ -1,18 +1,24 @@
 <script setup lang="ts">
+const {addPermission = [], addIcon = 'i-solar:add-circle-linear'} = defineProps<{
+  addPermission?: string[],
+  addIcon?: string
+}>()
 const emit = defineEmits(['add', 'refresh'])
 </script>
 
 <template>
   <n-flex justify="space-between">
     <div class="ml-1">
-      <n-button text type="primary" @click="emit('add')">
-        <template #icon>
-          <n-icon>
-            <div class="i-solar:add-circle-linear"/>
-          </n-icon>
-        </template>
-      </n-button>
-      <slot name="left"></slot>
+      <n-flex justify="space-between">
+        <n-button v-permission.all="addPermission" text type="primary" @click="emit('add')">
+          <template #icon>
+            <n-icon>
+              <div :class="addIcon"/>
+            </n-icon>
+          </template>
+        </n-button>
+        <slot name="left"></slot>
+      </n-flex>
     </div>
     <div>
       <n-button text type="info" @click="emit('refresh')">
