@@ -33,8 +33,8 @@ public class UserRoleController {
     @PostMapping("save")
     @Loggable("保存自定义用户组")
     @PreAuthorize("hasPermission('SYSTEM_USER_ROLE','READ+ADD')")
-    public void save(@Validated({Created.class}) @RequestBody UserRoleUpdateRequest request) {
-        userRoleService.add(request);
+    public UserRole save(@Validated({Created.class}) @RequestBody UserRoleUpdateRequest request) {
+        return userRoleService.add(request);
     }
 
     @GetMapping("remove/{id}")
@@ -48,8 +48,8 @@ public class UserRoleController {
     @Loggable("更新自定义全局用户组")
     @PreAuthorize("hasPermission('SYSTEM_USER_ROLE','READ+UPDATE')")
     @Operation(summary = "更新自定义用户组")
-    public void update(@Validated({Updated.class}) @RequestBody UserRoleUpdateRequest request) {
-        userRoleService.updateUserRole(request);
+    public UserRole update(@Validated({Updated.class}) @RequestBody UserRoleUpdateRequest request) {
+        return userRoleService.updateUserRole(request);
     }
 
     @GetMapping("list")

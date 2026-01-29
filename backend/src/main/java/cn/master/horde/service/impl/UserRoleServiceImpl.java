@@ -67,7 +67,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void add(UserRoleUpdateRequest request) {
+    public UserRole add(UserRoleUpdateRequest request) {
         UserRole userRole = new UserRole();
         BeanUtils.copyProperties(request, userRole);
         userRole.setCreateUser(CurrentUserService.getCurrentUserId());
@@ -82,11 +82,12 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
             initPermission.setPermissionId("PROJECT_BASE_INFO:READ");
             userRolePermissionService.save(initPermission);
         }
+        return userRole;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updateUserRole(UserRoleUpdateRequest request) {
+    public UserRole updateUserRole(UserRoleUpdateRequest request) {
         UserRole userRole = new UserRole();
         BeanUtils.copyProperties(request, userRole);
         UserRole originUserRole = getWithCheck(userRole.getId());
@@ -95,6 +96,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
         userRole.setInternal(false);
         checkExist(userRole);
         mapper.update(userRole);
+        return userRole;
     }
 
     @Override

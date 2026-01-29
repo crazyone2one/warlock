@@ -31,8 +31,6 @@ export interface UserGroupItem {
     createUser: string;
     // 应用范围
     scopeId: string;
-    // 自定义排序
-    pos: number;
 }
 export interface UserGroupPermissionItem {
     id: string;
@@ -74,4 +72,11 @@ export interface SavePermissions {
 export interface SaveUSettingData {
     userRoleId: string;
     permissions: SavePermissions[];
+}
+export interface SystemUserGroupParams {
+    id?: string; // 组ID
+    name?: string; // 名称
+    code?: string; // 代码
+    scopeId?: string; // 组织ID
+    type?: string; // 组类型：SYSTEM | PROJECT | ORGANIZATION
 }

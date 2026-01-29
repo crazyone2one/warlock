@@ -29,6 +29,11 @@ public class UserRoleUpdateRequest implements Serializable {
     @Size(min = 1, max = 255, message = "{user_role.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
+    @Schema(description = "组代码", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{user_role.code.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{user_role.name.length_range}", groups = {Created.class, Updated.class})
+    private String code;
+
     @Schema(description = "描述")
     @Size(max = 1000, groups = {Created.class, Updated.class})
     private String description;

@@ -22,9 +22,9 @@ public interface UserRoleService extends IService<UserRole> {
 
     List<UserRole> list();
 
-    void add(UserRoleUpdateRequest request);
+    UserRole add(UserRoleUpdateRequest request);
 
-    void updateUserRole(UserRoleUpdateRequest request);
+    UserRole updateUserRole(UserRoleUpdateRequest request);
 
     void checkGlobalUserRole(UserRole userRole);
 

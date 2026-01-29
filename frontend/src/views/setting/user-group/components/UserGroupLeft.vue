@@ -91,6 +91,9 @@ const handleListItemClick = (element: UserGroupItem) => {
   currentId.value = id;
   emit('handleSelect', element);
 }
+const handleCreateUserGroup = (id: string) => {
+  initData(id);
+}
 defineExpose({
   initData,
 });
@@ -116,7 +119,8 @@ defineExpose({
         </div>
         <user-group-popover :list="systemUserGroupList" :visible="systemUserGroupVisible"
                             :auth-scope="AuthScopeEnum.SYSTEM"
-                            @cancel="systemUserGroupVisible = false">
+                            @cancel="systemUserGroupVisible = false"
+                            @submit="handleCreateUserGroup">
           <n-tooltip trigger="hover" placement="right">
             <template #trigger>
               <n-icon v-permission="props.addPermission" size="20">

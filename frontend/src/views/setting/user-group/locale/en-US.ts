@@ -4,6 +4,7 @@ export default {
       addUserGroupSuccess: 'Add user group success',
       updateUserGroupSuccess: 'Update user group success',
       searchHolder: 'Please input user group name',
+      code: 'Please input user group code',
       systemUserGroup: 'System user group',
       inSystem: 'In system',
       customUserGroup: 'Custom user group',
