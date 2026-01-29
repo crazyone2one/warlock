@@ -4,6 +4,7 @@ export interface CreateUserResult {
     errorEmails: Record<string, any>;
     successList: any[];
 }
+
 export interface SimpleUserInfo {
     id?: string;
     name: string;
@@ -11,22 +12,28 @@ export interface SimpleUserInfo {
     email: string;
     phone?: string;
 }
+
 export interface CreateUserParams {
     userInfoList: SimpleUserInfo[];
     userRoleIdList: string[];
 }
+
 export interface UpdateUserInfoParams extends SimpleUserInfo {
     id: string;
     userRoleIdList: string[];
 }
+
 export interface UpdateUserStatusParams extends BatchApiParams {
     enable: boolean;
 }
+
 export type DeleteUserParams = BatchApiParams;
 export type ResetUserPasswordParams = BatchApiParams;
+
 export interface ImportUserParams {
     fileList: File[];
 }
+
 export interface UserListItem {
     id: string;
     userName: string;
@@ -46,6 +53,7 @@ export interface UserListItem {
     selectUserGroupLoading: boolean;
     userRoleIdList: string[];
 }
+
 export interface UserRoleListItem {
     id: string;
     name: string;
@@ -57,9 +65,18 @@ export interface UserRoleListItem {
     createUser: string;
     scopeId: string; // 应用范围
 }
+
 export interface SystemRole {
     id: string;
     name: string;
     disabled: boolean; // 是否可选
     closeable: boolean; // 是否可取消
+}
+
+export type UserModalMode = 'create' | 'edit';
+
+export interface UserForm {
+    list: SimpleUserInfo[];
+    userGroup: Record<string, any>[];
+    userGroupIdList?: string[];
 }

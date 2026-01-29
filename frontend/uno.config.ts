@@ -1,5 +1,5 @@
 import {defineConfig, presetIcons, presetWind3} from 'unocss'
-
+import transformerDirectives from '@unocss/transformer-directives'
 export default defineConfig({
     presets: [
         presetWind3(),
@@ -9,6 +9,7 @@ export default defineConfig({
             }
         })
     ],
+    transformers: [transformerDirectives()],
     safelist: ['i-solar:share-circle-linear', 'i-solar:document-medicine-linear',
         'i-solar:file-text-outline', 'i-solar:settings-linear',
         'i-solar:user-outline', 'i-solar:shield-user-linear'],

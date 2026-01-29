@@ -5,6 +5,7 @@ import type {
     DeleteUserParams,
     ImportUserParams,
     ResetUserPasswordParams,
+    SystemRole,
     UpdateUserInfoParams,
     UpdateUserStatusParams,
     UserListItem
@@ -33,16 +34,22 @@ export const userApi = {
     queryUserPage: (params: ITableQueryParams) => {
         return globalInstance.Post<IPageResponse<UserListItem>>('/system/user/page', params, {
             transform(data: any, _headers) {
-                return data.records.map((item: UserListItem) => {
-                    return {
-                        ...item,
-                        phone: formatPhoneNumber(item.phone || ''),
-                        selectUserGroupVisible: false,
-                        selectUserGroupLoading: false,
-                        userRoleIdList: item.userRoleList.map((e) => e.id),
-                    }
-                })
+                return {
+                    ...data,
+                    records: data.records.map((item: UserListItem) => {
+                        return {
+                            ...item,
+                            phone: formatPhoneNumber(item.phone || ''),
+                            selectUserGroupVisible: false,
+                            selectUserGroupLoading: false,
+                            userRoleIdList: item.userRoleList.map((e) => e.id),
+                        }
+                    })
+                }
+
             }
         })
     },
+    // 获取系统用户组
+    getSystemRoles: () => globalInstance.Get<Array<SystemRole>>('/system/user/get/system/role')
 }

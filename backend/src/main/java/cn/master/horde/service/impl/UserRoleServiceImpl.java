@@ -214,7 +214,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
         userRoles.forEach(userRole -> {
             UserSelectOption option = new UserSelectOption();
             option.setId(userRole.getId());
-            option.setName(Translator.get(userRole.getName()));
+            option.setName(userRole.getName());
             option.setDisabled(userRole.getId().equals(MEMBER.getValue()));
             option.setCloseable(!userRole.getId().equals(MEMBER.getValue()));
             returnList.add(option);

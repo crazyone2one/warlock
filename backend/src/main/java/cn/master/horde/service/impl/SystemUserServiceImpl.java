@@ -302,6 +302,7 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
                     userRoleRelation.setUserId(userId);
                     userRoleRelation.setRoleId(roleId);
                     userRoleRelation.setSourceId("system");
+                    userRoleRelation.setCreateUser(username);
                     userRoleRelations.add(userRoleRelation);
                 });
                 userRoleRelationService.saveBatch(userRoleRelations);
