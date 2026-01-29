@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import {h} from 'vue'
 import {NAvatar, NText} from 'naive-ui'
+import {useRequest} from "alova/client";
+import {authApi} from "/@/api/methods/auth.ts";
+import {useAppStore, useUserStore} from "/@/store";
+import router from "/@/router";
+import {useI18n} from "vue-i18n";
+import {clearToken} from "/@/utils/auth.ts";
+import {removeRouteListener} from "/@/utils/route-listener.ts";
 
+const {t} = useI18n()
+const appState = useAppStore()
+const userState = useUserStore()
 const renderCustomHeader = () => {
   return h(
       'div',
@@ -48,6 +58,30 @@ const dropOptions = [
     icon: () => h('div', {class: 'i-solar:logout-linear'})
   },
 ]
+const {send} = useRequest(() => authApi.logout(), {immediate: false})
+const handleSelect = (key: string) => {
+  switch (key) {
+    case 'profile':
+      break;
+    case 'logout':
+      send().then(() => {
+        appState.resetInfo()
+        userState.resetInfo()
+        clearToken()
+        removeRouteListener()
+        const currentRoute = router.currentRoute.value;
+        window.$message.success(t('message.logoutSuccess'));
+        router.push({
+          name: 'login',
+          query: {
+            ...router.currentRoute.value.query,
+            redirect: currentRoute.name as string,
+          },
+        });
+      })
+      break;
+  }
+}
 </script>
 
 <template>
@@ -61,7 +95,7 @@ const dropOptions = [
         </n-icon>
       </template>
     </n-button>
-    <n-dropdown trigger="click" :options="dropOptions">
+    <n-dropdown trigger="click" :options="dropOptions" @select="handleSelect">
       <n-button text>
         <template #icon>
           <n-icon>

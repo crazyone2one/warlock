@@ -8,4 +8,5 @@ export const authApi = {
         return method;
     },
     getUserInfo: () => globalInstance.Get<UserState>('/system/user/get-user-info', {}),
+    logout: () => globalInstance.Post('/auth/logout', {}),
 }

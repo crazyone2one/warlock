@@ -1,6 +1,7 @@
 package cn.master.horde.core.config;
 
 import cn.master.horde.core.filter.RestAuthenticationFilter;
+import cn.master.horde.core.handler.CustomLogoutSuccessHandler;
 import cn.master.horde.core.security.CustomUserDetailsService;
 import cn.master.horde.core.security.OptimizedPermissionEvaluator;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated());
         http.addFilterBefore(restAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         http.authenticationManager(authenticationManager());
+        http.logout(logout -> logout.logoutSuccessHandler(new CustomLogoutSuccessHandler()));
         return http.build();
     }
 

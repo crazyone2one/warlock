@@ -50,5 +50,6 @@ public class AuthController {
     @PostMapping("/logout")
     public void logout() {
         // authenticationService.logout();
+        System.out.println("logout");
     }
 }

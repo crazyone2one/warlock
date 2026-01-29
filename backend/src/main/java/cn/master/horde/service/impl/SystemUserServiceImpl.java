@@ -142,18 +142,18 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
         if (!request.isEnable()) {
             // 不能禁用当前用户和admin
             checkProcessUserAndThrowException(request.getSelectIds(), operatorId, operatorName, Translator.get("user.not.disable"));
-            boolean update = updateChain()
-                    .set(SYSTEM_USER.ENABLE, request.isEnable())
-                    .where(SYSTEM_USER.ID.in(request.getSelectIds()))
-                    .update();
-            if (update) {
-                TableBatchProcessResponse response = new TableBatchProcessResponse();
-                response.setTotalCount(request.getSelectIds().size());
-                response.setSuccessCount(request.getSelectIds().size());
-                return response;
-            }
         }
-        return null;
+        boolean update = updateChain()
+                .set(SYSTEM_USER.ENABLE, request.isEnable())
+                .where(SYSTEM_USER.ID.in(request.getSelectIds()))
+                .update();
+        if (update) {
+            TableBatchProcessResponse response = new TableBatchProcessResponse();
+            response.setTotalCount(request.getSelectIds().size());
+            response.setSuccessCount(request.getSelectIds().size());
+            return response;
+        }
+        return new TableBatchProcessResponse();
     }
 
     @Override

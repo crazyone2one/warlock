@@ -22,6 +22,8 @@ import WTableMoreAction from "/@/components/WTableMoreAction.vue";
 import WBatchForm from '/@/components/w-batch-form/index.vue'
 import {validateEmail, validatePhone} from "/@/utils/validate.ts";
 import type {FormItemModel} from "/@/components/w-batch-form/types.ts";
+import type {BatchActionQueryParams} from "/@/api/types.ts";
+import {characterLimit} from "/@/utils";
 
 const batchFormRef = ref<InstanceType<typeof WBatchForm>>();
 const {t} = useI18n()
@@ -81,7 +83,11 @@ const columns: DataTableColumns<UserListItem> = [
   {
     title: () => t('system.user.tableColumnStatus'), key: 'enable',
     render(row) {
-      return h(NSwitch, {value: row.enable, size: 'small'}, {})
+      return h(NSwitch, {
+        value: row.enable, size: 'small',
+        disabled: !hasAnyPermission(['SYSTEM_USER:READ+UPDATE']),
+        onUpdateValue: (value) => handleEnableChange(value, row)
+      }, {})
     }
   },
   {
@@ -97,24 +103,91 @@ const columns: DataTableColumns<UserListItem> = [
             {default: () => t('system.user.delete')});
       } else {
         return h(NFlex, {}, {
-          default: () => [
-            h(NButton, {
-                  text: true,
-                  directives: [{name: 'permission', value: ['SYSTEM_USER:READ+UPDATE']}],
-                  type: 'primary', onClick: () => showUserModal('edit', row),
-                },
-                {default: () => t('system.user.editUser')}),
-            h(WTableMoreAction, {
-                  directives: [{name: 'permission', value: ['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+DELETE']}],
-                  options: tableActions,
-                },
-            )
-          ]
+          default: () => {
+            const res = []
+            if (hasAnyPermission(['SYSTEM_USER:READ+UPDATE'])) {
+              res.push(h(NButton, {
+                    text: true,
+                    directives: [{name: 'permission', value: ['SYSTEM_USER:READ+UPDATE']}],
+                    type: 'primary', onClick: () => showUserModal('edit', row),
+                  },
+                  {default: () => t('system.user.editUser')}),)
+            }
+            if (hasAnyPermission(['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+DELETE'])) {
+              res.push(
+                  h(WTableMoreAction, {
+                        directives: [{name: 'permission', value: ['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+DELETE']}],
+                        options: tableActions,
+                      },
+                  )
+              )
+            }
+            return res;
+          }
         });
       }
     }
   }
 ]
+const handleEnableChange = (v: boolean, record: UserListItem) => {
+  if (v) {
+    enableUser(record);
+  } else {
+    disabledUser(record);
+  }
+}
+const enableUser = (record?: UserListItem, isBatch?: boolean, params?: BatchActionQueryParams) => {
+  let title = t('system.user.enableUserTip', {name: characterLimit(record?.userName)});
+  let selectIds = [record?.id || ''];
+  if (isBatch) {
+    title = t('system.user.batchEnableUserTip', {count: params?.currentSelectCount || checkedRowKeys.value.length});
+    selectIds = checkedRowKeys.value as string[];
+  }
+  window.$dialog.info({
+    title,
+    content: () => t('system.user.enableUserContent'),
+    positiveText: t('system.user.enableUserConfirm'),
+    negativeText: t('system.user.enableUserCancel'),
+    maskClosable: false,
+    onPositiveClick: async () => {
+      await userApi.toggleUserStatus({
+        selectIds,
+        selectAll: !!params?.selectAll,
+        excludeIds: params?.excludeIds || [],
+        condition: {keyword: keyword.value},
+        enable: true,
+      })
+      window.$message.success(t('system.user.enableUserSuccess'));
+      await fetchData();
+    },
+  })
+}
+const disabledUser = (record?: UserListItem, isBatch?: boolean, params?: BatchActionQueryParams) => {
+  let title = t('system.user.disableUserTip', {name: characterLimit(record?.userName)});
+  let selectIds = [record?.id || ''];
+  if (isBatch) {
+    title = t('system.user.batchDisableUserTip', {count: params?.currentSelectCount || checkedRowKeys.value.length});
+    selectIds = checkedRowKeys.value as string[];
+  }
+  window.$dialog.warning({
+    title,
+    content: () => t('system.user.disableUserContent'),
+    positiveText: t('system.user.disableUserConfirm'),
+    negativeText: t('system.user.disableUserCancel'),
+    maskClosable: false,
+    onPositiveClick: async () => {
+      await userApi.toggleUserStatus({
+        selectIds,
+        selectAll: !!params?.selectAll,
+        excludeIds: params?.excludeIds || [],
+        condition: {keyword: keyword.value},
+        enable: false,
+      })
+      window.$message.success(t('system.user.disableUserSuccess'));
+      await fetchData();
+    },
+  })
+}
 const handleTagClick = (record: UserListItem) => {
   if (hasAllPermission(['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER_ROLE:READ'])) {
     record.selectUserGroupVisible = true;
@@ -374,6 +447,7 @@ onMounted(() => {
           </template>
           {{ t('system.user.importUser') }}
         </n-button>
+
       </template>
       <template #right>
         <n-input v-model:value="keyword" clearable :placeholder="t('system.user.searchUser')" size="small"/>
