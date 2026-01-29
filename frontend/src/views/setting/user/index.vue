@@ -2,6 +2,7 @@
 import {
   type DataTableColumns,
   type DataTableRowKey,
+  type DropdownOption,
   type FormInst,
   NAlert,
   NButton,
@@ -108,7 +109,7 @@ const columns: DataTableColumns<UserListItem> = [
             if (hasAnyPermission(['SYSTEM_USER:READ+UPDATE'])) {
               res.push(h(NButton, {
                     text: true,
-                    directives: [{name: 'permission', value: ['SYSTEM_USER:READ+UPDATE']}],
+                    // directives: [{name: 'permission', value: ['SYSTEM_USER:READ+UPDATE']}],
                     type: 'primary', onClick: () => showUserModal('edit', row),
                   },
                   {default: () => t('system.user.editUser')}),)
@@ -116,8 +117,9 @@ const columns: DataTableColumns<UserListItem> = [
             if (hasAnyPermission(['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+DELETE'])) {
               res.push(
                   h(WTableMoreAction, {
-                        directives: [{name: 'permission', value: ['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+DELETE']}],
+                        // directives: [{name: 'permission', value: ['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+DELETE']}],
                         options: tableActions,
+                        onSelect: (key) => handleMoreAction(key, row),
                       },
                   )
               )
@@ -129,6 +131,71 @@ const columns: DataTableColumns<UserListItem> = [
     }
   }
 ]
+const handleMoreAction = (option: DropdownOption, record: UserListItem) => {
+  switch (option.key) {
+    case 'resetPassword':
+      resetPassword(record);
+      break
+    case 'delete':
+      deleteUser(record);
+      break
+  }
+}
+const deleteUser = (record?: UserListItem, isBatch?: boolean, params?: BatchActionQueryParams) => {
+  let title = t('system.user.deleteUserTip', {name: characterLimit(record?.userName)});
+  let selectIds = [record?.id || ''];
+  if (isBatch) {
+    title = t('system.user.batchDeleteUserTip', {count: params?.currentSelectCount || checkedRowKeys.value.length});
+    selectIds = checkedRowKeys.value as string[];
+  }
+  let content = t('system.user.deleteUserContent');
+  window.$dialog.warning({
+    title,
+    content,
+    positiveText: t('system.user.deleteUserConfirm'),
+    negativeText: t('system.user.deleteUserCancel'),
+    maskClosable: false,
+    onPositiveClick: async () => {
+      await userApi.deleteUserInfo({
+        selectIds,
+        selectAll: !!params?.selectAll,
+        excludeIds: params?.excludeIds || [],
+        condition: {keyword: keyword.value},
+      })
+      window.$message.success(t('system.user.deleteUserSuccess'));
+      await fetchData();
+    },
+  })
+}
+const resetPassword = (record?: UserListItem, isBatch?: boolean, params?: BatchActionQueryParams) => {
+  let title = t('system.user.resetPswTip', {name: characterLimit(record?.userName)});
+  let selectIds = [record?.id || ''];
+  if (isBatch) {
+    title = t('system.user.batchResetPswTip', {count: params?.currentSelectCount || checkedRowKeys.value.length});
+    selectIds = checkedRowKeys.value as string[];
+  }
+
+  let content = t('system.user.resetPswContent');
+  if (record && record.id === 'admin') {
+    content = t('system.user.resetAdminPswContent');
+  }
+  window.$dialog.warning({
+    title,
+    content,
+    positiveText: t('system.user.resetPswConfirm'),
+    negativeText: t('system.user.resetPswCancel'),
+    maskClosable: false,
+    onPositiveClick: async () => {
+      await userApi.resetUserPassword({
+        selectIds,
+        selectAll: !!params?.selectAll,
+        excludeIds: params?.excludeIds || [],
+        condition: {keyword: keyword.value},
+      })
+      window.$message.success(t('system.user.resetPswSuccess'));
+    },
+  })
+}
 const handleEnableChange = (v: boolean, record: UserListItem) => {
   if (v) {
     enableUser(record);
