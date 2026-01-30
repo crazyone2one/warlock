@@ -14,3 +14,21 @@ export const characterLimit = (str?: string, length?: number) => {
     }
     return `${str.slice(0, length || 20 - 3)}...`;
 }
+
+export const formatFileSize = (fileSize: number) => {
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    let size = fileSize;
+    let unitIndex = 0;
+
+    while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex++;
+    }
+    const unit = units[unitIndex];
+    if (size) {
+        const formattedSize = size.toFixed(2);
+        return `${formattedSize} ${unit}`;
+    }
+    const formattedSize = 0;
+    return `${formattedSize} ${unit}`;
+}

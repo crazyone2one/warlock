@@ -28,16 +28,16 @@ export const globalInstance = createAlova({
             appStore.hideLoading();
             if (response.status >= 400) {
                 const json = await response.json();
-                window.$message?.error((response.status === 500 ? '系统错误' : json.messageDetail)  || `${response.statusText}`);
+                window.$message?.error((response.status === 500 ? '系统错误' : json.messageDetail) || `${response.statusText}`);
                 throw new Error(response.statusText);
+            }
+            if (method.meta?.isBlob) {
+                return response.blob();
             }
             const json = await response.json();
             if (json.code !== 100200) {
                 // 抛出错误或返回reject状态的Promise实例时，此请求将抛出错误
                 throw new Error(json.message);
-            }
-            if (method.meta?.isBlob) {
-                return response.blob();
             }
             // 解析的响应数据将传给method实例的transform钩子函数，这些函数将在后续讲解
             return json.data;

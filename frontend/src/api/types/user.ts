@@ -80,3 +80,8 @@ export interface UserForm {
     userGroup: Record<string, any>[];
     userGroupIdList?: string[];
 }
+export interface ImportResult {
+    importCount: number;
+    successCount: number;
+    errorMessages: Record<string, any>;
+}

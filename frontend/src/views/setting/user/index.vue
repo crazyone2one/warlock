@@ -25,10 +25,12 @@ import {validateEmail, validatePhone} from "/@/utils/validate.ts";
 import type {FormItemModel} from "/@/components/w-batch-form/types.ts";
 import type {BatchActionQueryParams} from "/@/api/types.ts";
 import {characterLimit} from "/@/utils";
+import ImportUserModal from "/@/views/setting/user/components/ImportUserModal.vue";
 
 const batchFormRef = ref<InstanceType<typeof WBatchForm>>();
 const {t} = useI18n()
 const keyword = ref('')
+const importVisible = ref(false);
 const userGroupOptions = ref<SystemRole[]>([]);
 const checkedRowKeys = ref<DataTableRowKey[]>([])
 const handleCheck = (rowKeys: DataTableRowKey[]) => {
@@ -493,6 +495,9 @@ const saveAndContinue = () => {
     batchFormRef.value?.resetForm();
   });
 }
+const showImportModal = () => {
+  importVisible.value = true;
+}
 onMounted(() => {
   init()
   fetchData()
@@ -506,7 +511,8 @@ onMounted(() => {
                            @refresh="fetchData"
                            @add="showUserModal('create')">
       <template #left>
-        <n-button v-permission.all="['SYSTEM_USER:READ+IMPORT']" type="primary" text class="mr-3">
+        <n-button v-permission.all="['SYSTEM_USER:READ+IMPORT']" type="primary" text class="mr-3"
+                  @click="showImportModal">
           <template #icon>
             <n-icon>
               <div class="i-solar:cloud-upload-linear"/>
@@ -562,6 +568,7 @@ onMounted(() => {
         </n-button>
       </template>
     </n-modal>
+    <import-user-modal v-model:show-modal="importVisible" @fetch-date="fetchData"/>
   </n-card>
 </template>
 

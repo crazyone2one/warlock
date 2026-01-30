@@ -1,5 +1,7 @@
 package cn.master.horde.controller;
 
+import cn.idev.excel.FastExcel;
+import cn.idev.excel.util.MapUtils;
 import cn.master.horde.common.annotation.Loggable;
 import cn.master.horde.common.constants.Created;
 import cn.master.horde.common.constants.Updated;
@@ -12,9 +14,13 @@ import cn.master.horde.dto.request.UserEditRequest;
 import cn.master.horde.entity.SystemUser;
 import cn.master.horde.service.SystemUserService;
 import cn.master.horde.service.UserRoleService;
+import cn.master.horde.util.JsonHelper;
 import com.mybatisflex.core.paginate.Page;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,7 +28,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户 控制层。
@@ -132,5 +142,32 @@ public class SystemUserController {
     @PreAuthorize("hasPermission('SYSTEM_USER','READ')")
     public List<UserSelectOption> getGlobalSystemRole() {
         return userRoleService.getSystemRoleList();
+    }
+
+    @GetMapping("/get/import/{type}")
+    @Operation(summary = "获取导入模板文件")
+    public void getTemplate(HttpServletResponse response, @PathVariable String type) throws IOException {
+        try {
+            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            response.setCharacterEncoding("utf-8");
+            String fileName = URLEncoder.encode("user-import-template", StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+            response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename*=utf-8''" + fileName + ".xlsx");
+            List<UserExcel> list = List.of(new UserExcel());
+            if (!"template".equalsIgnoreCase(type)) {
+                // todo 获取用户列表
+            }
+            // 这里需要设置不关闭流
+            FastExcel.write(response.getOutputStream(), UserExcel.class).autoCloseStream(Boolean.FALSE).sheet("模板")
+                    .doWrite(list);
+        } catch (Exception e) {
+            // 重置response
+            response.reset();
+            response.setContentType("application/json");
+            response.setCharacterEncoding("utf-8");
+            Map<String, String> map = MapUtils.newHashMap();
+            map.put("status", "failure");
+            map.put("message", "下载文件失败" + e.getMessage());
+            response.getWriter().println(JsonHelper.objectToString(map));
+        }
     }
 }

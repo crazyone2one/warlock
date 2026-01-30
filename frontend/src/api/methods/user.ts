@@ -2,7 +2,7 @@ import {globalInstance} from "/@/api";
 import type {
     CreateUserParams,
     CreateUserResult,
-    DeleteUserParams,
+    DeleteUserParams, ImportResult,
     ImportUserParams,
     ResetUserPasswordParams,
     SystemRole,
@@ -29,7 +29,7 @@ export const userApi = {
         Array.from(data.fileList).forEach((file: File) => {
             formData.append('file', file); // 多个文件用同一个字段名
         });
-        return globalInstance.Post("/system/user/import", formData, {})
+        return globalInstance.Post<ImportResult>("/system/user/import", formData, {})
     },
     queryUserPage: (params: ITableQueryParams) => {
         return globalInstance.Post<IPageResponse<UserListItem>>('/system/user/page', params, {
@@ -51,5 +51,10 @@ export const userApi = {
         })
     },
     // 获取系统用户组
-    getSystemRoles: () => globalInstance.Get<Array<SystemRole>>('/system/user/get/system/role')
+    getSystemRoles: () => globalInstance.Get<Array<SystemRole>>('/system/user/get/system/role'),
+    downloadTemplate: () => {
+        const method = globalInstance.Get('/system/user/get/import/template')
+        method.meta = {isBlob: true}
+        return method
+    }
 }
