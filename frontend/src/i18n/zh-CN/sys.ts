@@ -4,6 +4,7 @@ export default {
   'message.logouting': '正在退出登录...',
   'message.loginExpired': '登录过期，请重新登录!',
   'message.logoutSuccess': '登出成功',
+  'message.logoutContent': '确定要退出登录吗？',
   'message.loadingDefaultTip': '加载中...',
   'message.menuLoading': '菜单加载中...',
   'message.menuLoadSuccess': '菜单加载成功',

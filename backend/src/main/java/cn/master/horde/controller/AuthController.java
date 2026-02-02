@@ -10,6 +10,8 @@ import cn.master.horde.entity.UserRoleRelation;
 import cn.master.horde.util.RsaUtils;
 import com.mybatisflex.core.query.QueryChain;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -49,7 +51,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public void logout() {
+    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         // authenticationService.logout();
         System.out.println("logout");
     }

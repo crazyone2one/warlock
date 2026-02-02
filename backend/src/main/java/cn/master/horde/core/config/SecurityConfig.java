@@ -2,6 +2,7 @@ package cn.master.horde.core.config;
 
 import cn.master.horde.core.filter.RestAuthenticationFilter;
 import cn.master.horde.core.handler.CustomLogoutSuccessHandler;
+import cn.master.horde.core.handler.RestLogoutHandler;
 import cn.master.horde.core.security.CustomUserDetailsService;
 import cn.master.horde.core.security.JwtTokenManager;
 import cn.master.horde.core.security.OptimizedPermissionEvaluator;
@@ -85,7 +86,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated());
         http.addFilterBefore(restAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         http.authenticationManager(authenticationManager());
-        http.logout(logout -> logout.logoutSuccessHandler(new CustomLogoutSuccessHandler(jwtTokenManager)));
+        http.logout(logout -> logout
+                .addLogoutHandler(new RestLogoutHandler(jwtTokenManager))
+                .logoutSuccessHandler(new CustomLogoutSuccessHandler())
+                .logoutUrl("/auth/logout").permitAll());
         return http.build();
     }
 

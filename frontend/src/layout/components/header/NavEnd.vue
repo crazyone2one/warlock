@@ -67,21 +67,29 @@ const handleSelect = (key: string) => {
       personalDrawerVisible.value = true
       break;
     case 'logout':
-      send().then(() => {
-        appState.resetInfo()
-        userState.resetInfo()
-        clearToken()
-        removeRouteListener()
-        const currentRoute = router.currentRoute.value;
-        window.$message.success(t('message.logoutSuccess'));
-        router.push({
-          name: 'login',
-          query: {
-            ...router.currentRoute.value.query,
-            redirect: currentRoute.name as string,
-          },
-        });
+      window.$dialog.warning({
+        content: t('message.logoutContent'),
+        positiveText: t('common.confirm'),
+        negativeText: t('common.cancel'),
+        onPositiveClick: () => {
+          send().then(() => {
+            appState.resetInfo()
+            userState.resetInfo()
+            clearToken()
+            removeRouteListener()
+            const currentRoute = router.currentRoute.value;
+            window.$message.success(t('message.logoutSuccess'));
+            router.push({
+              name: 'login',
+              query: {
+                ...router.currentRoute.value.query,
+                redirect: currentRoute.name as string,
+              },
+            });
+          })
+        },
       })
+
       break;
   }
 }

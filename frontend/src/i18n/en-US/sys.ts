@@ -4,6 +4,7 @@ export default {
   'message.logouting': 'Logging out...',
   'message.loginExpired': 'Login expired, please login again!',
   'message.logoutSuccess': 'Logout success',
+  'message.logoutContent': 'Confirm logout?',
   'message.loadingDefaultTip': 'Loading...',
   'message.menuLoading': 'Loading the menu...',
   'message.menuLoadSuccess': 'Menu loaded successfully',
