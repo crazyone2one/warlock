@@ -10,6 +10,7 @@ import cn.master.horde.common.service.CurrentUserService;
 import cn.master.horde.dto.*;
 import cn.master.horde.dto.permission.UserRolePermissionDTO;
 import cn.master.horde.dto.permission.UserRoleResourceDTO;
+import cn.master.horde.dto.request.PersonalUpdatePasswordRequest;
 import cn.master.horde.dto.request.UserBatchCreateRequest;
 import cn.master.horde.dto.request.UserChangeEnableRequest;
 import cn.master.horde.dto.request.UserEditRequest;
@@ -24,6 +25,7 @@ import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -202,6 +204,23 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
         }
         importResponse.generateResponse(excelParseDTO);
         return importResponse;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updatePassword(PersonalUpdatePasswordRequest request) {
+        // checkOldPassword(request.getId(), request.getOldPassword());
+        return updateChain().set(SYSTEM_USER.PASSWORD, passwordEncoder.encode(request.getNewPassword()))
+                .where(SYSTEM_USER.ID.eq(request.getId())).update();
+    }
+
+    private void checkOldPassword(@NotBlank(message = "{user.id.not_blank}") String id, String oldPassword) {
+        boolean exists = queryChain().where(SYSTEM_USER.ID.eq(id))
+                .and(SYSTEM_USER.PASSWORD.eq(passwordEncoder.encode(oldPassword)))
+                .exists();
+        if (!exists) {
+            throw new BizException(Translator.get("password_modification_failed"));
+        }
     }
 
     private ExcelParseDTO<UserExcelRowDTO> getUserExcelParseDTO(MultipartFile excelFile) throws IOException {

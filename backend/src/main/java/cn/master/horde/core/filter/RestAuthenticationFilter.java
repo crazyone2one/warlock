@@ -1,6 +1,7 @@
 package cn.master.horde.core.filter;
 
 import cn.master.horde.core.security.CustomUserDetailsService;
+import cn.master.horde.core.security.JwtTokenManager;
 import cn.master.horde.core.security.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,6 +26,7 @@ import java.io.IOException;
 public class RestAuthenticationFilter extends OncePerRequestFilter {
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenManager jwtTokenManager;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -41,6 +43,9 @@ public class RestAuthenticationFilter extends OncePerRequestFilter {
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(auth);
+            
+            // 记录用户JWT令牌
+            jwtTokenManager.recordUserToken(username, jwt);
         }
         filterChain.doFilter(request, response);
     }

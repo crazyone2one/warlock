@@ -1,6 +1,7 @@
 package cn.master.horde.service;
 
 import cn.master.horde.dto.*;
+import cn.master.horde.dto.request.PersonalUpdatePasswordRequest;
 import cn.master.horde.dto.request.UserBatchCreateRequest;
 import cn.master.horde.dto.request.UserChangeEnableRequest;
 import cn.master.horde.dto.request.UserEditRequest;
@@ -34,4 +35,6 @@ public interface SystemUserService extends IService<SystemUser> {
     TableBatchProcessResponse resetPassword(TableBatchProcessDTO request, String operatorId);
 
     UserImportResponse importByExcel(MultipartFile excelFile, String operatorId);
+
+    boolean updatePassword(PersonalUpdatePasswordRequest request);
 }

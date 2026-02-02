@@ -30,7 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                     List<String> roleIds = QueryChain.of(UserRoleRelation.class)
                             .where(UserRoleRelation::getUserId).eq(user.getId()).list()
                             .stream().map(UserRoleRelation::getRoleId).toList();
-                    Set<String> flattenedPermissions = Collections.emptySet();
+                    Set<String> flattenedPermissions;
                     // 查原始权限字符串（如 "SYSTEM_USER:READ+UPDATE"）
                     List<String> rawPermissions = QueryChain.of(UserRolePermission.class).where(UserRolePermission::getRoleId).in(roleIds).list().stream()
                             .map(UserRolePermission::getPermissionId).toList();

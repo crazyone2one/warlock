@@ -1,3 +1,5 @@
+import {JSEncrypt} from "jsencrypt";
+
 export const formatPhoneNumber = (phoneNumber = '') => {
     if (phoneNumber && phoneNumber.trim().length === 11) {
         const cleanedNumber = phoneNumber.replace(/\D/g, '');
@@ -31,4 +33,11 @@ export const formatFileSize = (fileSize: number) => {
     }
     const formattedSize = 0;
     return `${formattedSize} ${unit}`;
+}
+export const encrypted = (input: string) => {
+    const publicKey = localStorage.getItem('salt') || '';
+    const encrypt = new JSEncrypt({default_key_size: '1024'});
+    encrypt.setPublicKey(publicKey);
+
+    return encrypt.encrypt(input);
 }

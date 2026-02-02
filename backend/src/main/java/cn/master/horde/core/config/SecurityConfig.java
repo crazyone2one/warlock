@@ -3,6 +3,7 @@ package cn.master.horde.core.config;
 import cn.master.horde.core.filter.RestAuthenticationFilter;
 import cn.master.horde.core.handler.CustomLogoutSuccessHandler;
 import cn.master.horde.core.security.CustomUserDetailsService;
+import cn.master.horde.core.security.JwtTokenManager;
 import cn.master.horde.core.security.OptimizedPermissionEvaluator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -17,11 +18,19 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author : 11's papa
@@ -34,20 +43,49 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final RestAuthenticationFilter restAuthenticationFilter;
+    private final JwtTokenManager jwtTokenManager;
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
+    }
+
+    @Bean
+    public ConcurrentSessionControlAuthenticationStrategy sessionControlStrategy() {
+        ConcurrentSessionControlAuthenticationStrategy strategy = new ConcurrentSessionControlAuthenticationStrategy(sessionRegistry());
+        strategy.setMaximumSessions(1);
+        strategy.setExceptionIfMaximumExceeded(false);
+        return strategy;
+    }
+
+    @Bean
+    public CompositeSessionAuthenticationStrategy sessionAuthenticationStrategy() {
+        List<SessionAuthenticationStrategy> strategies = Arrays.asList(
+                new RegisterSessionAuthenticationStrategy(sessionRegistry()),
+                sessionControlStrategy()
+        );
+        return new CompositeSessionAuthenticationStrategy(strategies);
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) {
         http.csrf(AbstractHttpConfigurer::disable);
-        http.sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        http.sessionManagement(session -> session
+                // .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false)
+                .sessionRegistry(sessionRegistry())
+        );
+        http.sessionManagement(session -> session
+                .sessionAuthenticationStrategy(sessionAuthenticationStrategy()));
         http.authorizeHttpRequests(auth ->
-                auth.requestMatchers("/auth/login", "/auth/refresh-token").permitAll()
+                auth.requestMatchers("/auth/login", "/auth/refresh-token", "/auth/get-key").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/index.html", "/", "/assets/**", "/vite.svg").permitAll()
                         .anyRequest().authenticated());
         http.addFilterBefore(restAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         http.authenticationManager(authenticationManager());
-        http.logout(logout -> logout.logoutSuccessHandler(new CustomLogoutSuccessHandler()));
+        http.logout(logout -> logout.logoutSuccessHandler(new CustomLogoutSuccessHandler(jwtTokenManager)));
         return http.build();
     }
 

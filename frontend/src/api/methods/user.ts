@@ -2,10 +2,12 @@ import {globalInstance} from "/@/api";
 import type {
     CreateUserParams,
     CreateUserResult,
-    DeleteUserParams, ImportResult,
+    DeleteUserParams,
+    ImportResult,
     ImportUserParams,
     ResetUserPasswordParams,
     SystemRole,
+    UpdatePswParams,
     UpdateUserInfoParams,
     UpdateUserStatusParams,
     UserListItem
@@ -56,5 +58,7 @@ export const userApi = {
         const method = globalInstance.Get('/system/user/get/import/template')
         method.meta = {isBlob: true}
         return method
-    }
+    },
+    // 个人信息-修改密码
+    updatePsw: (data: UpdatePswParams) => globalInstance.Post('/personal/update-password', data),
 }

@@ -9,4 +9,5 @@ export const authApi = {
     },
     getUserInfo: () => globalInstance.Get<UserState>('/system/user/get-user-info', {}),
     logout: () => globalInstance.Post('/auth/logout', {}),
+    getPublicKey: () => globalInstance.Get('/auth/get-key', {}),
 }

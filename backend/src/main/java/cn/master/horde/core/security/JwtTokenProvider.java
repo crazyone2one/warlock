@@ -1,6 +1,7 @@
 package cn.master.horde.core.security;
 
 import cn.master.horde.core.constant.JwtProperties;
+import cn.master.horde.service.JwtBlacklistService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -21,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
     private final JwtProperties jwtProperties;
+    private final JwtBlacklistService jwtBlacklistService;
 
     private SecretKey key() {
         try {
@@ -55,6 +57,11 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
+            // 检查是否在黑名单中
+            if (jwtBlacklistService.isInBlacklist(token)) {
+                return false;
+            }
+            
             parseClaims(token);
             return true;
         } catch (Exception e) {

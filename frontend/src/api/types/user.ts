@@ -85,3 +85,8 @@ export interface ImportResult {
     successCount: number;
     errorMessages: Record<string, any>;
 }
+export interface UpdatePswParams {
+    id: string;
+    oldPassword: string;
+    newPassword: string;
+}

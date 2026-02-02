@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {h} from 'vue'
+import {h, ref} from 'vue'
 import {NAvatar, NText} from 'naive-ui'
 import {useRequest} from "alova/client";
 import {authApi} from "/@/api/methods/auth.ts";
@@ -8,10 +8,12 @@ import router from "/@/router";
 import {useI18n} from "vue-i18n";
 import {clearToken} from "/@/utils/auth.ts";
 import {removeRouteListener} from "/@/utils/route-listener.ts";
+import WPersonalDrawer from '/@/components/w-personal-drawer/index.vue'
 
 const {t} = useI18n()
 const appState = useAppStore()
 const userState = useUserStore()
+const personalDrawerVisible = ref(false)
 const renderCustomHeader = () => {
   return h(
       'div',
@@ -62,6 +64,7 @@ const {send} = useRequest(() => authApi.logout(), {immediate: false})
 const handleSelect = (key: string) => {
   switch (key) {
     case 'profile':
+      personalDrawerVisible.value = true
       break;
     case 'logout':
       send().then(() => {
@@ -105,6 +108,7 @@ const handleSelect = (key: string) => {
       </n-button>
     </n-dropdown>
   </n-flex>
+  <w-personal-drawer v-model:show="personalDrawerVisible"/>
 </template>
 
 <style scoped>
