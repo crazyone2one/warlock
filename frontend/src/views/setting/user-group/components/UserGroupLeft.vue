@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type {CurrentUserGroupItem, UserGroupItem} from "/@/api/types/user-group.ts";
+import type {CurrentUserGroupItem, PopVisible, UserGroupItem} from "/@/api/types/user-group.ts";
 import {AuthScopeEnum, type AuthScopeEnumType} from "/@/utils/common-enum.ts";
 import {computed, inject, ref} from "vue";
 import {useI18n} from "vue-i18n";
@@ -7,6 +7,9 @@ import UserGroupPopover from "/@/views/setting/user-group/components/UserGroupPo
 import {hasAnyPermission} from "/@/utils/permission.ts";
 import MMoreAction from "/@/components/MMoreAction.vue";
 import {userGroupApi} from "/@/api/methods/userGroup.ts";
+import {type DropdownOption} from "naive-ui";
+import {characterLimit} from "/@/utils";
+import {useRequest} from "alova/client";
 
 const {t} = useI18n();
 
@@ -39,7 +42,7 @@ const systemUserGroupList = computed(() => {
 });
 
 const projectUserGroupVisible = ref(false);
-
+const popVisible = ref<PopVisible>({});
 const isSystemShowAll = computed(() => {
   return hasAnyPermission([...props.updatePermission, 'SYSTEM_USER_ROLE:READ+DELETE']);
 });
@@ -48,9 +51,19 @@ const systemMoreAction = [
   {
     label: t('system.userGroup.rename'),
     danger: false,
-    eventTag: 'rename',
+    key: 'rename',
     permission: props.updatePermission,
-  }
+  },
+  {
+    type: 'divider',
+    key: 'd1'
+  },
+  {
+    label: t('system.userGroup.delete'),
+    danger: false,
+    key: 'delete',
+    permission: ['SYSTEM_USER_ROLE:READ+DELETE'],
+  },
 ]
 // const {send: fetchUserGroupList} = useRequest(() => userGroupApi.getUserGroupList(), {immediate: false})
 const initData = async (id?: string, isSelect = true) => {
@@ -74,6 +87,12 @@ const initData = async (id?: string, isSelect = true) => {
       }
     }
   }
+  // 弹窗赋值
+  const tmpObj: PopVisible = {};
+  res.forEach((element) => {
+    tmpObj[element.id] = {visible: false, authScope: element.type, defaultName: '', defaultCode: '', id: element.id};
+  });
+  popVisible.value = tmpObj;
 }
 const handleCreateUG = (scoped: AuthScopeEnumType) => {
   if (scoped === AuthScopeEnum.SYSTEM) {
@@ -93,6 +112,39 @@ const handleListItemClick = (element: UserGroupItem) => {
 }
 const handleCreateUserGroup = (id: string) => {
   initData(id);
+}
+const {send: removeUserGroup} = useRequest((id) => userGroupApi.removeUserGroup(id), {immediate: false})
+const handleMoreAction = (item: DropdownOption, id: string, authScope: AuthScopeEnumType) => {
+  const tmpObj = userGroupList.value.filter((ele) => ele.id === id)[0];
+  if (item.key === 'rename') {
+    popVisible.value[id] = {
+      visible: true,
+      authScope,
+      defaultName: tmpObj?.name || '',
+      id,
+      defaultCode: tmpObj?.code || ''
+    };
+  }
+  if (item.key === 'delete') {
+    window.$dialog.error({
+      title: t('system.userGroup.isDeleteUserGroup', {name: characterLimit(tmpObj?.name)}),
+      content: t('system.userGroup.beforeDeleteUserGroup'),
+      positiveText: t('system.userGroup.confirmDelete'),
+      negativeText: t('system.userGroup.cancel'),
+      onPositiveClick() {
+        removeUserGroup(id).then(() => {
+          window.$message.success(t('system.user.deleteUserSuccess'));
+          initData();
+        });
+      }
+    })
+  }
+};
+const handleCancel = (element: UserGroupItem, id?: string) => {
+  if (id) {
+    initData(id, true);
+  }
+  popVisible.value[element.id] = {visible: false, authScope: element.type, defaultName: '', defaultCode: '', id: ''};
 }
 defineExpose({
   initData,
@@ -137,9 +189,9 @@ defineExpose({
           <div v-for="(item) in systemUserGroupList" :key="item.id" class="list-item"
                :class="{'!bg-sky-500/50': item.id === currentId}"
                @click="handleListItemClick(item)">
-            <user-group-popover :list="systemUserGroupList" :visible="false"
-                                :auth-scope="item.type"
-                                @cancel="systemUserGroupVisible = false">
+            <user-group-popover :list="systemUserGroupList"
+                                v-bind="popVisible[item.id]"
+                                @cancel="handleCancel(item)">
               <div class="flex max-w-[100%] grow flex-row items-center justify-between">
                 <div :class="{'!text-[#18a058]': item.id === currentId}" class="cursor-pointer">
                   {{ item.name }}
@@ -155,8 +207,8 @@ defineExpose({
                   </div>
                   <m-more-action
                       v-if="isSystemShowAll &&!item.internal &&(item.scopeId !== 'global' || !isGlobalDisable) && systemMoreAction.length > 0"
-                      :list="systemMoreAction">
-
+                      :list="systemMoreAction"
+                      @select="(value) => handleMoreAction(value, item.id,AuthScopeEnum.SYSTEM)">
                   </m-more-action>
                 </div>
               </div>

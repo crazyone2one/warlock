@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type {ActionsItem} from "/@/api/types.ts";
 import {computed, ref, watch} from "vue";
 import {hasAnyPermission} from "/@/utils/permission.ts";
+import {type DropdownOption} from "naive-ui";
 
 const props = defineProps<{
-  list: ActionsItem[];
+  list: DropdownOption[];
   trigger?: 'hover' | 'click' | 'focus' | 'manual'
 }>();
 const emit = defineEmits(['select', 'close', 'open']);
@@ -14,10 +14,10 @@ const isHasAllPermission = computed(() => {
     return item.permission || [];
   });
   const permissionResult = permissionList.flat();
-  return hasAnyPermission(permissionResult);
+  return hasAnyPermission(permissionResult as string[]);
 });
 const handleSelect = (key: string) => {
-  const item = props.list.find((e: ActionsItem) => e.eventTag === key);
+  const item = props.list.find((e: DropdownOption) => e.key === key);
   emit('select', item);
 }
 const visibleChange = (val: boolean) => {

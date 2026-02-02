@@ -80,3 +80,13 @@ export interface SystemUserGroupParams {
     scopeId?: string; // 组织ID
     type?: string; // 组类型：SYSTEM | PROJECT | ORGANIZATION
 }
+export interface PopVisibleItem {
+    id?: string;
+    visible: boolean;
+    authScope?: AuthScopeEnumType;
+    defaultName: string;
+    defaultCode: string;
+}
+export interface PopVisible {
+    [key: string]: PopVisibleItem;
+}

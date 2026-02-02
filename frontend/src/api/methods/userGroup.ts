@@ -21,5 +21,6 @@ export const userGroupApi = {
             },
         }),
     saveGlobalUSetting: (data: SaveUSettingData) => globalInstance.Post('/user/role/permission/update', data),
-    updateOrAddUserGroup: (data: SystemUserGroupParams) => globalInstance.Post<UserGroupItem>(data.id?'/user/role/update':'user/role/save', data),
+    updateOrAddUserGroup: (data: SystemUserGroupParams) => globalInstance.Post<UserGroupItem>(data.id ? '/user/role/update' : 'user/role/save', data),
+    removeUserGroup: (id: string) => globalInstance.Get(`/user/role/remove/${id}`),
 }

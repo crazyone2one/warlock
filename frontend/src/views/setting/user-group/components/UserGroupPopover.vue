@@ -12,10 +12,11 @@ const {t} = useI18n();
 const props = defineProps<{
   id?: string;
   list: UserGroupItem[];
-  visible: boolean;
+  visible?: boolean;
   defaultName?: string;
+  defaultCode?: string;
   // 权限范围
-  authScope: AuthScopeEnumType;
+  authScope?: AuthScopeEnumType;
 }>();
 const emit = defineEmits<{
   (e: 'cancel', value: boolean): void;
@@ -56,6 +57,7 @@ const {form, loading, send} = useForm(data => userGroupApi.updateOrAddUserGroup(
 })
 const handleCancel = () => {
   form.value.name = '';
+  form.value.code = '';
   emit('cancel', false);
 };
 const handleSubmit = () => {
@@ -77,11 +79,12 @@ const handleOutsideClick = () => {
 watchEffect(() => {
   currentVisible.value = props.visible;
   form.value.name = props.defaultName || '';
+  form.value.code = props.defaultCode || '';
 });
 </script>
 
 <template>
-  <n-popover :show="currentVisible" trigger="hover">
+  <n-popover :show="currentVisible" trigger="click" placement="bottom-end">
     <template #trigger>
       <slot></slot>
     </template>
