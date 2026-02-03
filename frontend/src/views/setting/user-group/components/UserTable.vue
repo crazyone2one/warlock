@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import type {CurrentUserGroupItem, UserTableItem} from "/@/api/types/user-group.ts";
-import {usePagination} from "alova/client";
+import {usePagination, useRequest} from "alova/client";
 import {userGroupApi} from "/@/api/methods/userGroup.ts";
 import {hasAnyPermission} from "/@/utils/permission.ts";
 import {useI18n} from "vue-i18n";
 import {type DataTableColumns, type DataTableRowKey} from "naive-ui";
-import {ref} from "vue";
+import {h, ref} from "vue";
 import WPagination from "/@/components/WPagination.vue";
+import WRemoveButton from "/@/components/WRemoveButton.vue";
+import {characterLimit} from "/@/utils";
 
 const keyword = defineModel<string>('keyword', {type: String, default: ''});
 const props = defineProps<{
@@ -21,7 +23,18 @@ const columns: DataTableColumns<UserTableItem> = [
   {title: () => t('system.userGroup.name'), key: 'name', ellipsis: {tooltip: true}},
   {title: () => t('system.userGroup.email'), key: 'email', ellipsis: {tooltip: true}},
   {title: () => t('system.userGroup.phone'), key: 'phone', ellipsis: {tooltip: true}},
-  {title: () => t('system.userGroup.operation'), key: 'operation', fixed: 'right', width: 120},
+  {
+    title: () => t('system.userGroup.operation'), key: 'operation', fixed: 'right', width: 120,
+    render(row) {
+      if (hasAnyPermission(props.updatePermission || [])) {
+        return h(WRemoveButton, {
+          title: t('system.userGroup.removeName', {name: characterLimit(row.name)}),
+          subTitleTip: t('system.userGroup.removeTip'),
+          disabled: row.name === 'admin', onOk: () => handleRemove(row)
+        })
+      }
+    }
+  },
 ]
 const {page, pageSize, total, data, send} = usePagination((page, pageSize) => {
   const params = {page, pageSize, keyword: keyword.value, roleId: props.current.id}
@@ -42,6 +55,14 @@ const handlePermission = (permission: string[], cb: () => void) => {
   }
   cb();
 };
+const {send: removeUser} = useRequest(id => userGroupApi.removeUserFromUserGroup(id), {immediate: false})
+const handleRemove = (record: UserTableItem) => {
+  handlePermission(props.updatePermission || [], () => {
+    removeUser(record.id).then(() => {
+      fetchData();
+    })
+  })
+}
 const fetchData = () => {
   handlePermission(props.readPermission || [], async () => {
     await send();
