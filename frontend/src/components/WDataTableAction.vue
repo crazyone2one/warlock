@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import {type DropdownOption} from "naive-ui";
 import {watchEffect} from "vue";
+import {useI18n} from "vue-i18n";
 
+const {t} = useI18n()
 const emit = defineEmits(['rePassParameter'])
 const props = defineProps<{ moreAction?: DropdownOption[], showEdit?: boolean }>()
 const options: Array<DropdownOption> = [
-  {label: '删除', key: 'delete',}
+  {label: t('common.delete'), key: 'delete',}
 ]
 const handleSelect = (key: string) => {
   emit('rePassParameter', key)
@@ -19,7 +21,9 @@ watchEffect(() => {
 
 <template>
   <n-flex>
-    <n-button v-show="showEdit" text type="info" @click="emit('rePassParameter', 'edit')">edit</n-button>
+    <n-button v-show="showEdit" text type="info" @click="emit('rePassParameter', 'edit')">
+      {{t('common.edit')}}
+    </n-button>
     <slot></slot>
     <n-dropdown trigger="click" :options="options" @select="handleSelect">
       <n-button text>

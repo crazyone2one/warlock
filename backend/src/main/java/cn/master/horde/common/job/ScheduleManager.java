@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * @author : 11's papa
  * @since : 2026/1/15, 星期四
@@ -45,6 +47,7 @@ public class ScheduleManager {
             throw new RuntimeException("定时任务配置异常: " + e.getMessage());
         }
     }
+
     /**
      * 修改定时任务的Cron表达式时间
      *
@@ -73,6 +76,7 @@ public class ScheduleManager {
             throw new RuntimeException(e);
         }
     }
+
     /**
      * 立即执行指定的任务
      *
@@ -90,8 +94,19 @@ public class ScheduleManager {
 
     public void pauseJob(JobKey jobKey) {
         try {
-            log.info("pauseJob: {},{}", jobKey.getName(), jobKey.getGroup());
-            scheduler.pauseJob(jobKey);
+            List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);
+            if (triggers.isEmpty()) {
+                throw new IllegalArgumentException("任务 [" + jobKey.getName() + "." + jobKey.getGroup() + "] 不存在或无触发器");
+            }
+            for (Trigger trigger : triggers) {
+                TriggerKey triggerKey = trigger.getKey();
+                Trigger.TriggerState state = scheduler.getTriggerState(triggerKey);
+                if (state == Trigger.TriggerState.NORMAL || state == Trigger.TriggerState.BLOCKED) {
+                    scheduler.pauseTrigger(triggerKey);
+                }
+                // log.info("pauseJob: {},{}", jobKey.getName(), jobKey.getGroup());
+                // scheduler.pauseTrigger(jobKey);
+            }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
@@ -100,8 +115,19 @@ public class ScheduleManager {
 
     public void resumeJob(JobKey jobKey) {
         try {
-            log.info("resumeJob: {},{}", jobKey.getName(), jobKey.getGroup());
-            scheduler.resumeJob(jobKey);
+            List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);
+            if (triggers.isEmpty()) {
+                throw new IllegalArgumentException("任务 [" + jobKey.getName() + "." + jobKey.getGroup() + "] 不存在或无触发器");
+            }
+            for (Trigger trigger : triggers) {
+                TriggerKey triggerKey = trigger.getKey();
+                Trigger.TriggerState state = scheduler.getTriggerState(triggerKey);
+                if (state == Trigger.TriggerState.NORMAL || state == Trigger.TriggerState.BLOCKED) {
+                    scheduler.resumeTrigger(triggerKey);
+                }
+                // log.info("resumeJob: {},{}", jobKey.getName(), jobKey.getGroup());
+                // scheduler.resumeJob(jobKey);
+            }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
@@ -119,6 +145,7 @@ public class ScheduleManager {
             throw new RuntimeException(e);
         }
     }
+
     public void addOrUpdateCronJob(JobKey jobKey, TriggerKey triggerKey, Class<? extends Job> jobClass, String cron, JobDataMap jobDataMap)
             throws SchedulerException {
         log.info("AddOrUpdateCronJob: {},{}", jobKey.getName(), triggerKey.getGroup());

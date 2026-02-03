@@ -22,13 +22,13 @@ import java.util.List;
  * @since 2026-01-15
  */
 public interface SystemScheduleService extends IService<SystemSchedule> {
-    void addSchedule(SystemSchedule schedule) throws ClassNotFoundException;
+    void addSchedule(SystemSchedule schedule);
 
     void addOrUpdateCronJob(SystemSchedule request, JobKey jobKey, TriggerKey triggerKey, Class<? extends Job> clazz);
 
     String scheduleConfig(ScheduleConfig scheduleConfig, JobKey jobKey, TriggerKey triggerKey, Class<? extends Job> clazz, String operator);
 
-    void updateCron(ScheduleCronRequest request) throws ClassNotFoundException;
+    void updateCron(ScheduleCronRequest request);
 
     void removeJob(String key, String job);
 
@@ -46,4 +46,5 @@ public interface SystemScheduleService extends IService<SystemSchedule> {
 
     SystemSchedule getByJobKey(@NotBlank(message = "{api_scenario.id.not_blank}") @Size(min = 1, max = 50, message = "{api_scenario.id.length_range}") String jobKey);
 
+    void enable(String id);
 }

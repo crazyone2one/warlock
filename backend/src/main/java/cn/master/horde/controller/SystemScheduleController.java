@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.quartz.Job;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +28,7 @@ import java.util.List;
 @RestController
 @Tag(name = "定时任务接口")
 @RequiredArgsConstructor
-@RequestMapping("/system-schedule")
+@RequestMapping("/system/task-center")
 public class SystemScheduleController {
     private final SystemScheduleService systemScheduleService;
 
@@ -38,7 +39,8 @@ public class SystemScheduleController {
      */
     @PostMapping("save")
     @Operation(description = "保存定时任务")
-    public void save(@RequestBody @Parameter(description = "定时任务") SystemSchedule systemSchedule) throws ClassNotFoundException {
+    @PreAuthorize("hasPermission('SYSTEM_SCHEDULE_TASK_CENTER','READ+ADD')")
+    public void save(@RequestBody @Parameter(description = "定时任务") SystemSchedule systemSchedule) {
         systemScheduleService.addSchedule(systemSchedule);
     }
 
@@ -48,6 +50,7 @@ public class SystemScheduleController {
      * @param id 主键
      */
     @DeleteMapping("remove/{id}")
+    @PreAuthorize("hasPermission('SYSTEM_SCHEDULE_TASK_CENTER','READ+DELETE')")
     public void remove(@PathVariable String id) {
         systemScheduleService.deleteTask(id);
     }
@@ -59,13 +62,21 @@ public class SystemScheduleController {
      * @return {@code true} 更新成功，{@code false} 更新失败
      */
     @PostMapping("update")
+    @PreAuthorize("hasPermission('SYSTEM_SCHEDULE_TASK_CENTER','READ+UPDATE')")
     public boolean update(@RequestBody SystemSchedule systemSchedule) {
         return systemScheduleService.updateById(systemSchedule);
     }
 
+    @GetMapping("/schedule/switch/{id}")
+    @PreAuthorize("hasPermission('SYSTEM_SCHEDULE_TASK_CENTER','READ+UPDATE')")
+    public void enable(@PathVariable String id) {
+        systemScheduleService.enable(id);
+    }
+
     @PostMapping("/update-cron")
     @Operation(summary = "系统-任务中心-后台任务更新cron表达式")
-    public void updateValue(@Validated @RequestBody ScheduleCronRequest request) throws ClassNotFoundException {
+    @PreAuthorize("hasPermission('SYSTEM_SCHEDULE_TASK_CENTER','READ+UPDATE')")
+    public void updateValue(@Validated @RequestBody ScheduleCronRequest request) {
         systemScheduleService.updateCron(request);
     }
 
@@ -75,6 +86,7 @@ public class SystemScheduleController {
      * @return 所有数据
      */
     @GetMapping("list")
+    @PreAuthorize("hasPermission('SYSTEM_SCHEDULE_TASK_CENTER','READ')")
     public List<SystemSchedule> list() {
         return systemScheduleService.list();
     }
@@ -86,6 +98,7 @@ public class SystemScheduleController {
      * @return 定时任务详情
      */
     @GetMapping("getInfo/{id}")
+    @PreAuthorize("hasPermission('SYSTEM_SCHEDULE_TASK_CENTER','READ')")
     public SystemSchedule getInfo(@PathVariable String id) {
         return systemScheduleService.getById(id);
     }
@@ -97,12 +110,14 @@ public class SystemScheduleController {
      * @return 分页对象
      */
     @PostMapping("page")
+    @PreAuthorize("hasPermission('SYSTEM_SCHEDULE_TASK_CENTER','READ')")
     public Page<ScheduleDTO> page(@Validated @RequestBody SchedulePageRequest request) {
         return systemScheduleService.page(request);
     }
 
     @PostMapping(value = "/schedule-config")
     @Operation(summary = "定时任务配置")
+    @PreAuthorize("hasPermission('SYSTEM_SCHEDULE_TASK_CENTER','READ+UPDATE')")
     public void scheduleConfig(@Validated @RequestBody BaseScheduleConfigRequest request) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         SystemSchedule schedule = systemScheduleService.getByJobKey(request.getJobKey());
         ScheduleConfig scheduleConfig = ScheduleConfig.builder()
@@ -123,5 +138,17 @@ public class SystemScheduleController {
                 (TriggerKey) getTriggerKey.invoke(null, schedule.getProjectId(), schedule.getJobKey()),
                 jobClass,
                 "admin");
+    }
+
+    @GetMapping("/pause/task/{id}")
+    @PreAuthorize("hasPermission('SYSTEM_SCHEDULE_TASK_CENTER','READ+UPDATE')")
+    public void pause(@PathVariable String id) {
+        systemScheduleService.pauseTask(id);
+    }
+
+    @GetMapping("/resume/task/{id}")
+    @PreAuthorize("hasPermission('SYSTEM_SCHEDULE_TASK_CENTER','READ+UPDATE')")
+    public void resume(@PathVariable String id) {
+        systemScheduleService.resumeTask(id);
     }
 }

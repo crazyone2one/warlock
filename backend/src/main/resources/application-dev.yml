@@ -38,8 +38,8 @@ spring:
 
 jwt:
   secret: 5oiR5piv5Lit5Zu95Lq677yM5oiR54ix5Lit5Zu944CCQ2hpbmEgTk8gMe+8gQ==
-  access-token-validity: 43200000 #12h
-  refresh-token-validity: 604800000 # 7d
+  access-token-validity: 600000 # 10m
+  refresh-token-validity: 86400000 # 1d
 logging:
   level:
     web: info

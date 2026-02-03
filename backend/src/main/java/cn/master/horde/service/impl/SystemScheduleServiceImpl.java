@@ -42,27 +42,22 @@ public class SystemScheduleServiceImpl extends ServiceImpl<SystemScheduleMapper,
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void addSchedule(SystemSchedule schedule) throws ClassNotFoundException {
+    public void addSchedule(SystemSchedule schedule) {
         schedule.setNum(NumGenerator.nextNum(schedule.getProjectId(), ApplicationNumScope.TASK));
         String currentUserId = CurrentUserService.getCurrentUserId();
         schedule.setCreateUser(currentUserId);
         schedule.setUpdateUser(currentUserId);
         mapper.insertSelective(schedule);
         if (BooleanUtils.isTrue(schedule.getEnable())) {
-            Class<?> jobClass = Class.forName(schedule.getJob());
-            if (Job.class.isAssignableFrom(jobClass)) {
-                @SuppressWarnings("unchecked")
-                Class<? extends Job> jobClassCast = (Class<? extends Job>) jobClass;
-                addOrUpdateCronJob(schedule, new JobKey(schedule.getJobKey(), schedule.getProjectId()),
-                        new TriggerKey(schedule.getJobKey(), schedule.getProjectId()), jobClassCast);
-            } else {
-                throw new BizException(ResultCode.VALIDATE_FAILED, "指定的类不是有效的Job类: " + schedule.getJob());
+            try {
+                addOrUpdateJob(schedule);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
         }
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void addOrUpdateCronJob(SystemSchedule request, JobKey jobKey, TriggerKey triggerKey, Class<? extends Job> clazz) {
         String cronExpression = request.getValue();
         if (BooleanUtils.isTrue(request.getEnable()) && StringUtils.isNotBlank(cronExpression)) {
@@ -106,10 +101,18 @@ public class SystemScheduleServiceImpl extends ServiceImpl<SystemScheduleMapper,
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updateCron(ScheduleCronRequest request) throws ClassNotFoundException {
+    public void updateCron(ScheduleCronRequest request) {
         SystemSchedule schedule = checkScheduleExit(request.id());
         schedule.setValue(request.cron());
         mapper.update(schedule);
+        try {
+            addOrUpdateJob(schedule);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void addOrUpdateJob(SystemSchedule schedule) throws ClassNotFoundException {
         Class<?> jobClass = Class.forName(schedule.getJob());
         if (Job.class.isAssignableFrom(jobClass)) {
             @SuppressWarnings("unchecked")
@@ -187,5 +190,18 @@ public class SystemScheduleServiceImpl extends ServiceImpl<SystemScheduleMapper,
     @Override
     public SystemSchedule getByJobKey(String jobKey) {
         return queryChain().where(SYSTEM_SCHEDULE.JOB_KEY.eq(jobKey)).oneOpt().orElseThrow(() -> new BizException(ResultCode.VALIDATE_FAILED, "定时任务不存在"));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void enable(String id) {
+        SystemSchedule schedule = checkScheduleExit(id);
+        schedule.setEnable(!schedule.getEnable());
+        mapper.update(schedule);
+        try {
+            addOrUpdateJob(schedule);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

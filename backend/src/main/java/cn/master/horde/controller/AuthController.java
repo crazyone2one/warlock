@@ -22,6 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -51,9 +52,16 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        // authenticationService.logout();
-        System.out.println("logout");
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+        // 清除认证信息
+        SecurityContext context = SecurityContextHolder.getContext();
+        context.setAuthentication(null);
+        SecurityContextHolder.clearContext();
+        
+        return ResponseEntity.ok().body(Map.of(
+                "code", 100200,
+                "message", "登出成功"
+        ));
     }
 
     @GetMapping(value = "/get-key")

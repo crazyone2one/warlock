@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {type DataTableColumns, type DataTableRowKey, NButton, NInput} from "naive-ui";
+import {type DataTableColumns, type DataTableRowKey, NButton, NInput, NSwitch} from "naive-ui";
 import type {IProjectItem, IScheduleInfo} from "/@/api/types.ts";
 import {h, onMounted, ref} from "vue";
 import WDataTableAction from "/@/components/WDataTableAction.vue";
@@ -10,28 +10,47 @@ import WPagination from "/@/components/WPagination.vue";
 import EditSchedule from "/@/views/schedule/components/EditSchedule.vue";
 import WCronSelect from "/@/components/WCronSelect.vue";
 import ScheduleConfigModal from "/@/views/schedule/components/ScheduleConfigModal.vue";
+import {useI18n} from "vue-i18n";
+import {hasAnyPermission} from "/@/utils/permission.ts";
 
+const {t} = useI18n()
 const keyword = ref('')
 const currentScheduleId = ref('')
 const showEditModal = ref(false)
 const showConfigDrawer = ref(false)
 const tableMoreAction = [
-  {label: '恢复', key: 'resume',},
-  {label: '暂停', key: 'pause',},
+  {label: t('common.stop'), key: 'pause',},
 ]
 const {send: deleteSchedule} = useRequest(id => scheduleApi.deleteSchedule(id), {immediate: false})
+const {send: stopTask} = useRequest(id => scheduleApi.pauseSchedule(id), {immediate: false})
 const handleTableMoreAction = (key: string, row: IScheduleInfo) => {
   switch (key) {
-    case 'resume':
-      window.$message.info(`恢复任务${row.name}`)
-      break;
     case 'pause':
-      window.$message.info(`暂停任务${row.name}`)
+      window.$dialog.warning({
+        title: t('ms.taskCenter.stopTaskTitle'),
+        content: t('ms.taskCenter.stopTimeTaskTip'),
+        positiveText: t('common.stopConfirm'),
+        negativeText: t('common.cancel'),
+        onPositiveClick() {
+          stopTask(row.id).then(() => {
+            window.$message.success(t('common.stopped'))
+            fetchData()
+          })
+        }
+      })
       break;
     case 'delete':
-      deleteSchedule(row.id).then(() => {
-        window.$message.info(`删除任务${row.name}成功`)
-        fetchData()
+      window.$dialog.error({
+        title: t('ms.taskCenter.deleteTaskTitle'),
+        content: t('ms.taskCenter.deleteCaseTaskTip'),
+        positiveText: t('common.confirmDelete'),
+        negativeText: t('common.cancel'),
+        onPositiveClick() {
+          deleteSchedule(row.id).then(() => {
+            window.$message.info(t('common.deleteSuccess'))
+            fetchData()
+          })
+        }
       })
       break;
   }
@@ -39,20 +58,37 @@ const handleTableMoreAction = (key: string, row: IScheduleInfo) => {
 const columns: DataTableColumns<IScheduleInfo> = [
   {type: 'selection', fixed: 'left', options: ['all', 'none']},
   {title: 'ID', key: 'num', ellipsis: {tooltip: true}, width: 220},
-  {title: '名称', key: 'name', ellipsis: {tooltip: true}, width: 220},
+  {title: t('ms.taskCenter.taskName'), key: 'name', ellipsis: {tooltip: true}, width: 220},
   {
-    title: '运行规则',
-    key: 'value', width: 120,
-    render: (row) => h(WCronSelect, {
-      modelValue: row.value,
-      onChangeCron: (v) => handleChangeCron(v, row),
-      size: 'small'
-    }, {})
+    title: t('common.status'), key: 'status', width: 50,
+    render(row) {
+      return h(NSwitch, {
+        value: row.enable,
+        disabled: !hasAnyPermission(['SYSTEM_SCHEDULE_TASK_CENTER:READ+UPDATE']),
+        loading: switchLoading.value,
+        onUpdateValue: (value) => handleSwitch(value, row)
+      }, {});
+    }
   },
-  {title: '上次完成时间', key: 'lastTimeAsLocalDateTime', width: 220},
-  {title: '下次执行时间', key: 'nextTimeAsLocalDateTime', width: 220},
   {
-    title: '操作', key: 'actions', fixed: 'right', width: 200,
+    title: t('ms.taskCenter.runRule'),
+    key: 'value', width: 120,
+    render(row) {
+      if (hasAnyPermission(['SYSTEM_SCHEDULE_TASK_CENTER:READ+UPDATE'])) {
+        return h(WCronSelect, {
+          modelValue: row.value,
+          onChangeCron: (v) => handleChangeCron(v, row),
+          size: 'small'
+        }, {});
+      } else {
+        return h('span', {}, {default: () => row.value})
+      }
+    }
+  },
+  {title: t('ms.taskCenter.lastFinishTime'), key: 'lastTimeAsLocalDateTime', width: 220},
+  {title: t('ms.taskCenter.nextExecuteTime'), key: 'nextTimeAsLocalDateTime', width: 220},
+  {
+    title: () => t('common.operation'), key: 'actions', fixed: 'right', width: 200,
     render(row) {
       return h(WDataTableAction, {
         showEdit: true,
@@ -61,7 +97,7 @@ const columns: DataTableColumns<IScheduleInfo> = [
       }, {
         default: () => [
           h(NButton, {text: true, onClick: () => handleEditConfig(row)}, {default: () => '参数配置'}),
-          h(NButton, {text: true}, {default: () => 'once'}),
+          h(NButton, {text: true}, {default: () => t('ms.taskCenter.execute')}),
         ]
       })
     }
@@ -76,9 +112,19 @@ const handleCheck = (rowKeys: DataTableRowKey[]) => {
   checkedRowKeys.value = rowKeys
 }
 const {send: updateScheduleCron} = useRequest((param) => scheduleApi.updateScheduleCron(param), {immediate: false})
+const {
+  send: switchSchedule,
+  loading: switchLoading
+} = useRequest((id) => scheduleApi.scheduleSwitch(id), {immediate: false});
+const handleSwitch = (_v: boolean, record: IScheduleInfo) => {
+  switchSchedule(record.id).then(() => {
+    window.$message.success(t(record.enable ? 'ms.taskCenter.closeTaskSuccess' : 'ms.taskCenter.openTaskSuccess'))
+    fetchData()
+  })
+}
 const handleChangeCron = (value: string, record: IScheduleInfo) => {
   updateScheduleCron({id: record.id, cron: value,}).then(() => {
-    window.$message.info(`运行规则修改成功`)
+    window.$message.success(t('common.updateSuccess'))
     fetchData()
   })
 }
@@ -106,7 +152,7 @@ onMounted(() => {
       :segmented="{content: true,}"
   >
     <template #header-extra>
-      <n-input v-model:value="keyword" clearable placeholder="根据任务名称/ID查询"/>
+      <n-input v-model:value="keyword" clearable :placeholder="t('ms.taskCenter.search')"/>
     </template>
     <w-data-table-tool-bar @refresh="fetchData" @add="handleAdd"/>
     <n-data-table :columns="columns"

@@ -56,15 +56,16 @@ public class JwtTokenProvider {
     }
 
     public boolean validateToken(String token) {
+        // 检查是否在黑名单中
+        if (jwtBlacklistService.isInBlacklist(token)) {
+            return false;
+        }
+
         try {
-            // 检查是否在黑名单中
-            if (jwtBlacklistService.isInBlacklist(token)) {
-                return false;
-            }
-            
             parseClaims(token);
             return true;
         } catch (Exception e) {
+            log.warn("JWT token validation failed: {}", e.getMessage());
             return false;
         }
     }
