@@ -1,11 +1,13 @@
 import {defineConfig, presetIcons, presetWind3} from 'unocss'
 import transformerDirectives from '@unocss/transformer-directives'
+
 export default defineConfig({
     presets: [
         presetWind3(),
         presetIcons({
             collections: {
-                solar: () => import('@iconify-json/solar/icons.json').then(i => i.default)
+                solar: () => import('@iconify-json/solar/icons.json').then(i => i.default),
+                mdi: () => import('@iconify-json/mdi/icons.json').then(i => i.default)
             }
         })
     ],

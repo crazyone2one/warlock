@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {h, ref} from 'vue'
-import {NAvatar, NText} from 'naive-ui'
+import {type DropdownOption, NAvatar, NText} from 'naive-ui'
 import {useRequest} from "alova/client";
 import {authApi} from "/@/api/methods/auth.ts";
 import {useAppStore, useUserStore} from "/@/store";
@@ -9,6 +9,8 @@ import {useI18n} from "vue-i18n";
 import {clearToken} from "/@/utils/auth.ts";
 import {removeRouteListener} from "/@/utils/route-listener.ts";
 import WPersonalDrawer from '/@/components/w-personal-drawer/index.vue'
+import useLocale from "/@/i18n/use-locale.ts";
+import {LOCALE_OPTIONS, type LocaleType} from "/@/i18n";
 
 const {t} = useI18n()
 const appState = useAppStore()
@@ -93,12 +95,36 @@ const handleSelect = (key: string) => {
       break;
   }
 }
+
+const {changeLocale, currentLocale} = useLocale();
+const locales = [...LOCALE_OPTIONS];
+const handleChangeLanguage = (locale: LocaleType) => {
+  // 修改当前用户的语言
+  // updateLanguage({ language: locale });
+  changeLocale(locale);
+}
+const renderLocaleIcon = (option: DropdownOption) => {
+  // directives: [{name: 'show', value: option.key === currentLocale.value}]
+  if (option.key === currentLocale.value) {
+    return h('div', {
+      class: `i-mdi-check-circle-outline text-green-400`,
+    });
+  }
+}
 </script>
 
 <template>
   <n-flex>
     <n-button text>Button1</n-button>
-    <n-button text>Button2</n-button>
+    <n-dropdown trigger="click" :options="locales" placement="bottom-end"
+                :render-icon="renderLocaleIcon"
+                @select="handleChangeLanguage">
+      <n-button text>
+        <template #icon>
+          <div class="i-mdi-translate"/>
+        </template>
+      </n-button>
+    </n-dropdown>
     <n-button text>
       <template #icon>
         <n-icon>
