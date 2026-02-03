@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -51,8 +52,35 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    /**
+     * 生成Refresh Token
+     */
+    public String generateRefreshToken(String subject) {
+        return Jwts.builder()
+                .subject(subject)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + jwtProperties.getRefreshTokenValidity()))
+                .signWith(key())
+                .compact();
+    }
+
     public String getUsernameFromToken(String token) {
         return parseClaims(token).getSubject();
+    }
+
+    /**
+     * 验证Refresh Token
+     */
+    public boolean validateRefreshToken(String token) {
+        // Refresh Token不需要检查黑名单，因为主要用于刷新Access Token
+        try {
+            Claims claims = parseClaims(token);
+            Date expiration = claims.getExpiration();
+            return expiration.after(new Date());
+        } catch (Exception e) {
+            log.warn("JWT refresh token validation failed: {}", e.getMessage());
+            return false;
+        }
     }
 
     public boolean validateToken(String token) {

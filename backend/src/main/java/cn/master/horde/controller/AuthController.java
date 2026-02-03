@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,7 +31,7 @@ import java.util.Optional;
  * @since : 2026/1/15, 星期四
  **/
 
-
+@NullMarked
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
@@ -47,8 +48,36 @@ public class AuthController {
                 .map(user -> QueryChain.of(UserRoleRelation.class)
                         .where(UserRoleRelation::getUserId).eq(user.getId()).list()
                         .stream().map(UserRoleRelation::getRoleId).toList());
-        String token = jwtTokenProvider.generateToken(request.username(), roles.orElse(List.of()));
-        return ResponseEntity.ok(new AuthenticationResponse(token, null));
+        String accessToken = jwtTokenProvider.generateToken(request.username(), roles.orElse(List.of()));
+        String refreshToken = jwtTokenProvider.generateRefreshToken(request.username());
+        return ResponseEntity.ok(new AuthenticationResponse(accessToken, refreshToken));
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<AuthenticationResponse> refreshToken(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String refreshToken = authorizationHeader.substring(7);
+
+            if (jwtTokenProvider.validateRefreshToken(refreshToken)) {
+                String username = jwtTokenProvider.getUsernameFromToken(refreshToken);
+                // 从数据库获取用户角色信息
+                Optional<List<String>> roles = QueryChain.of(SystemUser.class)
+                        .where(SystemUser::getUserName).eq(username).oneOpt()
+                        .map(user -> QueryChain.of(UserRoleRelation.class)
+                                .where(UserRoleRelation::getUserId).eq(user.getId()).list()
+                                .stream().map(UserRoleRelation::getRoleId).toList());
+
+                // 生成新的access token
+                String newAccessToken = jwtTokenProvider.generateToken(username, roles.orElse(List.of()));
+                // 返回新的access token和原来的refresh token
+                return ResponseEntity.ok(new AuthenticationResponse(newAccessToken, refreshToken));
+            }
+        }
+
+        // 如果refresh token无效，返回错误
+        return ResponseEntity.status(401).body(new AuthenticationResponse(null, null));
     }
 
     @PostMapping("/logout")
@@ -57,7 +86,7 @@ public class AuthController {
         SecurityContext context = SecurityContextHolder.getContext();
         context.setAuthentication(null);
         SecurityContextHolder.clearContext();
-        
+
         return ResponseEntity.ok().body(Map.of(
                 "code", 100200,
                 "message", "登出成功"

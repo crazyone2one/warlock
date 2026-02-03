@@ -4,10 +4,15 @@ import {globalInstance} from "/@/api";
 export const authApi = {
     login: (data: { username: string, password: string }) => {
         const method = globalInstance.Post<AuthenticationResponse>('/auth/login', data)
-        method.meta = {ignoreToken: true,};
+        method.meta = {authRole: null,};
         return method;
     },
     getUserInfo: () => globalInstance.Get<UserState>('/system/user/get-user-info', {}),
-    logout: () => globalInstance.Post('/auth/logout', {}),
-    getPublicKey: () => globalInstance.Get('/auth/get-key', {meta: {ignoreToken: true}}),
+    logout: () => globalInstance.Post('/auth/logout', {}, {meta: {authRole: 'logout'}}),
+    refreshToken: () => {
+        const method = globalInstance.Post<AuthenticationResponse>('/auth/refresh-token', {});
+        method.meta = {authRole: 'refreshToken'};
+        return method;
+    },
+    getPublicKey: () => globalInstance.Get('/auth/get-key', {meta: {authRole: null}}),
 }
