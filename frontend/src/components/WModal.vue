@@ -1,10 +1,16 @@
 <script setup lang="ts">
+import {useI18n} from "vue-i18n";
+
+const {t} = useI18n()
 const showModal = defineModel<boolean>('showModal', {type: Boolean, default: false});
-const {title = ''} = defineProps<{ title?: string }>()
+const {title = '', okText = 'common.confirm', loading = false, disabled = false} = defineProps<
+    { title?: string, okText?: string, loading?: boolean, disabled?: boolean }
+>()
 const emit = defineEmits<{
   (e: 'cancel'): void;
   (e: 'submit'): void;
 }>();
+
 </script>
 
 <template>
@@ -17,15 +23,20 @@ const emit = defineEmits<{
       </div>
     </template>
     <div>
-      <slot name="content"></slot>
+      <slot></slot>
     </div>
     <template #action>
       <n-flex>
         <slot name="action"></slot>
         <div>
           <n-flex>
-            <n-button secondary size="small" @click="emit('cancel')">取消</n-button>
-            <n-button type="primary" size="small" @click="emit('submit')">确定</n-button>
+            <n-button secondary size="small" :loading="loading" @click="emit('cancel')">
+              {{ t('common.cancel') }}
+            </n-button>
+            <n-button type="primary" size="small" :loading="loading" :disabled="disabled"
+                      @click="emit('submit')">
+              {{ t(okText) }}
+            </n-button>
           </n-flex>
         </div>
       </n-flex>

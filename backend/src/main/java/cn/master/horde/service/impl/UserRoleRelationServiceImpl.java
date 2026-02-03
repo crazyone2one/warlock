@@ -1,23 +1,35 @@
 package cn.master.horde.service.impl;
 
 import cn.master.horde.common.constants.UserRoleScope;
+import cn.master.horde.common.result.BizException;
+import cn.master.horde.dto.UserExcludeOptionDTO;
+import cn.master.horde.dto.UserRoleRelationUserDTO;
 import cn.master.horde.dto.UserTableResponse;
+import cn.master.horde.dto.request.UserRoleRelationQueryRequest;
+import cn.master.horde.dto.request.UserRoleRelationUpdateRequest;
 import cn.master.horde.entity.SystemUser;
 import cn.master.horde.entity.UserRole;
 import cn.master.horde.entity.UserRoleRelation;
 import cn.master.horde.mapper.UserRoleRelationMapper;
 import cn.master.horde.service.UserRoleRelationService;
+import cn.master.horde.service.UserRoleService;
+import cn.master.horde.util.Translator;
+import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static cn.master.horde.common.result.SystemResultCode.GLOBAL_USER_ROLE_LIMIT;
+import static cn.master.horde.common.result.SystemResultCode.USER_ROLE_RELATION_EXIST;
+import static cn.master.horde.entity.table.SystemUserTableDef.SYSTEM_USER;
+import static cn.master.horde.entity.table.UserRoleRelationTableDef.USER_ROLE_RELATION;
 
 /**
  * 用户-角色关联表 服务层实现。
@@ -26,7 +38,9 @@ import java.util.stream.Collectors;
  * @since 2026-01-14
  */
 @Service
+@RequiredArgsConstructor
 public class UserRoleRelationServiceImpl extends ServiceImpl<UserRoleRelationMapper, UserRoleRelation> implements UserRoleRelationService {
+    private final UserRoleService userRoleService;
 
     @Override
     public List<UserRoleRelation> selectByUserId(String userId) {
@@ -102,6 +116,109 @@ public class UserRoleRelationServiceImpl extends ServiceImpl<UserRoleRelationMap
     @Transactional(rollbackFor = Exception.class)
     public void deleteByUserIdList(List<String> userIdList) {
         mapper.deleteByQuery(queryChain().where(UserRoleRelation::getUserId).in(userIdList));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void add(UserRoleRelationUpdateRequest request) {
+        checkGlobalSystemUserRoleLegality(Collections.singletonList(request.getRoleId()));
+        checkUserLegality(request.getUserIds());
+        List<UserRoleRelation> userRoleRelations = new ArrayList<>();
+        request.getUserIds().forEach(userId -> {
+            UserRoleRelation userRoleRelation = new UserRoleRelation();
+            BeanUtils.copyProperties(request, userRoleRelation);
+            userRoleRelation.setUserId(userId);
+            userRoleRelation.setSourceId(UserRoleScope.SYSTEM);
+            checkExist(userRoleRelation);
+            userRoleRelations.add(userRoleRelation);
+        });
+        mapper.insertBatch(userRoleRelations);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void delete(String id) {
+        UserRoleRelation userRoleRelation = mapper.selectOneById(id);
+        UserRole userRole = userRoleService.getById(userRoleRelation.getRoleId());
+        userRoleService.checkResourceExist(userRole);
+        userRoleService.checkSystemUserGroup(userRole);
+        userRoleService.checkGlobalUserRole(userRole);
+        mapper.deleteById(id);
+        long count = queryChain().where(UserRoleRelation::getUserId).eq(userRoleRelation.getUserId())
+                .and(UserRoleRelation::getSourceId).eq(UserRoleScope.SYSTEM)
+                .count();
+        if (count == 0) {
+            throw new BizException(GLOBAL_USER_ROLE_LIMIT);
+        }
+    }
+
+    @Override
+    public Page<UserRoleRelationUserDTO> pageDTO(UserRoleRelationQueryRequest request) {
+        Page<UserRoleRelationUserDTO> page = queryChain().select(USER_ROLE_RELATION.ID)
+                .select(SYSTEM_USER.ID.as("userId"), SYSTEM_USER.USER_NAME.as("name"), SYSTEM_USER.EMAIL, SYSTEM_USER.PHONE)
+                .from(USER_ROLE_RELATION)
+                .innerJoin(SYSTEM_USER).on(USER_ROLE_RELATION.USER_ID.eq(SYSTEM_USER.ID)
+                        .and(USER_ROLE_RELATION.ROLE_ID.eq(request.getRoleId())))
+                .orderBy(USER_ROLE_RELATION.CREATE_TIME.desc())
+                .pageAs(new Page<>(request.getPage(), request.getPageSize()), UserRoleRelationUserDTO.class);
+        UserRole userRole = userRoleService.getById(request.getRoleId());
+        userRoleService.checkSystemUserGroup(userRole);
+        userRoleService.checkGlobalUserRole(userRole);
+        return page;
+    }
+
+    @Override
+    public List<UserExcludeOptionDTO> getExcludeSelectOption(String roleId, String keyword) {
+        userRoleService.checkResourceExist(userRoleService.getById(roleId));
+        // 查询所有用户选项
+        List<UserExcludeOptionDTO> selectOptions = getExcludeSelectOptionWithLimit(keyword);
+        // 查询已经关联的用户ID
+        List<String> excludeUserIds = queryChain().where(UserRoleRelation::getRoleId).eq(roleId).list().stream()
+                .map(UserRoleRelation::getUserId).toList();
+        selectOptions.forEach((excludeOption) -> {
+            if (excludeUserIds.contains(excludeOption.getId())) {
+                excludeOption.setExclude(true);
+                excludeOption.setDisabled(true);
+            }
+        });
+        return selectOptions;
+    }
+
+    private List<UserExcludeOptionDTO> getExcludeSelectOptionWithLimit(String keyword) {
+        return QueryChain.of(SystemUser.class)
+                .select(SYSTEM_USER.ID, SYSTEM_USER.USER_NAME.as("name"), SYSTEM_USER.EMAIL)
+                .from(SYSTEM_USER)
+                .where(SYSTEM_USER.USER_NAME.like(keyword).or(SYSTEM_USER.EMAIL.like(keyword)))
+                .limit(100)
+                .listAs(UserExcludeOptionDTO.class);
+    }
+
+    private void checkGlobalSystemUserRoleLegality(List<String> checkIdList) {
+        List<UserRole> userRoleList = QueryChain.of(UserRole.class).where(UserRole::getId).in(checkIdList).list();
+        if (userRoleList.size() != checkIdList.size()) {
+            throw new BizException(Translator.get("user_role_not_exist"));
+        }
+        userRoleList.forEach(userRole -> {
+            userRoleService.checkSystemUserGroup(userRole);
+            userRoleService.checkGlobalUserRole(userRole);
+        });
+    }
+
+    private void checkUserLegality(List<String> userIds) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            throw new BizException(Translator.get("user.not.exist"));
+        }
+        long count = QueryChain.of(SystemUser.class).where(SystemUser::getId).in(userIds).count();
+        if (count != userIds.size()) {
+            throw new BizException(Translator.get("user.id.not.exist"));
+        }
+    }
+
+    private void checkExist(UserRoleRelation userRoleRelation) {
+        if (queryChain().where(UserRoleRelation::getUserId).eq(userRoleRelation.getUserId())
+                .and(UserRoleRelation::getRoleId).eq(userRoleRelation.getRoleId()).count() > 0) {
+            throw new BizException(USER_ROLE_RELATION_EXIST);
+        }
     }
 
     private List<UserRoleRelation> selectGlobalRoleByUserId(String userId) {

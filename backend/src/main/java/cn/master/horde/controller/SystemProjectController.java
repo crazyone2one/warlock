@@ -1,6 +1,6 @@
 package cn.master.horde.controller;
 
-import cn.master.horde.common.service.CurrentUserService;
+import cn.master.horde.common.service.SessionUtils;
 import cn.master.horde.dto.BasePageRequest;
 import cn.master.horde.dto.ProjectSwitchRequest;
 import cn.master.horde.entity.SystemProject;
@@ -75,17 +75,17 @@ public class SystemProjectController {
     @GetMapping("/enable/{id}")
     @PreAuthorize("hasPermission('SYSTEM_PROJECT','READ+UPDATE')")
     public void enable(@PathVariable String id) {
-        systemProjectService.enable(id, CurrentUserService.getCurrentUsername());
+        systemProjectService.enable(id, SessionUtils.getCurrentUsername());
     }
 
     @GetMapping("/disable/{id}")
     @PreAuthorize("hasPermission('SYSTEM_PROJECT','READ+UPDATE')")
     public void disable(@PathVariable String id) {
-        systemProjectService.disable(id, CurrentUserService.getCurrentUsername());
+        systemProjectService.disable(id, SessionUtils.getCurrentUsername());
     }
 
     @PostMapping("/switch")
     public void switchProject(@RequestBody ProjectSwitchRequest request) {
-        systemProjectService.switchProject(request, CurrentUserService.getCurrentUserId());
+        systemProjectService.switchProject(request, SessionUtils.getCurrentUserId());
     }
 }

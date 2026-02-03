@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author Qoder
  * @since 2026/1/15
  */
-public class CurrentUserService {
+public class SessionUtils {
 
     /**
      * 获取当前登录用户的用户名

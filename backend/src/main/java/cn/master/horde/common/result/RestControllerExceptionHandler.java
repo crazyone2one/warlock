@@ -40,18 +40,13 @@ public class RestControllerExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResultHolder handleValidationExceptions(MethodArgumentNotValidException ex) {
         // 提取所有验证错误信息，构建字段名到错误消息的映射
-        Map<String, Object> errors = new HashMap<>();
-        List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> {
-                    assert error.getDefaultMessage() != null;
-                    assert error.getRejectedValue() != null;
-                    return new FieldError(
-                            error.getField(),
-                            error.getDefaultMessage(),
-                            error.getRejectedValue().toString()
-                    );
-                }).toList();
-        errors.put("fieldErrors", fieldErrors);
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            assert errorMessage != null;
+            errors.put(fieldName, errorMessage);
+        });
         // 返回验证失败的统一响应结果
         return ResultHolder.error(ResultCode.VALIDATE_FAILED.getCode(), ResultCode.VALIDATE_FAILED.getMessage(), errors);
     }

@@ -3,7 +3,7 @@ package cn.master.horde.service.impl;
 import cn.master.horde.common.config.DataSourceParameter;
 import cn.master.horde.common.result.BizException;
 import cn.master.horde.common.result.ResultCode;
-import cn.master.horde.common.service.CurrentUserService;
+import cn.master.horde.common.service.SessionUtils;
 import cn.master.horde.dto.SlaveParameter;
 import cn.master.horde.entity.ProjectParameter;
 import cn.master.horde.mapper.ProjectParameterMapper;
@@ -40,7 +40,7 @@ public class ProjectParameterServiceImpl extends ServiceImpl<ProjectParameterMap
     @Transactional(rollbackFor = Exception.class)
     public void saveParameter(ProjectParameter projectParameter) {
         checkExistByProjectIdAndParameterType(projectParameter);
-        String userId = CurrentUserService.getCurrentUserId();
+        String userId = SessionUtils.getCurrentUserId();
         projectParameter.setCreateUser(userId);
         projectParameter.setUpdateUser(userId);
         mapper.insertSelective(projectParameter);

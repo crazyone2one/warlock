@@ -5,7 +5,7 @@ import cn.idev.excel.util.MapUtils;
 import cn.master.horde.common.annotation.Loggable;
 import cn.master.horde.common.constants.Created;
 import cn.master.horde.common.constants.Updated;
-import cn.master.horde.common.service.CurrentUserService;
+import cn.master.horde.common.service.SessionUtils;
 import cn.master.horde.core.security.CustomUserDetails;
 import cn.master.horde.dto.*;
 import cn.master.horde.dto.request.UserBatchCreateRequest;
@@ -78,14 +78,14 @@ public class SystemUserController {
     @PreAuthorize("hasPermission('SYSTEM_USER','READ+UPDATE')")
     @PostMapping("/update/enable")
     public TableBatchProcessResponse update(@Validated @RequestBody UserChangeEnableRequest request) {
-        return systemUserService.updateUserEnable(request, CurrentUserService.getCurrentUserId(), CurrentUserService.getCurrentUsername());
+        return systemUserService.updateUserEnable(request, SessionUtils.getCurrentUserId(), SessionUtils.getCurrentUsername());
     }
 
     @Loggable("删除用户")
     @PreAuthorize("hasPermission('SYSTEM_USER','READ+DELETE')")
     @PostMapping("/delete")
     public TableBatchProcessResponse delete(@Validated @RequestBody UserChangeEnableRequest request) {
-        return systemUserService.deleteUser(request, CurrentUserService.getCurrentUserId(), CurrentUserService.getCurrentUsername());
+        return systemUserService.deleteUser(request, SessionUtils.getCurrentUserId(), SessionUtils.getCurrentUsername());
     }
 
     /**
@@ -127,14 +127,14 @@ public class SystemUserController {
     @Operation(summary = "系统设置-系统-用户-重置用户密码")
     @PreAuthorize("hasPermission('SYSTEM_USER','READ+UPDATE')")
     public TableBatchProcessResponse resetPassword(@Validated @RequestBody TableBatchProcessDTO request) {
-        return systemUserService.resetPassword(request, CurrentUserService.getCurrentUserId());
+        return systemUserService.resetPassword(request, SessionUtils.getCurrentUserId());
     }
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @Operation(summary = "系统设置-系统-用户-导入用户")
     @PreAuthorize("hasPermission('SYSTEM_USER','READ+IMPORT')")
     public UserImportResponse importUser(@RequestPart(value = "file", required = false) MultipartFile excelFile) {
-        return systemUserService.importByExcel(excelFile, CurrentUserService.getCurrentUserId());
+        return systemUserService.importByExcel(excelFile, SessionUtils.getCurrentUserId());
     }
 
     @GetMapping("/get/system/role")

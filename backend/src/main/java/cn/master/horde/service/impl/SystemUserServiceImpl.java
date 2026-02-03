@@ -6,7 +6,7 @@ import cn.master.horde.common.listener.ExcelParseDTO;
 import cn.master.horde.common.listener.UserImportEventListener;
 import cn.master.horde.common.result.BizException;
 import cn.master.horde.common.result.SystemResultCode;
-import cn.master.horde.common.service.CurrentUserService;
+import cn.master.horde.common.service.SessionUtils;
 import cn.master.horde.dto.*;
 import cn.master.horde.dto.permission.UserRolePermissionDTO;
 import cn.master.horde.dto.permission.UserRoleResourceDTO;
@@ -78,7 +78,7 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
             response.setErrorEmails(errorEmails);
             throw new BizException(SystemResultCode.INVITE_EMAIL_EXIST, JsonHelper.objectToString(errorEmails.keySet()));
         } else {
-            response.setSuccessList(saveUserAndRole(request, CurrentUserService.getCurrentUsername()));
+            response.setSuccessList(saveUserAndRole(request, SessionUtils.getCurrentUsername()));
         }
         return response;
     }
@@ -90,7 +90,7 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
         checkUserEmail(request.getId(), request.getEmail());
         SystemUser user = new SystemUser();
         BeanUtils.copyProperties(request, user);
-        user.setUpdateUser(CurrentUserService.getCurrentUsername());
+        user.setUpdateUser(SessionUtils.getCurrentUsername());
         mapper.update(user);
         userRoleRelationService.updateUserSystemGlobalRole(user, user.getUpdateUser(), request.getUserRoleIdList());
         return request;

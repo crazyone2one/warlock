@@ -90,3 +90,16 @@ export interface PopVisibleItem {
 export interface PopVisible {
     [key: string]: PopVisibleItem;
 }
+export interface UserTableItem {
+    id: string;
+    userId: string;
+    name: string;
+    email: string;
+    phone: string;
+}
+export interface UserOptionItem {
+    id: string;
+    name: string;
+    email: string;
+    disabled: boolean;
+}

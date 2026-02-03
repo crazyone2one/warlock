@@ -6,6 +6,8 @@ import {useAppStore} from "/@/store";
 import router from "/@/router";
 import {authApi} from "/@/api/methods/auth.ts";
 import {createServerTokenAuthentication} from "alova/client";
+import useLocale from "/@/i18n/use-locale.ts";
+import {useI18n} from "/@/hooks/useI18n.ts";
 
 const {onAuthRequired, onResponseRefreshToken} = createServerTokenAuthentication({
     assignToken: method => {
@@ -87,9 +89,11 @@ export const globalInstance = createAlova({
     beforeRequest: onAuthRequired(
         (method) => {
             const appStore = useAppStore();
+            const {currentLocale} = useLocale();
             method.config.headers = {
                 ...method.config.headers,
                 'PROJECT': appStore.currentProjectId,
+                'Accept-Language': currentLocale.value,
             };
             appStore.showLoading();
         }
@@ -98,21 +102,70 @@ export const globalInstance = createAlova({
         onSuccess: async (response, method) => {
             const appStore = useAppStore();
             appStore.hideLoading();
-
-            // 如果是刷新token的请求，直接处理结果
+            const {t} = useI18n();
             if (response.status >= 400) {
                 const json = await response.json();
-                window.$message?.error((response.status === 500 ? json.message || '系统错误' : json.message) || `${response.statusText}`);
-                throw new Error(response.statusText);
+
+                // 根据HTTP状态码和业务code分别处理
+                if (response.status === 403) {
+                    // 权限不足
+                    window.$message?.error(json.message || t('api.errMsg403'));
+                    throw new Error(json.message || t('api.errMsg403'));
+                } else if (response.status === 404) {
+                    // 资源未找到
+                    window.$message?.error(json.message || t('api.errMsg404'));
+                    throw new Error(json.message || t('api.errMsg404'));
+                } else if (response.status >= 500) {
+                    // 服务器内部错误
+                    window.$message?.error(json.message || t('api.errMsg500'));
+                    throw new Error(json.message || t('api.errMsg500'));
+                } else {
+                    // 其他客户端错误
+                    window.$message?.error((response.status === 500 ? json.message || t('api.errMsg500') : json.message) || `${response.statusText}`);
+                    throw new Error(response.statusText);
+                }
             }
+
             if (method.meta?.isBlob) {
                 return response.blob();
             }
+
             const json = await response.json();
+
+            // 根据业务code处理不同情况
             if (json.code !== 100200) {
+                // 参数校验失败
+                if (json.code === 100400) {
+                    window.$message?.warning(json.message || '参数校验失败');
+                } else if (json.code === 100401) {
+                    // 认证失败
+                    window.$message?.error(json.message || '用户认证失败');
+                    clearToken();
+                    await router.push({
+                        name: 'login',
+                        query: {
+                            ...router.currentRoute.value.query,
+                            redirect: router.currentRoute.value.name as string,
+                        },
+                    });
+                } else if (json.code === 100403) {
+                    // 权限不足
+                    window.$message?.error(json.message || '权限不足');
+                } else if (json.code === 100404) {
+                    // 资源未找到
+                    window.$message?.error(json.message || '资源未找到');
+                } else if (json.code === 100500) {
+                    // 系统未知异常
+                    window.$message?.error(json.message || '系统未知异常');
+                } else {
+                    // 其他业务错误
+                    window.$message?.error(json.message || '请求失败');
+                }
+
                 // 抛出错误或返回reject状态的Promise实例时，此请求将抛出错误
-                throw new Error(json.message);
+                throw new Error(json.message || `业务错误: ${json.code}`);
             }
+
             // 解析的响应数据将传给method实例的transform钩子函数，这些函数将在后续讲解
             return json.data;
         },

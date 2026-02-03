@@ -4,7 +4,8 @@ import type {
   AuthTableItem,
   CurrentUserGroupItem,
   SavePermissions,
-  UserGroupAuthSetting
+  UserGroupAuthSetting,
+  UserGroupPermissionItem
 } from "/@/api/types/user-group.ts";
 import {useI18n} from "vue-i18n";
 import {computed, h, ref, watchEffect} from "vue";
@@ -35,8 +36,8 @@ const systemAdminDisabled = computed(() => {
   return disabled;
 });
 const columns: DataTableColumns<AuthTableItem> = [
-  {title: () => t('system.userGroup.function'), key: 'ability', width: 100},
-  {title: () => t('system.userGroup.operationObject'), key: 'operationObject', width: 150},
+  {title: () => t('system.userGroup.function'), key: 'ability', width: 80},
+  {title: () => t('system.userGroup.operationObject'), key: 'operationObject', width: 170},
   {
     title: () => {
       return h(NFlex, {justify: 'space-between'}, {
@@ -62,7 +63,7 @@ const columns: DataTableColumns<AuthTableItem> = [
             }, {
               default: () => {
                 return row.permissions?.map((item) => {
-                  return h(NCheckbox, {value: item.id, label: t(item.name)},);
+                  return h(NCheckbox, {value: item.id, label: item.name},);
                 });
               }
             }),
@@ -144,7 +145,7 @@ const handleRowAuthChange = (value: boolean, rowIndex: number) => {
   tmpRow.indeterminate = false;
   if (value) {
     tmpRow.enable = true;
-    tmpRow.perChecked = tmpRow.permissions?.map((item) => item.id);
+    tmpRow.perChecked = tmpRow.permissions?.map((item: UserGroupPermissionItem) => item.id);
   } else {
     tmpRow.enable = false;
     tmpRow.perChecked = [];
@@ -175,7 +176,7 @@ const makeData = (item: UserGroupAuthSetting) => {
       indeterminate,
       perChecked,
       ability: index === 0 ? item.name : undefined,
-      operationObject: t(child.name),
+      operationObject: child.name,
       rowSpan: index === 0 ? item.children?.length || 1 : undefined,
     });
   });
@@ -194,7 +195,7 @@ const handleAllChange = (isInit = false) => {
   }
   const tmpArr = tableData.value;
   const {length: allLength} = tmpArr;
-  const {length} = tmpArr.filter((item) => item.enable);
+  const {length} = tmpArr.filter((item: UserGroupAuthSetting) => item.enable);
   if (length === allLength) {
     allChecked.value = true;
     allIndeterminate.value = false;
@@ -227,7 +228,7 @@ const handleSave = () => {
   if (!tableData.value) return;
   const permissions: SavePermissions[] = [];
   const tmpArr = tableData.value;
-  tmpArr.forEach((item) => {
+  tmpArr.forEach((item: AuthTableItem) => {
     item.permissions?.forEach((ele) => {
       ele.enable = item.perChecked?.includes(ele.id) || false;
       permissions.push({id: ele.id, enable: ele.enable});

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import UserGroupLeft from "/@/views/setting/user-group/components/UserGroupLeft.vue";
-import {computed, onMounted, provide, ref, watchEffect} from "vue";
+import {computed, nextTick, onMounted, provide, ref, watchEffect} from "vue";
 import {AuthScopeEnum} from "/@/utils/common-enum.ts";
 import type {CurrentUserGroupItem} from "/@/api/types/user-group.ts";
 import {useRouter} from "vue-router";
@@ -13,7 +13,9 @@ const {t} = useI18n();
 const router = useRouter();
 provide('systemType', AuthScopeEnum.SYSTEM);
 const ugLeftRef = ref<InstanceType<typeof UserGroupLeft>>();
+const userRef = ref<InstanceType<typeof UserTable>>();
 const currentTable = ref('auth');
+const keyword = ref('')
 const currentUserGroupItem = ref<CurrentUserGroupItem>({
   id: '',
   name: '',
@@ -24,6 +26,20 @@ const currentUserGroupItem = ref<CurrentUserGroupItem>({
 const handleSelect = (item: CurrentUserGroupItem) => {
   currentUserGroupItem.value = item;
 };
+const tableSearch = () => {
+  if (currentTable.value === 'user' && userRef.value) {
+    userRef.value.fetchData();
+  } else if (!userRef.value) {
+    nextTick(() => {
+      userRef.value?.fetchData();
+    });
+  }
+}
+const handleAddMember = (id: string) => {
+  if (id === currentUserGroupItem.value.id) {
+    tableSearch();
+  }
+}
 const couldShowUser = computed(() => currentUserGroupItem.value.type === AuthScopeEnum.SYSTEM);
 watchEffect(() => {
   if (!couldShowUser.value) {
@@ -39,12 +55,13 @@ onMounted(() => {
 
 <template>
   <n-card>
-    <n-split direction="horizontal" :default-size="0.2">
+    <n-split direction="horizontal" :default-size="0.13">
       <template #1>
         <user-group-left ref="ugLeftRef" :add-permission="['SYSTEM_USER_ROLE:READ+ADD']"
                          :update-permission="['SYSTEM_USER_ROLE:READ+UPDATE']"
                          :is-global-disable="false"
-                         @handle-select="handleSelect"/>
+                         @handle-select="handleSelect"
+                         @add-user-success="handleAddMember"/>
       </template>
       <template #2>
         <div class="flex h-full flex-col overflow-hidden pt-[16px]">
@@ -62,7 +79,10 @@ onMounted(() => {
                         :current="currentUserGroupItem"
                         :save-permission="['SYSTEM_USER_ROLE:READ+UPDATE']"
                         :disabled="!hasAnyPermission(['SYSTEM_USER_ROLE:READ+UPDATE'])"/>
-            <user-table v-if="currentTable === 'user'"/>
+            <user-table ref="userRef" v-if="currentTable === 'user'" v-model:keyword="keyword"
+                        :current="currentUserGroupItem"
+                        :save-permission="['SYSTEM_USER_ROLE:READ+UPDATE']"
+                        :disabled="!hasAnyPermission(['SYSTEM_USER_ROLE:READ+UPDATE'])"/>
           </div>
         </div>
       </template>

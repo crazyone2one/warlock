@@ -4,7 +4,7 @@ import cn.master.horde.common.constants.ApplicationNumScope;
 import cn.master.horde.common.job.ScheduleManager;
 import cn.master.horde.common.result.BizException;
 import cn.master.horde.common.result.ResultCode;
-import cn.master.horde.common.service.CurrentUserService;
+import cn.master.horde.common.service.SessionUtils;
 import cn.master.horde.common.service.NumGenerator;
 import cn.master.horde.dto.ScheduleConfig;
 import cn.master.horde.dto.ScheduleCronRequest;
@@ -44,7 +44,7 @@ public class SystemScheduleServiceImpl extends ServiceImpl<SystemScheduleMapper,
     @Transactional(rollbackFor = Exception.class)
     public void addSchedule(SystemSchedule schedule) {
         schedule.setNum(NumGenerator.nextNum(schedule.getProjectId(), ApplicationNumScope.TASK));
-        String currentUserId = CurrentUserService.getCurrentUserId();
+        String currentUserId = SessionUtils.getCurrentUserId();
         schedule.setCreateUser(currentUserId);
         schedule.setUpdateUser(currentUserId);
         mapper.insertSelective(schedule);

@@ -2,7 +2,7 @@ package cn.master.horde.service.impl;
 
 import cn.master.horde.common.result.BizException;
 import cn.master.horde.common.result.ResultCode;
-import cn.master.horde.common.service.CurrentUserService;
+import cn.master.horde.common.service.SessionUtils;
 import cn.master.horde.dto.BasePageRequest;
 import cn.master.horde.dto.ProjectSwitchRequest;
 import cn.master.horde.entity.SystemProject;
@@ -43,8 +43,8 @@ public class SystemProjectServiceImpl extends ServiceImpl<SystemProjectMapper, S
     @Transactional(rollbackFor = Exception.class)
     public boolean saveProject(SystemProject systemProject) {
         checkProjectExistByNameAndNum(systemProject);
-        systemProject.setCreateUser(CurrentUserService.getCurrentUsername());
-        systemProject.setUpdateUser(CurrentUserService.getCurrentUsername());
+        systemProject.setCreateUser(SessionUtils.getCurrentUsername());
+        systemProject.setUpdateUser(SessionUtils.getCurrentUsername());
         return save(systemProject);
     }
 

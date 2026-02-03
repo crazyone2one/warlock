@@ -1,8 +1,13 @@
 package cn.master.horde.service;
 
+import cn.master.horde.dto.UserExcludeOptionDTO;
+import cn.master.horde.dto.UserRoleRelationUserDTO;
 import cn.master.horde.dto.UserTableResponse;
+import cn.master.horde.dto.request.UserRoleRelationQueryRequest;
+import cn.master.horde.dto.request.UserRoleRelationUpdateRequest;
 import cn.master.horde.entity.SystemUser;
 import cn.master.horde.entity.UserRoleRelation;
+import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.service.IService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -25,4 +30,12 @@ public interface UserRoleRelationService extends IService<UserRoleRelation> {
     Map<String, UserTableResponse> selectGlobalUserRole(List<String> userIdList);
 
     void deleteByUserIdList(List<String> userIdList);
+
+    void add(UserRoleRelationUpdateRequest request);
+
+    void delete(String id);
+
+    Page<UserRoleRelationUserDTO> pageDTO(UserRoleRelationQueryRequest request);
+
+    List<UserExcludeOptionDTO> getExcludeSelectOption(String roleId, String keyword);
 }

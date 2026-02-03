@@ -10,6 +10,7 @@ import {userGroupApi} from "/@/api/methods/userGroup.ts";
 import {type DropdownOption} from "naive-ui";
 import {characterLimit} from "/@/utils";
 import {useRequest} from "alova/client";
+import AddUserModal from "/@/views/setting/user-group/components/AddUserModal.vue";
 
 const {t} = useI18n();
 
@@ -33,6 +34,7 @@ const currentItem = ref<CurrentUserGroupItem>({
   type: AuthScopeEnum.SYSTEM
 });
 const currentId = ref('');
+const userModalVisible = ref(false);
 
 const showSystem = computed(() => systemType === AuthScopeEnum.SYSTEM);
 const systemToggle = ref(true);
@@ -102,7 +104,13 @@ const handleCreateUG = (scoped: AuthScopeEnumType) => {
   }
 }
 const handleAddMember = () => {
-  emit('addUserSuccess', currentItem.value.id);
+  userModalVisible.value = true;
+}
+const handleAddUserCancel = (shouldSearch: boolean) => {
+  userModalVisible.value = false;
+  if (shouldSearch) {
+    emit('addUserSuccess', currentId.value);
+  }
 }
 const handleListItemClick = (element: UserGroupItem) => {
   const {id, name, type, internal, code} = element;
@@ -153,8 +161,8 @@ defineExpose({
 
 <template>
   <n-flex vertical class="px-[16px] pb-[16px]">
-    <div class=" pb-[8px] pt-[16px]">
-      <n-input :placeholder="t('system.userGroup.searchHolder')" clearable/>
+    <div class="pb-[8px] pt-[16px]">
+      <n-input :placeholder="t('system.userGroup.searchHolder')" size="small" clearable/>
     </div>
     <div v-if="showSystem" v-permission="['SYSTEM_USER_ROLE:READ']" class="mt-2">
       <n-flex justify="space-between" class="px-[4px] py-[7px]">
@@ -181,7 +189,6 @@ defineExpose({
             </template>
             {{ `创建${t('system.userGroup.systemUserGroup')}` }}
           </n-tooltip>
-
         </user-group-popover>
       </n-flex>
       <Transition>
@@ -281,12 +288,13 @@ defineExpose({
     <!--      </Transition>-->
     <!--    </div>-->
   </n-flex>
+  <add-user-modal v-model:show-modal="userModalVisible" :current-id="currentItem.id" @cancel="handleAddUserCancel"/>
 </template>
 
 <style scoped>
 .list-item {
   padding: 7px 4px 7px 20px;
-  height: 38px;
+  height: 18px;
   border-radius: 4px;
   @apply flex cursor-pointer items-center hover:bg-[rgb(var(--primary-9))];
 

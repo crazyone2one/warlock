@@ -39,4 +39,8 @@ public interface UserRoleService extends IService<UserRole> {
     List<UserRole> selectByUserRoleRelations(List<UserRoleRelation> userRoleRelations);
 
     List<UserSelectOption> getSystemRoleList();
+
+    void checkSystemUserGroup(UserRole userRole);
+
+    UserRole checkResourceExist(UserRole userRole);
 }

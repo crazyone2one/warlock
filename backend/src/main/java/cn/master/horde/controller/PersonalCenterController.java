@@ -1,7 +1,7 @@
 package cn.master.horde.controller;
 
 import cn.master.horde.common.result.BizException;
-import cn.master.horde.common.service.CurrentUserService;
+import cn.master.horde.common.service.SessionUtils;
 import cn.master.horde.core.security.KickoutService;
 import cn.master.horde.dto.request.PersonalUpdatePasswordRequest;
 import cn.master.horde.service.SystemUserService;
@@ -32,12 +32,12 @@ public class PersonalCenterController {
     public void updateUser(@Validated @RequestBody PersonalUpdatePasswordRequest request) {
         checkPermission(request.getId());
         if (systemUserService.updatePassword(request)) {
-            kickoutService.kickUserByUsername(CurrentUserService.getCurrentUsername());
+            kickoutService.kickUserByUsername(SessionUtils.getCurrentUsername());
         }
     }
 
     private void checkPermission(String id) {
-        if (!id.equals(CurrentUserService.getCurrentUserId())) {
+        if (!id.equals(SessionUtils.getCurrentUserId())) {
             throw new BizException("personal.no.permission");
         }
     }

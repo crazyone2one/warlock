@@ -4,7 +4,7 @@ import cn.master.horde.common.constants.InternalUserRole;
 import cn.master.horde.common.constants.UserRoleScope;
 import cn.master.horde.common.constants.UserRoleType;
 import cn.master.horde.common.result.BizException;
-import cn.master.horde.common.service.CurrentUserService;
+import cn.master.horde.common.service.SessionUtils;
 import cn.master.horde.dto.UserSelectOption;
 import cn.master.horde.dto.permission.Permission;
 import cn.master.horde.dto.permission.PermissionCache;
@@ -70,7 +70,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
     public UserRole add(UserRoleUpdateRequest request) {
         UserRole userRole = new UserRole();
         BeanUtils.copyProperties(request, userRole);
-        userRole.setCreateUser(CurrentUserService.getCurrentUserId());
+        userRole.setCreateUser(SessionUtils.getCurrentUserId());
         userRole.setInternal(false);
         userRole.setScopeId(UserRoleScope.GLOBAL);
         checkExist(userRole);
@@ -116,7 +116,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
         userRolePermissionMapper.deleteByQuery(where);
         mapper.deleteById(id);
         // 检查是否只有一个用户组，如果是则添加系统成员等默认用户组
-        checkOneLimitRole(id, MEMBER.getValue(), CurrentUserService.getCurrentUserId(), UserRoleScope.SYSTEM);
+        checkOneLimitRole(id, MEMBER.getValue(), SessionUtils.getCurrentUserId(), UserRoleScope.SYSTEM);
         QueryChain<UserRoleRelation> relationWhere = QueryChain.of(UserRoleRelation.class).where(USER_ROLE_RELATION.ROLE_ID.eq(id));
         userRoleRelationMapper.deleteByQuery(relationWhere);
 
@@ -222,6 +222,13 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
         return returnList;
     }
 
+    @Override
+    public void checkSystemUserGroup(UserRole userRole) {
+        if (!UserRoleType.SYSTEM.name().equalsIgnoreCase(userRole.getType())) {
+            throw new BizException(GLOBAL_USER_ROLE_RELATION_SYSTEM_PERMISSION);
+        }
+    }
+
     private void checkAdminUserRole(UserRole userRole) {
         if (Strings.CS.equalsAny(userRole.getCode(), InternalUserRole.ADMIN.getValue(),
                 InternalUserRole.ORG_ADMIN.getValue(), InternalUserRole.PROJECT_ADMIN.getValue())) {
@@ -283,6 +290,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
         return checkResourceExist(mapper.selectOneById(id));
     }
 
+    @Override
     public UserRole checkResourceExist(UserRole userRole) {
         return ServiceUtils.checkResourceExist(userRole, "permission.system_user_role.name");
     }
