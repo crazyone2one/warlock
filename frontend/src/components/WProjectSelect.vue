@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref} from "vue";
+import {ref, watchEffect} from "vue";
 import {useAppStore, useUserStore} from "/@/store";
 import {projectApi} from "/@/api/methods/project.ts";
 import router from "/@/router";
@@ -28,6 +28,9 @@ const handleCancel = async () => {
   showEditProjectModal.value = false
   appStore.initProjectList()
 }
+watchEffect(() => {
+  appStore.initProjectList()
+})
 </script>
 
 <template>

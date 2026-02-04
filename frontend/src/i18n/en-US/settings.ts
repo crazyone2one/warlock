@@ -71,6 +71,7 @@ export default {
     'system.organization.projectCount': 'Project({count})',
     'system.organization.projectName': 'Project({name})',
     'system.project.name': 'Project name',
+    'system.project.num': 'Project number',
     'system.organization.userName': 'Name',
     'system.organization.email': 'Email',
     'system.organization.phone': 'Phone',
@@ -98,6 +99,7 @@ export default {
     'system.project.endContent': 'The project after closing is not displayed in the project switching list',
     'system.project.projectNamePlaceholder':
         'Please enter the project name, which cannot be duplicated with other project names',
+    'system.project.projectNumPlaceholder': 'Please enter the project number, which cannot be duplicated with other project numbers',
     'system.project.updateProject': 'Update project',
     'system.project.createProject': 'Create project',
     'system.project.affiliatedOrg': 'Affiliated organization',
@@ -106,6 +108,7 @@ export default {
     'system.project.projectAdminPlaceholder': 'The project administrator defaults to the person who created the project',
     'system.project.moduleSetting': 'Enable module',
     'system.project.projectNameRequired': 'Project name cannot be empty',
+    'system.project.projectNumRequired': 'Project number cannot be empty',
     'system.project.createTip': 'After the project is enabled, it will be displayed in the project switching list',
     'system.project.affiliatedOrgRequired': 'Affiliated organization cannot be empty',
     'system.project.revokeDeleteToolTip': 'The project will be deleted automatically after {count} days',
@@ -119,4 +122,6 @@ export default {
     'system.project.poolIsNotNull': 'Resource pool cannot be empty',
     'system.project.enterOrganization': 'Enter the organization',
     'system.memberList': 'Member list',
+    'system.project.removeName': 'Confirm remove the {name}',
+    'system.project.descriptionPlaceholder': 'Please describe the project.',
 };

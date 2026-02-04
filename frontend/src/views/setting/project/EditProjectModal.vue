@@ -1,22 +1,24 @@
 <script setup lang="ts">
-import WModal from "/@/components/WModal.vue";
 import {computed, ref, watch} from "vue";
 import type {IProjectItem} from "/@/api/types.ts";
 import type {FormInst, FormRules} from "naive-ui";
 import {useForm} from "alova/client";
 import {projectApi} from "/@/api/methods/project.ts";
 import {useAppStore} from "/@/store";
+import {useI18n} from "vue-i18n";
 
 const appStore = useAppStore()
 const showModal = defineModel<boolean>('showModal', {type: Boolean, default: false});
 const {
   currentProject = {description: "", enable: true, name: "", id: '', num: ''}
 } = defineProps<{ currentProject?: IProjectItem | null; }>();
+const {t} = useI18n()
 const formRef = ref<FormInst | null>(null)
+const isEdit = computed(() => !!currentProject?.id);
 const emit = defineEmits<{
   (e: 'cancel', shouldSearch: boolean): void;
 }>();
-const {form: model, reset, send} = useForm(formData => projectApi.createOrUpdateProject(formData), {
+const {form: model, reset, send, loading} = useForm(formData => projectApi.createOrUpdateProject(formData), {
   initialForm: {
     id: '',
     name: '',
@@ -27,8 +29,10 @@ const {form: model, reset, send} = useForm(formData => projectApi.createOrUpdate
   resetAfterSubmiting: true,
 })
 const rules: FormRules = {
-  name: {required: true, trigger: ['blur', 'input'], message: '请输入项目名称'},
-  num: {required: true, trigger: ['blur', 'input'], message: '请输入项目编号'},
+  name: [{required: true, message: t('system.project.projectNameRequired')},
+    {max: 255, message: t('common.nameIsTooLang')},],
+  num: [{required: true, message: t('system.project.projectNumRequired')},
+    {max: 255, message: t('common.nameIsTooLang')},],
 }
 const handleCancel = (shouldSearch: boolean) => {
   reset()
@@ -47,7 +51,7 @@ const handleSubmit = () => {
   })
 }
 const title = computed(() => {
-  return currentProject && currentProject.id ? '编辑项目' : '添加项目'
+  return currentProject && currentProject.id ? t('common.update') : t('common.create')
 })
 watch(() => currentProject, (p) => {
   if (p) {
@@ -61,29 +65,51 @@ watch(() => currentProject, (p) => {
 </script>
 
 <template>
-  <w-modal v-model:show-modal="showModal" :title="title" @cancel="handleCancel(false)"
-           @submit="handleSubmit">
-    <template #content>
-      <n-form
-          ref="formRef"
-          :model="model"
-          :rules="rules"
-          label-placement="left"
-          label-width="auto"
-          require-mark-placement="right-hanging"
-      >
-        <n-form-item label="项目名称" path="name">
-          <n-input v-model:value="model.name" placeholder="请输入项目名称"/>
-        </n-form-item>
-        <n-form-item label="项目编号" path="num">
-          <n-input v-model:value="model.num" placeholder="请输入项目编号"/>
-        </n-form-item>
-        <n-form-item label="项目描述" path="description">
-          <n-input v-model:value="model.description" type="textarea" placeholder="请输入项目描述"/>
-        </n-form-item>
-      </n-form>
+  <n-modal v-model:show="showModal" preset="dialog" :title="title" :mask-closable="false"
+           @cancel="handleCancel">
+    <template #header>
+      <div>
+        <span v-if="isEdit">
+        {{ t('system.project.updateProject') }}
+        <span class="text-[#9597a4]">({{ currentProject?.name }})</span>
+      </span>
+        <span v-else>
+        {{ t('system.project.createProject') }}
+      </span>
+      </div>
     </template>
-  </w-modal>
+    <n-form
+        ref="formRef"
+        :model="model"
+        :rules="rules"
+        label-placement="left"
+        label-width="auto"
+        require-mark-placement="right-hanging"
+    >
+      <n-form-item :label="t('system.project.name')" path="name">
+        <n-input v-model:value="model.name" :placeholder="t('system.project.projectNamePlaceholder')"/>
+      </n-form-item>
+      <n-form-item :label="t('system.project.num')" path="num">
+        <n-input v-model:value="model.num" :placeholder="t('system.project.projectNumPlaceholder')"/>
+      </n-form-item>
+      <n-form-item :label="t('common.desc')" path="description">
+        <n-input v-model:value="model.description" type="textarea"
+                 :placeholder="t('system.project.descriptionPlaceholder')"
+                 clearable/>
+      </n-form-item>
+    </n-form>
+    <template #action>
+      <n-flex>
+        <n-button secondary size="small" :loading="loading" @click="handleCancel">
+          {{ t('common.cancel') }}
+        </n-button>
+        <n-button type="primary" size="small" :loading="loading" :disabled="loading"
+                  @click="handleSubmit">
+          {{ isEdit ? t('common.update') : t('common.create') }}
+        </n-button>
+      </n-flex>
+    </template>
+  </n-modal>
 </template>
 
 <style scoped>
