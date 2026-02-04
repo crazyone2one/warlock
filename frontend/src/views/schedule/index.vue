@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {type DataTableColumns, type DataTableRowKey, NButton, NInput, NSwitch} from "naive-ui";
+import {type DataTableColumns, type DataTableRowKey, NButton, NInput, NPopover, NSwitch} from "naive-ui";
 import type {IProjectItem, IScheduleInfo} from "/@/api/types.ts";
 import {h, onMounted, ref} from "vue";
 import WDataTableAction from "/@/components/WDataTableAction.vue";
@@ -57,13 +57,20 @@ const handleTableMoreAction = (key: string, row: IScheduleInfo) => {
 }
 const columns: DataTableColumns<IScheduleInfo> = [
   {type: 'selection', fixed: 'left', options: ['all', 'none']},
-  {title: 'ID', key: 'num', ellipsis: {tooltip: true}, width: 220},
-  {title: t('ms.taskCenter.taskName'), key: 'name', ellipsis: {tooltip: true}, width: 220},
+  {
+    title: 'ID', key: 'num', width: 120, render(row) {
+      return h(NPopover, {placement: 'right'}, {
+        default: () => 'Edit Config',
+        trigger: () => h(NButton, {text: true, onClick: () => handleEditConfig(row)}, {default: () => row.num}),
+      })
+    }
+  },
+  {title: t('ms.taskCenter.taskName'), key: 'name', ellipsis: {tooltip: true}, width: 200},
   {
     title: t('common.status'), key: 'status', width: 50,
     render(row) {
       return h(NSwitch, {
-        value: row.enable,
+        value: row.enable, size: 'small',
         disabled: !hasAnyPermission(['SYSTEM_SCHEDULE_TASK_CENTER:READ+UPDATE']),
         loading: switchLoading.value,
         onUpdateValue: (value) => handleSwitch(value, row)
@@ -96,7 +103,6 @@ const columns: DataTableColumns<IScheduleInfo> = [
         onRePassParameter: (key) => handleTableMoreAction(key, row)
       }, {
         default: () => [
-          h(NButton, {text: true, onClick: () => handleEditConfig(row)}, {default: () => '参数配置'}),
           h(NButton, {text: true}, {default: () => t('ms.taskCenter.execute')}),
         ]
       })
@@ -158,6 +164,7 @@ onMounted(() => {
     <n-data-table :columns="columns"
                   :data="data"
                   :row-key="(row: IProjectItem) => row.id"
+                  :checked-row-keys="checkedRowKeys"
                   @update:checked-row-keys="handleCheck"/>
     <w-pagination v-model:page="page" v-model:page-size="pageSize" :count="total||0"/>
     <edit-schedule v-model:show-modal="showEditModal" @cancel="fetchData"/>

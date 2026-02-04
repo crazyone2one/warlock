@@ -61,8 +61,10 @@ watch(() => show.value, (newValue) => {
         {{ currentSchedule?.runConfig || runConfig }}
       </n-flex>
       <template #footer>
-        <n-button secondary @click="handleCancel">cancel</n-button>
-        <n-button type="primary" @click="handleSave">save</n-button>
+        <n-flex>
+          <n-button secondary @click="handleCancel">cancel</n-button>
+          <n-button type="primary" @click="handleSave">save</n-button>
+        </n-flex>
       </template>
     </n-drawer-content>
   </n-drawer>
