@@ -24,7 +24,7 @@ import java.util.Set;
 public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return QueryChain.of(SystemUser.class).where(SystemUser::getUserName).eq(username).oneOpt()
+        return QueryChain.of(SystemUser.class).where(SystemUser::getName).eq(username).oneOpt()
                 .map(user -> {
                     // 查角色 ID 列表
                     List<String> roleIds = QueryChain.of(UserRoleRelation.class)

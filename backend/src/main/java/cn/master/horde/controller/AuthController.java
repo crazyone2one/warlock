@@ -44,7 +44,7 @@ public class AuthController {
         Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         securityContext.setAuthentication(authenticate);
-        Optional<List<String>> roles = QueryChain.of(SystemUser.class).where(SystemUser::getUserName).eq(request.username()).oneOpt()
+        Optional<List<String>> roles = QueryChain.of(SystemUser.class).where(SystemUser::getName).eq(request.username()).oneOpt()
                 .map(user -> QueryChain.of(UserRoleRelation.class)
                         .where(UserRoleRelation::getUserId).eq(user.getId()).list()
                         .stream().map(UserRoleRelation::getRoleId).toList());
@@ -64,7 +64,7 @@ public class AuthController {
                 String username = jwtTokenProvider.getUsernameFromToken(refreshToken);
                 // 从数据库获取用户角色信息
                 Optional<List<String>> roles = QueryChain.of(SystemUser.class)
-                        .where(SystemUser::getUserName).eq(username).oneOpt()
+                        .where(SystemUser::getName).eq(username).oneOpt()
                         .map(user -> QueryChain.of(UserRoleRelation.class)
                                 .where(UserRoleRelation::getUserId).eq(user.getId()).list()
                                 .stream().map(UserRoleRelation::getRoleId).toList());

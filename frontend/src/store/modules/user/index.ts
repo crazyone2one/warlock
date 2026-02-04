@@ -27,7 +27,7 @@ const useUserStore = defineStore('user', {
             const appStore = useAppStore();
             state.userRoleRelations?.forEach((ug) => {
                 state.userRolePermissions?.forEach((gp) => {
-                    if (gp.userRole.code === ug.roleCode) {
+                    if (gp.userRole.id === ug.roleId) {
                         ug.userRolePermissions = gp.userRolePermissions;
                         ug.userRole = gp.userRole;
                     }

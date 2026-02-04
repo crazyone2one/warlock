@@ -38,7 +38,7 @@ public class SystemUser implements Serializable {
     /**
      * 登录用户名
      */
-    private String userName;
+    private String name;
 
     /**
      * 用户昵称

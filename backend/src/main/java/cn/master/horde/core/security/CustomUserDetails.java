@@ -45,6 +45,6 @@ public record CustomUserDetails(SystemUser user, List<String> roles, Set<String>
 
     @Override
     public String getUsername() {
-        return user.getUserName();
+        return user.getName();
     }
 }

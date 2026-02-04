@@ -117,7 +117,7 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
     public Page<UserTableResponse> pageUser(BasePageRequest request) {
         Page<UserTableResponse> responsePage = queryChain()
                 .where(SYSTEM_USER.EMAIL.like(request.getKeyword())
-                        .or(SYSTEM_USER.USER_NAME.like(request.getKeyword()))
+                        .or(SYSTEM_USER.NAME.like(request.getKeyword()))
                         .or(SYSTEM_USER.NICK_NAME.like(request.getKeyword()))
                         .or(SYSTEM_USER.PHONE.like(request.getKeyword()))
                         .or(SYSTEM_USER.ID.like(request.getKeyword())))
@@ -265,7 +265,7 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
     private List<String> getBatchUserIds(TableBatchProcessDTO request) {
         if (request.isSelectAll()) {
             List<SystemUser> users = queryChain().where(SYSTEM_USER.EMAIL.like(request.getCondition().getKeyword())
-                            .or(SYSTEM_USER.USER_NAME.like(request.getCondition().getKeyword()))
+                            .or(SYSTEM_USER.NAME.like(request.getCondition().getKeyword()))
                             .or(SYSTEM_USER.NICK_NAME.like(request.getCondition().getKeyword()))
                             .or(SYSTEM_USER.PHONE.like(request.getCondition().getKeyword()))
                             .or(SYSTEM_USER.ID.like(request.getCondition().getKeyword())))
@@ -303,7 +303,7 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
         List<String> userIds = new ArrayList<>();
         request.getUserInfoList().forEach(user -> {
             SystemUser built = SystemUser.builder().build();
-            built.setUserName(user.getName());
+            built.setName(user.getName());
             built.setNickName(user.getNickName());
             built.setEmail(user.getEmail());
             built.setPassword(passwordEncoder.encode(user.getEmail()));
@@ -410,7 +410,8 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
     }
 
     private UserDTO getUserDTO(String id) {
-        UserDTO user = mapper.selectOneWithRelationsByIdAs(id, UserDTO.class);
+        UserDTO user = queryChain().select(SYSTEM_USER.ID, SYSTEM_USER.NAME, SYSTEM_USER.EMAIL, SYSTEM_USER.PHONE, SYSTEM_USER.LAST_PROJECT_ID)
+                .where(SYSTEM_USER.ID.eq(id)).oneAs(UserDTO.class);
         UserRolePermissionDTO dto = getUserRolePermission(id);
         user.setUserRoleRelations(dto.getUserRoleRelations());
         user.setUserRoles(dto.getUserRoles());

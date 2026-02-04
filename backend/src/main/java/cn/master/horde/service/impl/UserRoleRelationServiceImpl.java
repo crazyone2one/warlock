@@ -155,7 +155,7 @@ public class UserRoleRelationServiceImpl extends ServiceImpl<UserRoleRelationMap
     @Override
     public Page<UserRoleRelationUserDTO> pageDTO(UserRoleRelationQueryRequest request) {
         Page<UserRoleRelationUserDTO> page = queryChain().select(USER_ROLE_RELATION.ID)
-                .select(SYSTEM_USER.ID.as("userId"), SYSTEM_USER.USER_NAME.as("name"), SYSTEM_USER.EMAIL, SYSTEM_USER.PHONE)
+                .select(SYSTEM_USER.ID.as("userId"), SYSTEM_USER.NAME.as("name"), SYSTEM_USER.EMAIL, SYSTEM_USER.PHONE)
                 .from(USER_ROLE_RELATION)
                 .innerJoin(SYSTEM_USER).on(USER_ROLE_RELATION.USER_ID.eq(SYSTEM_USER.ID)
                         .and(USER_ROLE_RELATION.ROLE_ID.eq(request.getRoleId())))
@@ -186,9 +186,9 @@ public class UserRoleRelationServiceImpl extends ServiceImpl<UserRoleRelationMap
 
     private List<UserExcludeOptionDTO> getExcludeSelectOptionWithLimit(String keyword) {
         return QueryChain.of(SystemUser.class)
-                .select(SYSTEM_USER.ID, SYSTEM_USER.USER_NAME.as("name"), SYSTEM_USER.EMAIL)
+                .select(SYSTEM_USER.ID, SYSTEM_USER.NAME, SYSTEM_USER.EMAIL)
                 .from(SYSTEM_USER)
-                .where(SYSTEM_USER.USER_NAME.like(keyword).or(SYSTEM_USER.EMAIL.like(keyword)))
+                .where(SYSTEM_USER.NAME.like(keyword).or(SYSTEM_USER.EMAIL.like(keyword)))
                 .limit(100)
                 .listAs(UserExcludeOptionDTO.class);
     }

@@ -24,7 +24,7 @@ public class UserTest {
 
     @Test
     void addUserTest() {
-        SystemUser user = SystemUser.builder().userName("admin").nickName("管理员")
+        SystemUser user = SystemUser.builder().name("admin").nickName("管理员")
                 .password(passwordEncoder.encode("admin")).enable(true)
                 .email("admin@example.com")
                 .createUser("admin").updateUser("admin")

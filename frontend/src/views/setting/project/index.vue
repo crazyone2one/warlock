@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import {h, onMounted, ref} from 'vue'
+import {computed, h, onMounted, ref, withDirectives} from 'vue'
 import type {IProjectItem} from "/@/api/types.ts";
-import {type DataTableColumns, type DataTableRowKey, NButton, NFlex, NInput, NSwitch} from "naive-ui";
+import {type DataTableColumns, type DataTableRowKey, NButton, NFlex, NInput, NPopover, NSwitch} from "naive-ui";
 import {usePagination, useRequest} from "alova/client";
 import {projectApi} from "/@/api/methods/project.ts";
 import WPagination from "/@/components/WPagination.vue";
 import WDataTableToolBar from "/@/components/WDataTableToolBar.vue";
-import WDataTableAction from "/@/components/WDataTableAction.vue";
 import EditProjectModal from "/@/views/setting/project/EditProjectModal.vue";
 import ProjectConfigModal from "/@/views/setting/project/ProjectConfigModal.vue";
 import {useI18n} from "vue-i18n";
 import WShowOrEdit from "/@/components/w-table/WShowOrEdit.vue";
 import {hasAnyPermission} from "/@/utils/permission.ts";
+import permission from "/@/directive/permission";
 
 const {t} = useI18n()
 const keyword = ref('')
@@ -19,9 +19,31 @@ const confirmName = ref('')
 const showEditProjectModal = ref(false)
 const showConfigModal = ref(false)
 const currentProject = ref<IProjectItem>()
+const hasOperationPermission = computed(() =>
+    hasAnyPermission([
+      'SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE',
+      'SYSTEM_ORGANIZATION_PROJECT:READ+DELETE',
+    ])
+);
+const operationWidth = computed(() => {
+  if (hasOperationPermission.value) {
+    return 250;
+  }
+  if (hasAnyPermission(['PROJECT_BASE_INFO:READ'])) {
+    return 100;
+  }
+  return 50;
+});
 const columns: DataTableColumns<IProjectItem> = [
   {type: 'selection', fixed: 'left', options: ['all', 'none']},
-  {title: 'ID', key: 'num', ellipsis: {tooltip: true}},
+  {
+    title: 'ID', key: 'num', render(row) {
+      return h(NPopover, {placement: 'right'}, {
+        default: () => 'Edit Config',
+        trigger: () => h(NButton, {text: true, onClick: () => handleEditConfig(row)}, {default: () => row.num}),
+      })
+    }
+  },
   {
     title: t('system.organization.name'), key: 'name', ellipsis: {tooltip: true},
     render(row) {
@@ -43,18 +65,42 @@ const columns: DataTableColumns<IProjectItem> = [
     }
   },
   {
-    title: t('system.organization.operation'), key: 'actions', fixed: 'right', width: 200,
+    title: hasOperationPermission.value ? t('system.organization.operation') : '',
+    key: 'actions',
+    fixed: 'right',
+    width: operationWidth.value,
     render(row) {
-      return h(WDataTableAction, {
-        showEdit: true,
-        onRePassParameter: (key) => handleTableMoreAction(key, row)
-      }, {
-        default: () => h(NButton, {
-          text: true,
-          size: 'small',
-          onClick: () => handleEditConfig(row)
-        }, {default: () => '参数配置'})
-      })
+      const res = []
+      const deleteProject = h(NButton, {
+        text: true,
+        size: 'small', type: 'error',
+        onClick: () => handleDeleteProject(row),
+      }, {default: () => t('common.delete')});
+      const edit = h(NButton, {
+        text: true,
+        size: 'small', type: 'info',
+        onClick: () => handleEditProject(row),
+      }, {default: () => t('common.edit')});
+      const addMember = h(NButton, {
+        text: true,
+        size: 'small',
+        disabled: true,
+      }, {default: () => t('system.organization.addMember')});
+      if (!row.enable) {
+        res.push(withDirectives(deleteProject, [[permission, ['SYSTEM_PROJECT:READ+DELETE']]]))
+        return res;
+      } else {
+        res.push(h(NFlex, {}, {
+          default: () => {
+            return [
+              withDirectives(edit, [[permission, ['SYSTEM_PROJECT:READ+UPDATE']]]),
+              withDirectives(addMember, [[permission, ['SYSTEM_PROJECT:READ+UPDATE']]]),
+              withDirectives(deleteProject, [[permission, ['SYSTEM_PROJECT:READ+DELETE']]]),
+            ]
+          }
+        }))
+        return res
+      }
     }
   }
 ]
@@ -69,32 +115,22 @@ const handleEditProjectName = (value: string, record: IProjectItem) => {
     fetchData()
   })
 }
-const handleTableMoreAction = (key: string, row: IProjectItem) => {
-  switch (key) {
-    case 'edit':
-      handleEditProject(row)
-      break;
-    case 'delete':
-      handleDeleteProject(row)
-      break;
-  }
-}
 const checkedRowKeys = ref<DataTableRowKey[]>([])
 const handleCheck = (rowKeys: DataTableRowKey[]) => {
   checkedRowKeys.value = rowKeys
 }
 const {send: enableOrDisableProject} = useRequest((id, enable) => projectApi.enableOrDisableProject(id, enable), {immediate: false})
-const handleChangeProjectStatus = (value: boolean, record: IProjectItem) => {
+const handleChangeProjectStatus = (isEnable: boolean, record: IProjectItem) => {
   window.$dialog.warning({
-    title: `${value ? '启用' : '禁用'}项目`,
+    title: isEnable ? t('system.project.enableTitle') : t('system.project.endTitle'),
     autoFocus: false,
-    content: () => `修改项目状态后，相关联的任务将被${value ? '启用' : '禁用'}`,
-    positiveText: `${value ? '启用' : '禁用'}`,
-    negativeText: '取消',
+    content: isEnable ? t('system.project.enableContent') : t('system.project.endContent'),
+    positiveText: isEnable ? t('common.confirmStart') : t('common.confirmClose'),
+    negativeText: t('common.cancel'),
     onPositiveClick() {
-      enableOrDisableProject(record.id, value).then(() => {
+      enableOrDisableProject(record.id, isEnable).then(() => {
         fetchData()
-        window.$message.success(`${value ? '启用' : '禁用'}成功`)
+        window.$message.success(isEnable ? t('common.enableSuccess') : t('common.closeSuccess'))
       })
     }
   })
@@ -178,7 +214,8 @@ onMounted(() => {
     <template #header-extra>
       <n-input v-model:value="keyword" clearable placeholder="根据项目名称/num查询"/>
     </template>
-    <w-data-table-tool-bar @refresh="fetchData" @add="handleAddProject"/>
+    <w-data-table-tool-bar :add-permission="['SYSTEM_PROJECT:READ+CREATE']" @refresh="fetchData"
+                           @add="handleAddProject"/>
     <n-data-table :columns="columns"
                   :data="data"
                   :row-key="(row: IProjectItem) => row.id"
