@@ -36,7 +36,7 @@ export interface ImportUserParams {
 
 export interface UserListItem {
     id: string;
-    userName: string;
+    name: string;
     nickName: string;
     email: string;
     password: string;

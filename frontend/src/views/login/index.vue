@@ -6,7 +6,9 @@ import {authApi} from "/@/api/methods/auth.ts";
 import {ref} from "vue";
 import {setToken} from "/@/utils/auth.ts";
 import {useAppStore, useUserStore} from "/@/store";
+import {useI18n} from "vue-i18n";
 
+const {t} = useI18n()
 const router = useRouter()
 const formRef = ref<FormInst | null>(null)
 const userStore = useUserStore()
@@ -18,10 +20,10 @@ const {send, form, loading} = useForm(formValue => authApi.login(formValue), {
 })
 const rules = {
   username: [
-    {required: true, message: '请输入用户名', trigger: 'blur'}
+    {required: true, message: t('login.form.userName.errMsg'), trigger: 'blur'}
   ],
   password: [
-    {required: true, message: '请输入密码', trigger: 'blur'},
+    {required: true, message: t('login.form.password.errMsg'), trigger: 'blur'},
   ]
 }
 
@@ -36,7 +38,7 @@ const handleLogin = () => {
           appStore.setCurrentProjectId(res.lastProjectId || '');
         })
 
-        window.$message.success('登录成功');
+        window.$message.success(t('login.form.login.success'));
         const {redirect, ...othersQuery} = router.currentRoute.value.query;
         router.push({
           name: redirect as string || 'Dashboard',
@@ -59,7 +61,8 @@ const handleLogin = () => {
         <n-form-item path="username" first>
           <n-input
               v-model:value="form.username"
-              placeholder="用户名"
+              :placeholder="t('login.form.userName.placeholderOther')"
+              :maxlength="64"
               @keyup.enter="handleLogin"
           />
         </n-form-item>
@@ -67,7 +70,8 @@ const handleLogin = () => {
           <n-input
               v-model:value="form.password"
               type="password"
-              placeholder="密码"
+              :placeholder="t('login.form.password.placeholder')"
+              :maxlength="64"
               @keyup.enter="handleLogin"
           />
         </n-form-item>
@@ -80,7 +84,7 @@ const handleLogin = () => {
             :loading="loading"
             @click="handleLogin"
         >
-          登录
+          {{ t('login.form.login') }}
         </n-button>
       </n-form>
     </n-card>

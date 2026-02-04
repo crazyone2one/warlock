@@ -12,7 +12,7 @@ import {
 } from "naive-ui";
 import WDataTableToolBar from "/@/components/WDataTableToolBar.vue";
 import WPagination from "/@/components/WPagination.vue";
-import {computed, h, onMounted, type Ref, ref} from "vue";
+import {computed, h, onMounted, type Ref, ref, withDirectives} from "vue";
 import type {SystemRole, UserForm, UserListItem, UserModalMode} from "/@/api/types/user.ts";
 import {usePagination, useRequest} from "alova/client";
 import {userApi} from "/@/api/methods/user.ts";
@@ -26,6 +26,7 @@ import type {FormItemModel} from "/@/components/w-batch-form/types.ts";
 import type {BatchActionQueryParams} from "/@/api/types.ts";
 import {characterLimit} from "/@/utils";
 import ImportUserModal from "/@/views/setting/user/components/ImportUserModal.vue";
+import permission from "/@/directive/permission";
 
 const batchFormRef = ref<InstanceType<typeof WBatchForm>>();
 const {t} = useI18n()
@@ -57,7 +58,7 @@ const tableActions = [
 ]
 const columns: DataTableColumns<UserListItem> = [
   {type: 'selection', fixed: 'left', options: ['all', 'none']},
-  {title: () => t('system.user.tableColumnName'), key: 'userName', ellipsis: {tooltip: true}},
+  {title: () => t('system.user.tableColumnName'), key: 'name', ellipsis: {tooltip: true}},
   {title: () => t('system.user.tableColumnEmail'), key: 'email', ellipsis: {tooltip: true}},
   {title: () => t('system.user.tableColumnPhone'), key: 'phone', ellipsis: {tooltip: true}, width: 140},
   {
@@ -98,24 +99,20 @@ const columns: DataTableColumns<UserListItem> = [
     key: 'actions', fixed: 'right', width: 200,
     render(row) {
       if (!row.enable) {
-        return h(NButton, {
-              text: true,
-              directives: [{name: 'permission', value: ['SYSTEM_USER:READ+DELETE']}],
-              type: 'error',
-            },
-            {default: () => t('system.user.delete')});
+        return withDirectives(h(NButton, {
+          text: true,
+          type: 'error',
+        }, {default: () => t('system.user.delete')}), [[permission, ['SYSTEM_USER:READ+DELETE']]]);
       } else {
         return h(NFlex, {}, {
           default: () => {
             const res = []
-            if (hasAnyPermission(['SYSTEM_USER:READ+UPDATE'])) {
-              res.push(h(NButton, {
-                    text: true,
-                    // directives: [{name: 'permission', value: ['SYSTEM_USER:READ+UPDATE']}],
-                    type: 'primary', onClick: () => showUserModal('edit', row),
-                  },
-                  {default: () => t('system.user.editUser')}),)
-            }
+            res.push(withDirectives(h(NButton, {
+                  text: true,
+                  type: 'primary',
+                  onClick: () => showUserModal('edit', row),
+                },
+                {default: () => t('system.user.editUser')}), [[permission, ['SYSTEM_USER:READ+UPDATE']]]))
             if (hasAnyPermission(['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+DELETE'])) {
               res.push(
                   h(WTableMoreAction, {
@@ -144,7 +141,7 @@ const handleMoreAction = (option: DropdownOption, record: UserListItem) => {
   }
 }
 const deleteUser = (record?: UserListItem, isBatch?: boolean, params?: BatchActionQueryParams) => {
-  let title = t('system.user.deleteUserTip', {name: characterLimit(record?.userName)});
+  let title = t('system.user.deleteUserTip', {name: characterLimit(record?.name)});
   let selectIds = [record?.id || ''];
   if (isBatch) {
     title = t('system.user.batchDeleteUserTip', {count: params?.currentSelectCount || checkedRowKeys.value.length});
@@ -170,7 +167,7 @@ const deleteUser = (record?: UserListItem, isBatch?: boolean, params?: BatchActi
   })
 }
 const resetPassword = (record?: UserListItem, isBatch?: boolean, params?: BatchActionQueryParams) => {
-  let title = t('system.user.resetPswTip', {name: characterLimit(record?.userName)});
+  let title = t('system.user.resetPswTip', {name: characterLimit(record?.name)});
   let selectIds = [record?.id || ''];
   if (isBatch) {
     title = t('system.user.batchResetPswTip', {count: params?.currentSelectCount || checkedRowKeys.value.length});
@@ -206,7 +203,7 @@ const handleEnableChange = (v: boolean, record: UserListItem) => {
   }
 }
 const enableUser = (record?: UserListItem, isBatch?: boolean, params?: BatchActionQueryParams) => {
-  let title = t('system.user.enableUserTip', {name: characterLimit(record?.userName)});
+  let title = t('system.user.enableUserTip', {name: characterLimit(record?.name)});
   let selectIds = [record?.id || ''];
   if (isBatch) {
     title = t('system.user.batchEnableUserTip', {count: params?.currentSelectCount || checkedRowKeys.value.length});
@@ -232,7 +229,7 @@ const enableUser = (record?: UserListItem, isBatch?: boolean, params?: BatchActi
   })
 }
 const disabledUser = (record?: UserListItem, isBatch?: boolean, params?: BatchActionQueryParams) => {
-  let title = t('system.user.disableUserTip', {name: characterLimit(record?.userName)});
+  let title = t('system.user.disableUserTip', {name: characterLimit(record?.name)});
   let selectIds = [record?.id || ''];
   if (isBatch) {
     title = t('system.user.batchDisableUserTip', {count: params?.currentSelectCount || checkedRowKeys.value.length});
@@ -267,7 +264,7 @@ const handleUserGroupChange = async (val: boolean, record: UserListItem & Record
     record.selectUserGroupLoading = true;
     const params = {
       id: record.id,
-      name: record.userName,
+      name: record.name,
       nickName: record.nickName,
       email: record.email,
       phone: record.phone,
@@ -386,7 +383,7 @@ const showUserModal = (mode: UserModalMode, record?: UserListItem) => {
     userForm.value.list = [
       {
         id: record.id,
-        name: record.userName,
+        name: record.name,
         nickName: record.nickName,
         email: record.email,
         phone: record.phone ? record.phone.replace(/\s/g, '') : record.phone,

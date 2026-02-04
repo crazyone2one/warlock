@@ -20,14 +20,11 @@ const showEditProjectModal = ref(false)
 const showConfigModal = ref(false)
 const currentProject = ref<IProjectItem>()
 const hasOperationPermission = computed(() =>
-    hasAnyPermission([
-      'SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE',
-      'SYSTEM_ORGANIZATION_PROJECT:READ+DELETE',
-    ])
+    hasAnyPermission(['SYSTEM_PROJECT:READ+UPDATE', 'SYSTEM_PROJECT:READ+DELETE',])
 );
 const operationWidth = computed(() => {
   if (hasOperationPermission.value) {
-    return 250;
+    return 200;
   }
   if (hasAnyPermission(['PROJECT_BASE_INFO:READ'])) {
     return 100;
