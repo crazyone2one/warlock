@@ -2,6 +2,7 @@ package cn.master.horde.service;
 
 import cn.master.horde.dto.BasePageRequest;
 import cn.master.horde.dto.ProjectSwitchRequest;
+import cn.master.horde.dto.request.UpdateProjectNameRequest;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.service.IService;
 import cn.master.horde.entity.SystemProject;
@@ -27,4 +28,6 @@ public interface SystemProjectService extends IService<SystemProject> {
     void disable(String id, String currentUserId);
 
     void switchProject(ProjectSwitchRequest request, String currentUserId);
+
+    void rename(UpdateProjectNameRequest request, String username);
 }

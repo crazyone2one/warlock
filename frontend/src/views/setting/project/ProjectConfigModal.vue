@@ -80,7 +80,7 @@ const match = (jdbcUrl: string) => {
 }
 watchEffect(() => {
   if (showModal) {
-    if (currentProject) {
+    if (currentProject.id) {
       fetchParameter(currentProject.id, activeTab.value).then(res => {
         if (res) {
           form.value = res;

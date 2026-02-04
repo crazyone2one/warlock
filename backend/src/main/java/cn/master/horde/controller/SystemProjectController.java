@@ -1,8 +1,10 @@
 package cn.master.horde.controller;
 
+import cn.master.horde.common.constants.Updated;
 import cn.master.horde.common.service.SessionUtils;
 import cn.master.horde.dto.BasePageRequest;
 import cn.master.horde.dto.ProjectSwitchRequest;
+import cn.master.horde.dto.request.UpdateProjectNameRequest;
 import cn.master.horde.entity.SystemProject;
 import cn.master.horde.service.SystemProjectService;
 import com.mybatisflex.core.paginate.Page;
@@ -22,7 +24,7 @@ import java.util.List;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/system-project")
+@RequestMapping("/system/project")
 public class SystemProjectController {
 
     private final SystemProjectService systemProjectService;
@@ -87,5 +89,12 @@ public class SystemProjectController {
     @PostMapping("/switch")
     public void switchProject(@RequestBody ProjectSwitchRequest request) {
         systemProjectService.switchProject(request, SessionUtils.getCurrentUserId());
+    }
+
+    @PostMapping("/rename")
+    @Operation(summary = "系统设置-系统-组织与项目-项目-修改项目名称")
+    @PreAuthorize("hasPermission('SYSTEM_PROJECT','READ+UPDATE')")
+    public void rename(@RequestBody @Validated({Updated.class}) UpdateProjectNameRequest request) {
+        systemProjectService.rename(request, SessionUtils.getCurrentUsername());
     }
 }

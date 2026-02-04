@@ -9,24 +9,41 @@ import WDataTableToolBar from "/@/components/WDataTableToolBar.vue";
 import WDataTableAction from "/@/components/WDataTableAction.vue";
 import EditProjectModal from "/@/views/setting/project/EditProjectModal.vue";
 import ProjectConfigModal from "/@/views/setting/project/ProjectConfigModal.vue";
+import {useI18n} from "vue-i18n";
+import WShowOrEdit from "/@/components/w-table/WShowOrEdit.vue";
+import {hasAnyPermission} from "/@/utils/permission.ts";
 
+const {t} = useI18n()
 const keyword = ref('')
 const confirmName = ref('')
 const showEditProjectModal = ref(false)
 const showConfigModal = ref(false)
-const currentProject = ref<IProjectItem | null>(null)
+const currentProject = ref<IProjectItem>()
 const columns: DataTableColumns<IProjectItem> = [
   {type: 'selection', fixed: 'left', options: ['all', 'none']},
   {title: 'ID', key: 'num', ellipsis: {tooltip: true}},
-  {title: '名称', key: 'name', ellipsis: {tooltip: true}},
-  {title: '描述', key: 'description', ellipsis: {tooltip: true}},
   {
-    title: '状态', key: 'enable', render(row) {
-      return h(NSwitch, {value: row.enable, onUpdateValue: (value: boolean) => handleChangeProjectStatus(value, row)})
+    title: t('system.organization.name'), key: 'name', ellipsis: {tooltip: true},
+    render(row) {
+      if (hasAnyPermission(['SYSTEM_PROJECT:READ+UPDATE'])) {
+        return h(WShowOrEdit, {inputValue: row.name, onConfirm: (value: string) => handleEditProjectName(value, row)})
+      }
+      return h('div', {}, {default: () => row.name})
+    }
+  },
+  {title: t('common.desc'), key: 'description', ellipsis: {tooltip: true}},
+  {
+    title: t('system.organization.status'), key: 'enable', render(row) {
+      return h(NSwitch, {
+        value: row.enable,
+        size: 'small',
+        disabled: !hasAnyPermission(['SYSTEM_PROJECT:READ+UPDATE']),
+        onUpdateValue: (value: boolean) => handleChangeProjectStatus(value, row)
+      })
     }
   },
   {
-    title: '操作', key: 'actions', fixed: 'right', width: 200,
+    title: t('system.organization.operation'), key: 'actions', fixed: 'right', width: 200,
     render(row) {
       return h(WDataTableAction, {
         showEdit: true,
@@ -44,6 +61,13 @@ const columns: DataTableColumns<IProjectItem> = [
 const handleEditConfig = (row: IProjectItem) => {
   showConfigModal.value = true
   currentProject.value = row
+}
+const {send: handleRename} = useRequest((data) => projectApi.renameProject(data), {immediate: false})
+const handleEditProjectName = (value: string, record: IProjectItem) => {
+  handleRename({id: record.id, name: value}).then(() => {
+    window.$message.success(t('common.updateSuccess'))
+    fetchData()
+  })
 }
 const handleTableMoreAction = (key: string, row: IProjectItem) => {
   switch (key) {
@@ -158,8 +182,20 @@ onMounted(() => {
     <n-data-table :columns="columns"
                   :data="data"
                   :row-key="(row: IProjectItem) => row.id"
+                  v-model:checked-row-keys="checkedRowKeys"
                   @update:checked-row-keys="handleCheck"/>
-    <w-pagination v-model:page="page" v-model:page-size="pageSize" :count="total||0"/>
+
+    <n-flex justify="space-between">
+      <div class="mt-5">
+        <slot name="count">
+          {{ t('msTable.batch.selected', {count: checkedRowKeys.length}) }}
+        </slot>
+        <n-button class="clear-btn ml-[12px] px-2" text @click="checkedRowKeys = []">
+          {{ t('msTable.batch.clear') }}
+        </n-button>
+      </div>
+      <w-pagination v-model:page="page" v-model:page-size="pageSize" :count="total||0"/>
+    </n-flex>
     <edit-project-modal v-model:show-modal="showEditProjectModal" v-model:current-project="currentProject"
                         @cancel="handleCancel"/>
     <project-config-modal v-model:show-modal="showConfigModal" v-model:current-project="currentProject"/>

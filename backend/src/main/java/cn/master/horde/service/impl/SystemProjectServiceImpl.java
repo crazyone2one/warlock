@@ -5,6 +5,7 @@ import cn.master.horde.common.result.ResultCode;
 import cn.master.horde.common.service.SessionUtils;
 import cn.master.horde.dto.BasePageRequest;
 import cn.master.horde.dto.ProjectSwitchRequest;
+import cn.master.horde.dto.request.UpdateProjectNameRequest;
 import cn.master.horde.entity.SystemProject;
 import cn.master.horde.entity.SystemSchedule;
 import cn.master.horde.entity.SystemUser;
@@ -12,6 +13,7 @@ import cn.master.horde.mapper.SystemProjectMapper;
 import cn.master.horde.service.ProjectParameterService;
 import cn.master.horde.service.SystemProjectService;
 import cn.master.horde.service.SystemScheduleService;
+import cn.master.horde.util.Translator;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.core.update.UpdateChain;
@@ -116,12 +118,29 @@ public class SystemProjectServiceImpl extends ServiceImpl<SystemProjectMapper, S
                 .where(SYSTEM_USER.ID.eq(request.userId())).update();
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void rename(UpdateProjectNameRequest request, String username) {
+        SystemProject systemProject = checkProjectNotExist(request.id());
+        SystemProject project = new SystemProject();
+        project.setId(request.id());
+        project.setName(request.name());
+        project.setNum(systemProject.getNum());
+        checkProjectExistByNameAndNum(project);
+        project.setUpdateUser(username);
+        mapper.update(project);
+    }
+
+    private SystemProject checkProjectNotExist(String id) {
+        return queryChain().where(SYSTEM_PROJECT.ID.eq(id)).oneOpt().orElseThrow(() -> new BizException(Translator.get("project_is_not_exist")));
+    }
+
     private void checkProjectExistByNameAndNum(SystemProject project) {
         boolean exists = QueryChain.of(SystemProject.class).where(SYSTEM_PROJECT.NAME.eq(project.getName())
                 .and(SYSTEM_PROJECT.ID.ne(project.getId()))
                 .and(SYSTEM_PROJECT.NUM.eq(project.getNum()))).exists();
         if (exists) {
-            throw new BizException(ResultCode.VALIDATE_FAILED, "项目名称或编号已存在");
+            throw new BizException(Translator.get("project_name_already_exists"));
         }
     }
 }
