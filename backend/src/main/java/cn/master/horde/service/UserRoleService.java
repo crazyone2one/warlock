@@ -1,11 +1,11 @@
 package cn.master.horde.service;
 
-import cn.master.horde.dto.UserSelectOption;
-import cn.master.horde.dto.permission.PermissionDefinitionItem;
-import cn.master.horde.dto.request.PermissionSettingUpdateRequest;
-import cn.master.horde.dto.request.UserRoleUpdateRequest;
-import cn.master.horde.entity.UserRole;
-import cn.master.horde.entity.UserRoleRelation;
+import cn.master.horde.model.dto.UserSelectOption;
+import cn.master.horde.model.dto.permission.PermissionDefinitionItem;
+import cn.master.horde.model.dto.request.PermissionSettingUpdateRequest;
+import cn.master.horde.model.dto.request.UserRoleUpdateRequest;
+import cn.master.horde.model.entity.UserRole;
+import cn.master.horde.model.entity.UserRoleRelation;
 import com.mybatisflex.core.service.IService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;

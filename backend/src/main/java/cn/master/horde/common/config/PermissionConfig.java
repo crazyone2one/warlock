@@ -1,13 +1,12 @@
 package cn.master.horde.common.config;
 
-import cn.master.horde.dto.permission.PermissionCache;
-import cn.master.horde.dto.permission.PermissionDefinitionItem;
-import cn.master.horde.util.JsonHelper;
+import cn.master.horde.model.dto.permission.PermissionCache;
+import cn.master.horde.model.dto.permission.PermissionDefinitionItem;
+import cn.master.horde.common.util.JsonHelper;
 import io.micrometer.core.instrument.util.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import tools.jackson.core.type.TypeReference;
 
 import java.net.URL;
 import java.nio.charset.StandardCharsets;

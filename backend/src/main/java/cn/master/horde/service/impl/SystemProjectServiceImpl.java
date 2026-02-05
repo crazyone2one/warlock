@@ -2,18 +2,18 @@ package cn.master.horde.service.impl;
 
 import cn.master.horde.common.result.BizException;
 import cn.master.horde.common.result.ResultCode;
-import cn.master.horde.common.service.SessionUtils;
-import cn.master.horde.dto.BasePageRequest;
-import cn.master.horde.dto.ProjectSwitchRequest;
-import cn.master.horde.dto.request.UpdateProjectNameRequest;
-import cn.master.horde.entity.SystemProject;
-import cn.master.horde.entity.SystemSchedule;
-import cn.master.horde.entity.SystemUser;
-import cn.master.horde.mapper.SystemProjectMapper;
+import cn.master.horde.common.util.SessionUtils;
+import cn.master.horde.model.dto.BasePageRequest;
+import cn.master.horde.model.dto.ProjectSwitchRequest;
+import cn.master.horde.model.dto.request.UpdateProjectNameRequest;
+import cn.master.horde.model.entity.SystemProject;
+import cn.master.horde.model.entity.SystemSchedule;
+import cn.master.horde.model.entity.SystemUser;
+import cn.master.horde.model.mapper.SystemProjectMapper;
 import cn.master.horde.service.ProjectParameterService;
 import cn.master.horde.service.SystemProjectService;
 import cn.master.horde.service.SystemScheduleService;
-import cn.master.horde.util.Translator;
+import cn.master.horde.common.util.Translator;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.core.update.UpdateChain;
@@ -26,8 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static cn.master.horde.entity.table.SystemProjectTableDef.SYSTEM_PROJECT;
-import static cn.master.horde.entity.table.SystemUserTableDef.SYSTEM_USER;
+import static cn.master.horde.model.entity.table.SystemProjectTableDef.SYSTEM_PROJECT;
+import static cn.master.horde.model.entity.table.SystemUserTableDef.SYSTEM_USER;
+
 
 /**
  * 项目 服务层实现。

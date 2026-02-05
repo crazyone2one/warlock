@@ -6,21 +6,21 @@ import cn.master.horde.common.listener.ExcelParseDTO;
 import cn.master.horde.common.listener.UserImportEventListener;
 import cn.master.horde.common.result.BizException;
 import cn.master.horde.common.result.SystemResultCode;
-import cn.master.horde.common.service.SessionUtils;
-import cn.master.horde.dto.*;
-import cn.master.horde.dto.permission.UserRolePermissionDTO;
-import cn.master.horde.dto.permission.UserRoleResourceDTO;
-import cn.master.horde.dto.request.PersonalUpdatePasswordRequest;
-import cn.master.horde.dto.request.UserBatchCreateRequest;
-import cn.master.horde.dto.request.UserChangeEnableRequest;
-import cn.master.horde.dto.request.UserEditRequest;
-import cn.master.horde.entity.*;
-import cn.master.horde.mapper.SystemUserMapper;
+import cn.master.horde.common.util.SessionUtils;
+import cn.master.horde.model.dto.*;
+import cn.master.horde.model.dto.permission.UserRolePermissionDTO;
+import cn.master.horde.model.dto.permission.UserRoleResourceDTO;
+import cn.master.horde.model.dto.request.PersonalUpdatePasswordRequest;
+import cn.master.horde.model.dto.request.UserBatchCreateRequest;
+import cn.master.horde.model.dto.request.UserChangeEnableRequest;
+import cn.master.horde.model.dto.request.UserEditRequest;
+import cn.master.horde.model.mapper.SystemUserMapper;
+import cn.master.horde.model.entity.*;
 import cn.master.horde.service.SystemUserService;
 import cn.master.horde.service.UserRoleRelationService;
 import cn.master.horde.service.UserRoleService;
-import cn.master.horde.util.JsonHelper;
-import cn.master.horde.util.Translator;
+import cn.master.horde.common.util.JsonHelper;
+import cn.master.horde.common.util.Translator;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
@@ -41,11 +41,12 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static cn.master.horde.entity.table.SystemProjectTableDef.SYSTEM_PROJECT;
-import static cn.master.horde.entity.table.SystemUserTableDef.SYSTEM_USER;
-import static cn.master.horde.entity.table.UserRolePermissionTableDef.USER_ROLE_PERMISSION;
-import static cn.master.horde.entity.table.UserRoleRelationTableDef.USER_ROLE_RELATION;
-import static cn.master.horde.entity.table.UserRoleTableDef.USER_ROLE;
+import static cn.master.horde.model.entity.table.SystemProjectTableDef.SYSTEM_PROJECT;
+import static cn.master.horde.model.entity.table.SystemUserTableDef.SYSTEM_USER;
+import static cn.master.horde.model.entity.table.UserRolePermissionTableDef.USER_ROLE_PERMISSION;
+import static cn.master.horde.model.entity.table.UserRoleRelationTableDef.USER_ROLE_RELATION;
+import static cn.master.horde.model.entity.table.UserRoleTableDef.USER_ROLE;
+
 
 /**
  * 用户 服务层实现。

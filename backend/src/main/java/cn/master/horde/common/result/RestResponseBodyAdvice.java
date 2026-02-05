@@ -1,6 +1,6 @@
 package cn.master.horde.common.result;
 
-import cn.master.horde.util.JsonHelper;
+import cn.master.horde.common.util.JsonHelper;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.springframework.core.MethodParameter;

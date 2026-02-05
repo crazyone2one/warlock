@@ -1,6 +1,6 @@
 package cn.master.horde.common.result;
 
-import cn.master.horde.util.Translator;
+import cn.master.horde.common.util.Translator;
 
 /**
  * @author : 11's papa

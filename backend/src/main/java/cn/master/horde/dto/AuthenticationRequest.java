@@ -1,8 +1,0 @@
-package cn.master.horde.dto;
-
-/**
- * @author : 11's papa
- * @since : 2026/1/15, 星期四
- **/
-public record AuthenticationRequest(String username, String password) {
-}

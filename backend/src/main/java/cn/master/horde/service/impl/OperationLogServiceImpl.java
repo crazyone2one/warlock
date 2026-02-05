@@ -1,8 +1,8 @@
 package cn.master.horde.service.impl;
 
 import com.mybatisflex.spring.service.impl.ServiceImpl;
-import cn.master.horde.entity.OperationLog;
-import cn.master.horde.mapper.OperationLogMapper;
+import cn.master.horde.model.entity.OperationLog;
+import cn.master.horde.model.mapper.OperationLogMapper;
 import cn.master.horde.service.OperationLogService;
 import org.springframework.stereotype.Service;
 

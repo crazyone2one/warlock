@@ -1,11 +1,11 @@
 package cn.master.horde.controller;
 
 import cn.master.horde.common.constants.Updated;
-import cn.master.horde.common.service.SessionUtils;
-import cn.master.horde.dto.BasePageRequest;
-import cn.master.horde.dto.ProjectSwitchRequest;
-import cn.master.horde.dto.request.UpdateProjectNameRequest;
-import cn.master.horde.entity.SystemProject;
+import cn.master.horde.common.util.SessionUtils;
+import cn.master.horde.model.dto.BasePageRequest;
+import cn.master.horde.model.dto.ProjectSwitchRequest;
+import cn.master.horde.model.dto.request.UpdateProjectNameRequest;
+import cn.master.horde.model.entity.SystemProject;
 import cn.master.horde.service.SystemProjectService;
 import com.mybatisflex.core.paginate.Page;
 import io.swagger.v3.oas.annotations.Operation;

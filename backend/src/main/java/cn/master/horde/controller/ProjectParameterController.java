@@ -1,6 +1,6 @@
 package cn.master.horde.controller;
 
-import cn.master.horde.entity.ProjectParameter;
+import cn.master.horde.model.entity.ProjectParameter;
 import cn.master.horde.service.ProjectParameterService;
 import com.mybatisflex.core.paginate.Page;
 import io.swagger.v3.oas.annotations.Operation;

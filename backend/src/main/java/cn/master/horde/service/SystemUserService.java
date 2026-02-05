@@ -1,13 +1,13 @@
 package cn.master.horde.service;
 
-import cn.master.horde.dto.*;
-import cn.master.horde.dto.request.PersonalUpdatePasswordRequest;
-import cn.master.horde.dto.request.UserBatchCreateRequest;
-import cn.master.horde.dto.request.UserChangeEnableRequest;
-import cn.master.horde.dto.request.UserEditRequest;
+import cn.master.horde.model.dto.*;
+import cn.master.horde.model.dto.request.PersonalUpdatePasswordRequest;
+import cn.master.horde.model.dto.request.UserBatchCreateRequest;
+import cn.master.horde.model.dto.request.UserChangeEnableRequest;
+import cn.master.horde.model.dto.request.UserEditRequest;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.service.IService;
-import cn.master.horde.entity.SystemUser;
+import cn.master.horde.model.entity.SystemUser;
 import org.springframework.web.multipart.MultipartFile;
 
 /**

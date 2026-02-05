@@ -1,6 +1,6 @@
 package cn.master.horde.service;
 
-import cn.master.horde.entity.JwtBlacklist;
+import cn.master.horde.model.entity.JwtBlacklist;
 import com.mybatisflex.core.service.IService;
 
 import java.time.LocalDateTime;

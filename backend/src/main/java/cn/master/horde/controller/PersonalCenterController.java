@@ -1,9 +1,9 @@
 package cn.master.horde.controller;
 
 import cn.master.horde.common.result.BizException;
-import cn.master.horde.common.service.SessionUtils;
-import cn.master.horde.core.security.KickoutService;
-import cn.master.horde.dto.request.PersonalUpdatePasswordRequest;
+import cn.master.horde.common.util.SessionUtils;
+import cn.master.horde.security.security.KickoutService;
+import cn.master.horde.model.dto.request.PersonalUpdatePasswordRequest;
 import cn.master.horde.service.SystemUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

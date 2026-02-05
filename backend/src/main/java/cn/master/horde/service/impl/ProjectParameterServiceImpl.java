@@ -3,12 +3,12 @@ package cn.master.horde.service.impl;
 import cn.master.horde.common.config.DataSourceParameter;
 import cn.master.horde.common.result.BizException;
 import cn.master.horde.common.result.ResultCode;
-import cn.master.horde.common.service.SessionUtils;
-import cn.master.horde.dto.SlaveParameter;
-import cn.master.horde.entity.ProjectParameter;
-import cn.master.horde.mapper.ProjectParameterMapper;
+import cn.master.horde.common.util.SessionUtils;
+import cn.master.horde.model.dto.SlaveParameter;
+import cn.master.horde.model.entity.ProjectParameter;
+import cn.master.horde.model.mapper.ProjectParameterMapper;
 import cn.master.horde.service.ProjectParameterService;
-import cn.master.horde.util.JsonHelper;
+import cn.master.horde.common.util.JsonHelper;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.mybatisflex.core.FlexGlobalConfig;
 import com.mybatisflex.core.datasource.FlexDataSource;
@@ -23,7 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 
-import static cn.master.horde.entity.table.ProjectParameterTableDef.PROJECT_PARAMETER;
+import static cn.master.horde.model.entity.table.ProjectParameterTableDef.PROJECT_PARAMETER;
+
 
 /**
  * 项目级参数 服务层实现。

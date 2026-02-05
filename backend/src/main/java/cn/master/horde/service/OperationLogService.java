@@ -1,7 +1,7 @@
 package cn.master.horde.service;
 
 import com.mybatisflex.core.service.IService;
-import cn.master.horde.entity.OperationLog;
+import cn.master.horde.model.entity.OperationLog;
 
 /**
  * 操作日志表 服务层。

@@ -1,6 +1,6 @@
 package cn.master.horde.common.config;
 
-import cn.master.horde.util.Translator;
+import cn.master.horde.common.util.Translator;
 import jakarta.validation.Validator;
 import org.hibernate.validator.HibernateValidator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

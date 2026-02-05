@@ -1,12 +1,12 @@
 package cn.master.horde.controller;
 
-import cn.master.horde.common.annotation.Loggable;
+import cn.master.horde.common.log.annotation.Loggable;
 import cn.master.horde.common.constants.Created;
 import cn.master.horde.common.constants.Updated;
-import cn.master.horde.dto.permission.PermissionDefinitionItem;
-import cn.master.horde.dto.request.PermissionSettingUpdateRequest;
-import cn.master.horde.dto.request.UserRoleUpdateRequest;
-import cn.master.horde.entity.UserRole;
+import cn.master.horde.model.dto.permission.PermissionDefinitionItem;
+import cn.master.horde.model.dto.request.PermissionSettingUpdateRequest;
+import cn.master.horde.model.dto.request.UserRoleUpdateRequest;
+import cn.master.horde.model.entity.UserRole;
 import cn.master.horde.service.UserRoleService;
 import com.mybatisflex.core.paginate.Page;
 import io.swagger.v3.oas.annotations.Operation;

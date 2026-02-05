@@ -1,10 +1,10 @@
 package cn.master.horde.service;
 
-import cn.master.horde.dto.ScheduleConfig;
-import cn.master.horde.dto.ScheduleCronRequest;
-import cn.master.horde.dto.ScheduleDTO;
-import cn.master.horde.dto.SchedulePageRequest;
-import cn.master.horde.entity.SystemSchedule;
+import cn.master.horde.model.dto.ScheduleConfig;
+import cn.master.horde.model.dto.ScheduleCronRequest;
+import cn.master.horde.model.dto.ScheduleDTO;
+import cn.master.horde.model.dto.SchedulePageRequest;
+import cn.master.horde.model.entity.SystemSchedule;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.service.IService;
 import jakarta.validation.constraints.NotBlank;

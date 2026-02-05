@@ -2,12 +2,12 @@ package cn.master.horde.controller;
 
 import cn.master.horde.common.constants.RsaKey;
 import cn.master.horde.common.result.ResultHolder;
-import cn.master.horde.core.security.JwtTokenProvider;
-import cn.master.horde.dto.AuthenticationRequest;
-import cn.master.horde.dto.AuthenticationResponse;
-import cn.master.horde.entity.SystemUser;
-import cn.master.horde.entity.UserRoleRelation;
-import cn.master.horde.util.RsaUtils;
+import cn.master.horde.security.security.JwtTokenProvider;
+import cn.master.horde.model.dto.AuthenticationRequest;
+import cn.master.horde.model.dto.AuthenticationResponse;
+import cn.master.horde.model.entity.SystemUser;
+import cn.master.horde.model.entity.UserRoleRelation;
+import cn.master.horde.common.util.RsaUtils;
 import com.mybatisflex.core.query.QueryChain;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;

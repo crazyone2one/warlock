@@ -1,6 +1,6 @@
 package cn.master.horde.service;
 
-import cn.master.horde.entity.ProjectParameter;
+import cn.master.horde.model.entity.ProjectParameter;
 import com.mybatisflex.core.service.IService;
 
 /**

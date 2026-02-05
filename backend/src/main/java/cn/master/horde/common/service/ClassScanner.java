@@ -6,7 +6,6 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.core.type.classreading.SimpleMetadataReaderFactory;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,7 +15,6 @@ import java.util.List;
  * @author : 11's papa
  * @since : 2026/1/21, 星期三
  **/
-@Component
 public class ClassScanner {
     private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
     private final MetadataReaderFactory metadataReaderFactory = new SimpleMetadataReaderFactory();

@@ -1,8 +1,7 @@
 package cn.master.horde;
 
-import cn.master.horde.dto.permission.PermissionDefinitionItem;
-import cn.master.horde.util.JsonHelper;
-import org.apache.commons.lang3.Strings;
+import cn.master.horde.model.dto.permission.PermissionDefinitionItem;
+import cn.master.horde.common.util.JsonHelper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import tools.jackson.core.type.TypeReference;

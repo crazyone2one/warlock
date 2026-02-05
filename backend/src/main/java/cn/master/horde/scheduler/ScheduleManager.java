@@ -1,0 +1,170 @@
+package cn.master.horde.scheduler;
+
+import cn.master.horde.model.entity.SystemProject;
+import cn.master.horde.model.entity.SystemSchedule;
+import com.mybatisflex.core.query.QueryChain;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.quartz.*;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+/**
+ * @author : 11's papa
+ * @since : 2026/1/15, 星期四
+ **/
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class ScheduleManager {
+    private final Scheduler scheduler;
+
+    /**
+     * 添加基于Cron表达式的定时任务
+     *
+     * @param jobKey     任务的唯一标识，包含任务名称和组名
+     * @param triggerKey 触发器的唯一标识，包含触发器名称和组名
+     * @param jobClass   需要执行的任务类，必须实现Job接口
+     * @param cron       Cron表达式，定义任务执行的时间规则
+     * @param jobDataMap 任务执行时需要传递的数据映射，可为null
+     */
+    public void addCronJob(JobKey jobKey, TriggerKey triggerKey, Class<? extends Job> jobClass, String cron, JobDataMap jobDataMap) {
+        try {
+            log.info("addCronJob: {},{}", triggerKey.getName(), triggerKey.getGroup());
+            JobBuilder jobBuilder = JobBuilder.newJob(jobClass).withIdentity(jobKey);
+            if (jobDataMap != null) {
+                jobBuilder.usingJobData(jobDataMap);
+            }
+            TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger();
+            triggerBuilder.withIdentity(triggerKey);
+            triggerBuilder.startNow();
+            triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(cron));
+            CronTrigger trigger = (CronTrigger) triggerBuilder.build();
+            scheduler.scheduleJob(jobBuilder.build(), trigger);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException("定时任务配置异常: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 修改定时任务的Cron表达式时间
+     *
+     * @param triggerKey 触发器的唯一标识，包含触发器名称和组名
+     * @param cron       新的Cron表达式，定义任务执行的时间规则
+     */
+    public void modifyCronJobTime(TriggerKey triggerKey, String cron, JobDataMap jobDataMap) {
+        log.info("modifyCronJobTime: {},{}", triggerKey.getName(), triggerKey.getGroup());
+        try {
+            CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
+            if (trigger == null) {
+                return;
+            }
+            trigger.getJobDataMap().putAll(jobDataMap);
+            String oldTime = trigger.getCronExpression();
+            if (!oldTime.equalsIgnoreCase(cron)) {
+                /* 方式一 ：调用 rescheduleJob 开始 */
+                TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger();// 触发器
+                triggerBuilder.withIdentity(triggerKey);// 触发器名,触发器组
+                triggerBuilder.startNow(); // 立即执行
+                triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(cron)); // 触发器时间设定
+                trigger = (CronTrigger) triggerBuilder.build(); // 创建Trigger对象
+                scheduler.rescheduleJob(triggerKey, trigger); // 修改一个任务的触发时间
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 立即执行指定的任务
+     *
+     * @param jobKey 作业的唯一标识符，包含作业名称和组名
+     */
+    public void triggerJob(JobKey jobKey) {
+        try {
+            log.info("triggerJob: {},{}", jobKey.getName(), jobKey.getGroup());
+            scheduler.triggerJob(jobKey);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void pauseJob(JobKey jobKey) {
+        try {
+            List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);
+            if (triggers.isEmpty()) {
+                throw new IllegalArgumentException("任务 [" + jobKey.getName() + "." + jobKey.getGroup() + "] 不存在或无触发器");
+            }
+            for (Trigger trigger : triggers) {
+                TriggerKey triggerKey = trigger.getKey();
+                Trigger.TriggerState state = scheduler.getTriggerState(triggerKey);
+                if (state == Trigger.TriggerState.NORMAL || state == Trigger.TriggerState.BLOCKED) {
+                    scheduler.pauseTrigger(triggerKey);
+                }
+                // log.info("pauseJob: {},{}", jobKey.getName(), jobKey.getGroup());
+                // scheduler.pauseTrigger(jobKey);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void resumeJob(JobKey jobKey) {
+        try {
+            List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);
+            if (triggers.isEmpty()) {
+                throw new IllegalArgumentException("任务 [" + jobKey.getName() + "." + jobKey.getGroup() + "] 不存在或无触发器");
+            }
+            for (Trigger trigger : triggers) {
+                TriggerKey triggerKey = trigger.getKey();
+                Trigger.TriggerState state = scheduler.getTriggerState(triggerKey);
+                if (state == Trigger.TriggerState.NORMAL || state == Trigger.TriggerState.BLOCKED) {
+                    scheduler.resumeTrigger(triggerKey);
+                }
+                // log.info("resumeJob: {},{}", jobKey.getName(), jobKey.getGroup());
+                // scheduler.resumeJob(jobKey);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void removeJob(JobKey jobKey, TriggerKey triggerKey) {
+        try {
+            log.info("RemoveJob: {},{}", jobKey.getName(), jobKey.getGroup());
+            scheduler.pauseTrigger(triggerKey);
+            scheduler.unscheduleJob(triggerKey);
+            scheduler.deleteJob(jobKey);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void addOrUpdateCronJob(JobKey jobKey, TriggerKey triggerKey, Class<? extends Job> jobClass, String cron, JobDataMap jobDataMap)
+            throws SchedulerException {
+        log.info("AddOrUpdateCronJob: {},{}", jobKey.getName(), triggerKey.getGroup());
+        if (scheduler.checkExists(triggerKey)) {
+            modifyCronJobTime(triggerKey, cron, jobDataMap);
+        } else {
+            addCronJob(jobKey, triggerKey, jobClass, cron, jobDataMap);
+        }
+    }
+
+    public JobDataMap getDefaultJobDataMap(SystemSchedule schedule, String expression, String userId) {
+        JobDataMap jobDataMap = new JobDataMap();
+        jobDataMap.put("expression", expression);
+        jobDataMap.put("userId", userId);
+        jobDataMap.put("config", schedule.getConfig());
+        jobDataMap.put("projectId", schedule.getProjectId());
+        SystemProject systemProject = QueryChain.of(SystemProject.class).where(SystemProject::getId).eq(schedule.getProjectId()).one();
+        jobDataMap.put("projectNum", systemProject.getNum());
+        jobDataMap.put("projectName", systemProject.getName());
+        return jobDataMap;
+    }
+}

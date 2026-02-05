@@ -1,8 +1,8 @@
 package cn.master.horde.service.impl;
 
-import cn.master.horde.dto.request.PermissionSettingUpdateRequest;
-import cn.master.horde.entity.UserRolePermission;
-import cn.master.horde.mapper.UserRolePermissionMapper;
+import cn.master.horde.model.dto.request.PermissionSettingUpdateRequest;
+import cn.master.horde.model.entity.UserRolePermission;
+import cn.master.horde.model.mapper.UserRolePermissionMapper;
 import cn.master.horde.service.UserRolePermissionService;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
@@ -12,7 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static cn.master.horde.entity.table.UserRolePermissionTableDef.USER_ROLE_PERMISSION;
+import static cn.master.horde.model.entity.table.UserRolePermissionTableDef.USER_ROLE_PERMISSION;
+
 
 /**
  * 用户组权限 服务层实现。

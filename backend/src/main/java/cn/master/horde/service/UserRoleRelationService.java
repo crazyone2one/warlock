@@ -1,12 +1,12 @@
 package cn.master.horde.service;
 
-import cn.master.horde.dto.UserExcludeOptionDTO;
-import cn.master.horde.dto.UserRoleRelationUserDTO;
-import cn.master.horde.dto.UserTableResponse;
-import cn.master.horde.dto.request.UserRoleRelationQueryRequest;
-import cn.master.horde.dto.request.UserRoleRelationUpdateRequest;
-import cn.master.horde.entity.SystemUser;
-import cn.master.horde.entity.UserRoleRelation;
+import cn.master.horde.model.dto.UserExcludeOptionDTO;
+import cn.master.horde.model.dto.UserRoleRelationUserDTO;
+import cn.master.horde.model.dto.UserTableResponse;
+import cn.master.horde.model.dto.request.UserRoleRelationQueryRequest;
+import cn.master.horde.model.dto.request.UserRoleRelationUpdateRequest;
+import cn.master.horde.model.entity.SystemUser;
+import cn.master.horde.model.entity.UserRoleRelation;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.service.IService;
 import jakarta.validation.Valid;

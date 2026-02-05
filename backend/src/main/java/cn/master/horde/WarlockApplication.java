@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@MapperScan("cn.master.horde.mapper")
+@MapperScan("cn.master.horde.model.mapper")
 @EnableScheduling
 public class WarlockApplication {
 

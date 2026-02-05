@@ -1,6 +1,6 @@
 package cn.master.horde.common.config;
 
-import cn.master.horde.dto.SlaveParameter;
+import cn.master.horde.model.dto.SlaveParameter;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.context.annotation.Bean;

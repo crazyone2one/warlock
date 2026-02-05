@@ -1,7 +1,7 @@
 package cn.master.horde.service.impl;
 
-import cn.master.horde.entity.JwtBlacklist;
-import cn.master.horde.mapper.JwtBlacklistMapper;
+import cn.master.horde.model.entity.JwtBlacklist;
+import cn.master.horde.model.mapper.JwtBlacklistMapper;
 import cn.master.horde.service.JwtBlacklistService;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
@@ -10,7 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
-import static cn.master.horde.entity.table.JwtBlacklistTableDef.JWT_BLACKLIST;
+import static cn.master.horde.model.entity.table.JwtBlacklistTableDef.JWT_BLACKLIST;
+
 
 /**
  * JWT 黑名单服务实现

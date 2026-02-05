@@ -1,8 +1,8 @@
 package cn.master.horde.common.listener;
 
 import cn.master.horde.common.config.DataSourceParameter;
-import cn.master.horde.entity.ProjectParameter;
-import cn.master.horde.util.JsonHelper;
+import cn.master.horde.model.entity.ProjectParameter;
+import cn.master.horde.common.util.JsonHelper;
 import com.mybatisflex.core.FlexGlobalConfig;
 import com.mybatisflex.core.datasource.FlexDataSource;
 import com.mybatisflex.core.query.QueryChain;
@@ -15,7 +15,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static cn.master.horde.entity.table.ProjectParameterTableDef.PROJECT_PARAMETER;
+import static cn.master.horde.model.entity.table.ProjectParameterTableDef.PROJECT_PARAMETER;
+
 
 /**
  * @author : 11's papa

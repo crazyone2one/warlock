@@ -1,7 +1,7 @@
 package cn.master.horde.controller;
 
-import cn.master.horde.dto.*;
-import cn.master.horde.entity.SystemSchedule;
+import cn.master.horde.model.dto.*;
+import cn.master.horde.model.entity.SystemSchedule;
 import cn.master.horde.service.SystemScheduleService;
 import com.mybatisflex.core.paginate.Page;
 import io.swagger.v3.oas.annotations.Operation;

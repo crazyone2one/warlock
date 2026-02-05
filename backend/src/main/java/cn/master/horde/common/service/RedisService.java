@@ -1,6 +1,6 @@
 package cn.master.horde.common.service;
 
-import cn.master.horde.util.JsonHelper;
+import cn.master.horde.common.util.JsonHelper;
 import com.mybatisflex.core.row.Row;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;

@@ -2,18 +2,18 @@ package cn.master.horde.service.impl;
 
 import cn.master.horde.common.constants.UserRoleScope;
 import cn.master.horde.common.result.BizException;
-import cn.master.horde.dto.UserExcludeOptionDTO;
-import cn.master.horde.dto.UserRoleRelationUserDTO;
-import cn.master.horde.dto.UserTableResponse;
-import cn.master.horde.dto.request.UserRoleRelationQueryRequest;
-import cn.master.horde.dto.request.UserRoleRelationUpdateRequest;
-import cn.master.horde.entity.SystemUser;
-import cn.master.horde.entity.UserRole;
-import cn.master.horde.entity.UserRoleRelation;
-import cn.master.horde.mapper.UserRoleRelationMapper;
+import cn.master.horde.model.dto.UserExcludeOptionDTO;
+import cn.master.horde.model.dto.UserRoleRelationUserDTO;
+import cn.master.horde.model.dto.UserTableResponse;
+import cn.master.horde.model.dto.request.UserRoleRelationQueryRequest;
+import cn.master.horde.model.dto.request.UserRoleRelationUpdateRequest;
+import cn.master.horde.model.entity.SystemUser;
+import cn.master.horde.model.entity.UserRole;
+import cn.master.horde.model.entity.UserRoleRelation;
+import cn.master.horde.model.mapper.UserRoleRelationMapper;
 import cn.master.horde.service.UserRoleRelationService;
 import cn.master.horde.service.UserRoleService;
-import cn.master.horde.util.Translator;
+import cn.master.horde.common.util.Translator;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 
 import static cn.master.horde.common.result.SystemResultCode.GLOBAL_USER_ROLE_LIMIT;
 import static cn.master.horde.common.result.SystemResultCode.USER_ROLE_RELATION_EXIST;
-import static cn.master.horde.entity.table.SystemUserTableDef.SYSTEM_USER;
-import static cn.master.horde.entity.table.UserRoleRelationTableDef.USER_ROLE_RELATION;
+import static cn.master.horde.model.entity.table.SystemUserTableDef.SYSTEM_USER;
+import static cn.master.horde.model.entity.table.UserRoleRelationTableDef.USER_ROLE_RELATION;
 
 /**
  * 用户-角色关联表 服务层实现。

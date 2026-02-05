@@ -1,9 +1,9 @@
 package cn.master.horde;
 
-import cn.master.horde.entity.SystemProject;
-import cn.master.horde.entity.SystemUser;
-import cn.master.horde.mapper.SystemProjectMapper;
-import cn.master.horde.mapper.SystemUserMapper;
+import cn.master.horde.model.entity.SystemProject;
+import cn.master.horde.model.entity.SystemUser;
+import cn.master.horde.model.mapper.SystemProjectMapper;
+import cn.master.horde.model.mapper.SystemUserMapper;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
