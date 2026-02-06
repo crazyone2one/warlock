@@ -48,6 +48,16 @@ const appRoutes: RouteRecordRaw[] = [
                     roles: ['SYSTEM_USER_GROUP_ROLE:READ'],
                     icon: 'i-solar:shield-user-linear'
                 }
+            },
+            {
+                path: '/setting/field',
+                name: 'field',
+                component: () => import('/@/views/setting/custom-field/index.vue'),
+                meta: {
+                    title: 'menu.settings.organization.templateFieldSetting',
+                    roles: ['PROJECT_TEMPLATE:READ'],
+                    icon: 'i-solar:document-add-linear'
+                }
             }
         ]
     }

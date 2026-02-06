@@ -12,6 +12,8 @@ public enum SystemResultCode implements IResultCode{
     USER_ROLE_RELATION_EXIST(100002, "user_role_relation_exist_error"),
     GLOBAL_USER_ROLE_RELATION_SYSTEM_PERMISSION(101003, "global_user_role_relation_system_permission_error"),
     GLOBAL_USER_ROLE_LIMIT(101004, "global_user_role_limit_error"),
+    CUSTOM_FIELD_EXIST(100012, "custom_field.exist"),
+    INTERNAL_CUSTOM_FIELD_PERMISSION(100008, "internal_custom_field_permission_error"),
     ;
     private final int code;
     private final String message;

@@ -1,4 +1,4 @@
-package cn.master.horde.security.config;
+package cn.master.horde.common.config;
 
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.core.FlexGlobalConfig;

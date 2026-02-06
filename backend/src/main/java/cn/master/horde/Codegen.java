@@ -12,48 +12,49 @@ import com.zaxxer.hikari.HikariDataSource;
  **/
 public class Codegen {
     public static void main(String[] args) {
-        //配置数据源
+        // 配置数据源
         HikariDataSource dataSource = new HikariDataSource();
         dataSource.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/warlock?characterEncoding=utf-8");
         dataSource.setUsername("root");
         dataSource.setPassword("123456");
 
-        //创建配置内容，两种风格都可以。
-        GlobalConfig globalConfig = createGlobalConfigUseStyle1("user_role_permission");
-        //GlobalConfig globalConfig = createGlobalConfigUseStyle2();
+        // 创建配置内容，两种风格都可以。
+        GlobalConfig globalConfig = createGlobalConfigUseStyle1("custom_field_option");
+        // GlobalConfig globalConfig = createGlobalConfigUseStyle2();
 
-        //通过 datasource 和 globalConfig 创建代码生成器
+        // 通过 datasource 和 globalConfig 创建代码生成器
         Generator generator = new Generator(dataSource, globalConfig);
 
-        //生成代码
+        // 生成代码
         generator.generate();
     }
+
     public static GlobalConfig createGlobalConfigUseStyle1(String tableName) {
-        //创建配置内容
+        // 创建配置内容
         GlobalConfig globalConfig = new GlobalConfig();
         globalConfig.getJavadocConfig().setAuthor("11's papa");
-        //设置根包
+        // 设置根包
         globalConfig.getPackageConfig().setBasePackage("cn.master.horde");
         globalConfig.setSourceDir(System.getProperty("user.dir") + "/backend/src/main/java");
-
-        //设置表前缀和只生成哪些表
+        globalConfig.getPackageConfig().setEntityPackage("cn.master.horde.model.entity"); // 设置实体类包
+        globalConfig.getPackageConfig().setMapperPackage("cn.master.horde.model.mapper");
+        // 设置表前缀和只生成哪些表
         globalConfig.setTablePrefix("tb_");
         globalConfig.setGenerateTable(tableName);
 
-        //设置生成 entity 并启用 Lombok
+        // 设置生成 entity 并启用 Lombok
         globalConfig.setEntityGenerateEnable(true);
         globalConfig.setEntityWithLombok(true);
-        //设置项目的JDK版本，项目的JDK为14及以上时建议设置该项，小于14则可以不设置
+        // 设置项目的JDK版本，项目的JDK为14及以上时建议设置该项，小于14则可以不设置
         globalConfig.setEntityJdkVersion(25);
         globalConfig.getEntityConfig().setWithSwagger(true).setSwaggerVersion(EntityConfig.SwaggerVersion.DOC);
-
-        //设置生成 mapper
+        globalConfig.getEntityConfig().setOverwriteEnable(true);
+        // 设置生成 mapper
         globalConfig.setMapperGenerateEnable(true);
-
         globalConfig.setControllerGenerateEnable(true);
         globalConfig.setServiceGenerateEnable(true);
         globalConfig.setServiceImplGenerateEnable(true);
-        //可以单独配置某个列
+        // 可以单独配置某个列
         ColumnConfig columnConfig = new ColumnConfig();
         columnConfig.setColumnName("create_time");
         columnConfig.setOnInsertValue("now()");

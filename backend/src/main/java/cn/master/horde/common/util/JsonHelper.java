@@ -80,6 +80,10 @@ public class JsonHelper {
         return objectMapper.writeValueAsString(object);
     }
 
+    public static byte[] toJSONBytes(Object object) {
+        return objectMapper.writeValueAsBytes(object);
+    }
+
     public static <T> List<T> parseArray(String content, Class<T> valueType) {
         return objectMapper.readValue(content, objectMapper.getTypeFactory().constructCollectionType(List.class, valueType));
     }
