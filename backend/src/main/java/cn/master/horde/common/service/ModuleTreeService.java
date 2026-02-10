@@ -6,7 +6,6 @@ import cn.master.horde.model.dto.BaseTreeNode;
 import cn.master.horde.model.dto.api.ModuleCountDTO;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -69,7 +68,7 @@ public class ModuleTreeService {
         Map<String, BaseTreeNode> baseTreeNodeMap = new HashMap<>();
 
         // 根节点预先处理
-        baseTreeNodeList.addAll(traverseList.stream().filter(treeNode -> StringUtils.equalsIgnoreCase(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)).toList());
+        baseTreeNodeList.addAll(traverseList.stream().filter(treeNode -> ModuleConstants.ROOT_NODE_PARENT_ID.equalsIgnoreCase(treeNode.getParentId())).toList());
         baseTreeNodeList.forEach(item -> baseTreeNodeMap.put(item.getId(), item));
         traverseList = (List<BaseTreeNode>) CollectionUtils.removeAll(traverseList, baseTreeNodeList);
 
@@ -78,15 +77,20 @@ public class ModuleTreeService {
             lastSize = traverseList.size();
             List<BaseTreeNode> notMatchedList = new ArrayList<>();
             for (BaseTreeNode treeNode : traverseList) {
-                if (!baseTreeNodeMap.containsKey(treeNode.getParentId()) && !StringUtils.equalsIgnoreCase(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+                if (!baseTreeNodeMap.containsKey(treeNode.getParentId()) && !ModuleConstants.ROOT_NODE_PARENT_ID.equalsIgnoreCase(treeNode.getParentId())) {
                     notMatchedList.add(treeNode);
                     continue;
+                }
+                BaseTreeNode parentNode = baseTreeNodeMap.get(treeNode.getParentId());
+                // 确保父节点的路径被正确设置
+                if (parentNode.getPath() == null || "/".equals(parentNode.getPath())) {
+                    parentNode.genModulePath(baseTreeNodeMap.get(parentNode.getParentId()));
                 }
                 BaseTreeNode node = new BaseTreeNode(treeNode.getId(), treeNode.getName(), treeNode.getType(), treeNode.getParentId());
                 node.genModulePath(baseTreeNodeMap.get(treeNode.getParentId()));
                 baseTreeNodeMap.put(treeNode.getId(), node);
 
-                if (StringUtils.equalsIgnoreCase(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+                if (ModuleConstants.ROOT_NODE_PARENT_ID.equalsIgnoreCase(treeNode.getParentId())) {
                     baseTreeNodeList.add(node);
                 } else if (baseTreeNodeMap.containsKey(treeNode.getParentId())) {
                     baseTreeNodeMap.get(treeNode.getParentId()).addChild(node);

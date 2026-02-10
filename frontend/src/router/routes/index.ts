@@ -18,6 +18,23 @@ const appRoutes: RouteRecordRaw[] = [
         }
     },
     {
+        path: '/api-test',
+        name: 'apiTest',
+        component: null,
+        meta: {title: 'menu.apiTest', roles: ['SYSTEM_PROJECT:READ'], icon: 'i-mdi:api'},
+        children: [
+            {
+                path: '/api-test/management',
+                name: 'apiTestManagement',
+                component: () => import('/@/views/api-test/management/index.vue'),
+                meta: {
+                    title: 'menu.apiTest.management',
+                    roles: ['PROJECT_API_DEFINITION:READ'],
+                },
+            },
+        ]
+    },
+    {
         path: '/project-manage',
         name: 'Project',
         component: () => import('/@/views/setting/project/index.vue'),

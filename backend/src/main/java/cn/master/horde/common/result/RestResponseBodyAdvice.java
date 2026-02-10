@@ -30,7 +30,7 @@ public class RestResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     public @Nullable Object beforeBodyWrite(@Nullable Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         if (StringHttpMessageConverter.class.isAssignableFrom(selectedConverterType)) {
             response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-            return JsonHelper.objectToType(String.class).apply(ResultHolder.success(null));
+            return JsonHelper.objectToString(ResultHolder.success(body));
         }
         if ("/v3/api-docs/swagger-config".equals(request.getURI().getPath())) {
             return body;
@@ -38,7 +38,7 @@ public class RestResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         if (!(body instanceof ResultHolder)) {
             if (body instanceof String) {
                 response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-                return JsonHelper.objectToType(String.class).apply(ResultHolder.success(body));
+                return JsonHelper.objectToString(ResultHolder.success(body));
             }
             return ResultHolder.success(body);
         }

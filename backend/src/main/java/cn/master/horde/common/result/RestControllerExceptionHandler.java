@@ -11,13 +11,11 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -109,7 +107,7 @@ public class RestControllerExceptionHandler {
 
     @ExceptionHandler({Exception.class})
     public ResponseEntity<ResultHolder> handleException(Exception e) {
-
+        log.error("Exception:", e);
         return ResponseEntity.internalServerError()
                 .body(ResultHolder.error(ResultCode.FAILED.getCode(),
                         e.getMessage(), getStackTraceAsString(e)));

@@ -46,7 +46,7 @@ logging:
     org.springframework.boot.web.servlet: info  # Servlet 容器日志
 springdoc:
   api-docs:
-    enabled: false
+    enabled: true
 
 minio:
   endpoint: http://172.16.2.19:9000

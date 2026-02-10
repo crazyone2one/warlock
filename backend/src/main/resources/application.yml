@@ -14,5 +14,5 @@ spring:
       idle-timeout: 300000
       connection-test-query: SELECT 1
   messages:
-    basename: i18n/commons,i18n/project,i18n/system
+    basename: i18n/commons,i18n/project,i18n/system,i18n/api
     default-locale: zh_CN

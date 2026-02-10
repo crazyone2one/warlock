@@ -34,6 +34,7 @@ import java.util.Map;
 
 import static cn.master.horde.model.entity.table.ApiDefinitionModuleTableDef.API_DEFINITION_MODULE;
 import static cn.master.horde.model.entity.table.ApiDefinitionTableDef.API_DEFINITION;
+import static com.mybatisflex.core.query.QueryMethods.string;
 
 /**
  * 接口模块 服务层实现。
@@ -213,7 +214,8 @@ public class ApiDefinitionModuleServiceImpl extends ServiceImpl<ApiDefinitionMod
         return queryChain()
                 .select(API_DEFINITION_MODULE.ID, API_DEFINITION_MODULE.NAME, API_DEFINITION_MODULE.PARENT_ID,
                         API_DEFINITION_MODULE.PROJECT_ID, API_DEFINITION_MODULE.POS)
-                .select("MODULE").as("type")
+                .select(string("MODULE").as("type"))
+                // .from(API_DEFINITION_MODULE)
                 .where(API_DEFINITION_MODULE.PROJECT_ID.eq(request.getProjectId())
                         .and(API_DEFINITION_MODULE.NAME.like(request.getKeyword()))
                         .and(API_DEFINITION_MODULE.ID.in(request.getModuleIds())))
