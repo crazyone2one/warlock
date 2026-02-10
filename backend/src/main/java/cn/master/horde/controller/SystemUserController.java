@@ -2,23 +2,26 @@ package cn.master.horde.controller;
 
 import cn.idev.excel.FastExcel;
 import cn.idev.excel.util.MapUtils;
-import cn.master.horde.common.log.annotation.Loggable;
 import cn.master.horde.common.constants.Created;
+import cn.master.horde.common.constants.OperationLogType;
 import cn.master.horde.common.constants.Updated;
+import cn.master.horde.common.log.annotation.Loggable;
+import cn.master.horde.common.util.JsonHelper;
 import cn.master.horde.common.util.SessionUtils;
-import cn.master.horde.security.security.CustomUserDetails;
 import cn.master.horde.model.dto.*;
 import cn.master.horde.model.dto.request.UserBatchCreateRequest;
 import cn.master.horde.model.dto.request.UserChangeEnableRequest;
 import cn.master.horde.model.dto.request.UserEditRequest;
 import cn.master.horde.model.entity.SystemUser;
+import cn.master.horde.security.security.CustomUserDetails;
 import cn.master.horde.service.SystemUserService;
 import cn.master.horde.service.UserRoleService;
-import cn.master.horde.common.util.JsonHelper;
+import cn.master.horde.service.log.UserLogService;
 import com.mybatisflex.core.paginate.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,7 +51,6 @@ public class SystemUserController {
     private final SystemUserService systemUserService;
     private final UserRoleService userRoleService;
 
-    @Loggable("添加用户")
     @PreAuthorize("hasPermission('SYSTEM_USER','READ+ADD')")
     @PostMapping("save")
     public UserBatchCreateResponse save(@Validated({Created.class}) @RequestBody UserBatchCreateRequest request) {
@@ -67,23 +69,24 @@ public class SystemUserController {
         return systemUserService.removeById(id);
     }
 
-    @Loggable("修改用户")
     @PreAuthorize("hasPermission('SYSTEM_USER','READ+UPDATE')")
     @PostMapping("update")
+    @Loggable(type = OperationLogType.UPDATE, expression = "#wClass.updateLog(#request)", wClass = UserLogService.class)
     public UserEditRequest update(@Validated({Updated.class}) @RequestBody UserEditRequest request) {
         return systemUserService.updateUser(request);
     }
 
-    @Loggable("启用/禁用用户")
     @PreAuthorize("hasPermission('SYSTEM_USER','READ+UPDATE')")
     @PostMapping("/update/enable")
+    @Loggable(type = OperationLogType.UPDATE, expression = "#wClass.batchUpdateEnableLog(#request)", wClass = UserLogService.class)
     public TableBatchProcessResponse update(@Validated @RequestBody UserChangeEnableRequest request) {
         return systemUserService.updateUserEnable(request, SessionUtils.getCurrentUserId(), SessionUtils.getCurrentUsername());
     }
 
-    @Loggable("删除用户")
     @PreAuthorize("hasPermission('SYSTEM_USER','READ+DELETE')")
     @PostMapping("/delete")
+    @Operation(summary = "系统设置-系统-用户-删除用户")
+    @Loggable(type = OperationLogType.DELETE, expression = "#wClass.deleteLog(#request)", wClass = UserLogService.class)
     public TableBatchProcessResponse delete(@Validated @RequestBody UserChangeEnableRequest request) {
         return systemUserService.deleteUser(request, SessionUtils.getCurrentUserId(), SessionUtils.getCurrentUsername());
     }
@@ -126,6 +129,7 @@ public class SystemUserController {
     @PostMapping("/reset/password")
     @Operation(summary = "系统设置-系统-用户-重置用户密码")
     @PreAuthorize("hasPermission('SYSTEM_USER','READ+UPDATE')")
+    @Loggable(type = OperationLogType.UPDATE, expression = "#wClass.resetPasswordLog(#request)", wClass = UserLogService.class)
     public TableBatchProcessResponse resetPassword(@Validated @RequestBody TableBatchProcessDTO request) {
         return systemUserService.resetPassword(request, SessionUtils.getCurrentUserId());
     }

@@ -49,13 +49,13 @@ public class OperationLog implements Serializable {
     @Schema(description = "操作方法", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{operation_log.method.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{operation_log.method.length_range}", groups = {Created.class, Updated.class})
-    private String methodName;
+    private String method;
 
     /**
      * 请求URI
      */
-    @Schema(description = "请求URI")
-    private String uri;
+    @Schema(description = "操作路径")
+    private String path;
 
     /**
      * HTTP方法（GET/POST等）
@@ -80,12 +80,6 @@ public class OperationLog implements Serializable {
      */
     @Schema(description = "异常信息")
     private String exception;
-
-    /**
-     * 执行耗时（毫秒）
-     */
-    @Schema(description = "执行耗时（毫秒）")
-    private Long durationMs;
 
     /**
      * 创建时间（精确到毫秒）

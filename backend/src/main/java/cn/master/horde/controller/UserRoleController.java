@@ -1,13 +1,15 @@
 package cn.master.horde.controller;
 
-import cn.master.horde.common.log.annotation.Loggable;
 import cn.master.horde.common.constants.Created;
+import cn.master.horde.common.constants.OperationLogType;
 import cn.master.horde.common.constants.Updated;
+import cn.master.horde.common.log.annotation.Loggable;
 import cn.master.horde.model.dto.permission.PermissionDefinitionItem;
 import cn.master.horde.model.dto.request.PermissionSettingUpdateRequest;
 import cn.master.horde.model.dto.request.UserRoleUpdateRequest;
 import cn.master.horde.model.entity.UserRole;
 import cn.master.horde.service.UserRoleService;
+import cn.master.horde.service.log.UserRoleLogService;
 import com.mybatisflex.core.paginate.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +33,9 @@ public class UserRoleController {
     private final UserRoleService userRoleService;
 
     @PostMapping("save")
-    @Loggable("保存自定义用户组")
+    @Loggable(type = OperationLogType.ADD, expression = "#wClass.addLog(#request)", wClass = UserRoleLogService.class)
     @PreAuthorize("hasPermission('SYSTEM_USER_ROLE','READ+ADD')")
+    @Operation(summary = "系统设置-系统-用户组-添加自定义全局用户组")
     public UserRole save(@Validated({Created.class}) @RequestBody UserRoleUpdateRequest request) {
         return userRoleService.add(request);
     }
@@ -40,12 +43,13 @@ public class UserRoleController {
     @GetMapping("remove/{id}")
     @Operation(summary = "删除自定义全用户组")
     @PreAuthorize("hasPermission('SYSTEM_USER_ROLE','READ+DELETE')")
+    @Loggable(type = OperationLogType.UPDATE, expression = "#wClass.deleteLog(#id)", wClass = UserRoleLogService.class)
     public void remove(@PathVariable String id) {
         userRoleService.delete(id);
     }
 
     @PostMapping("update")
-    @Loggable("更新自定义全局用户组")
+    @Loggable(type = OperationLogType.UPDATE, expression = "#wClass.updateLog(#request)", wClass = UserRoleLogService.class)
     @PreAuthorize("hasPermission('SYSTEM_USER_ROLE','READ+UPDATE')")
     @Operation(summary = "更新自定义用户组")
     public UserRole update(@Validated({Updated.class}) @RequestBody UserRoleUpdateRequest request) {
@@ -85,10 +89,10 @@ public class UserRoleController {
         return userRoleService.getPermissionSetting(id);
     }
 
-    @Loggable("更新用户角色权限配置")
     @PostMapping("/permission/update")
     @Operation(summary = "更新用户组对应的权限配置")
     @PreAuthorize("hasPermission('SYSTEM_USER_ROLE','READ+UPDATE')")
+    @Loggable(type = OperationLogType.UPDATE, expression = "#wClass.updateLog(#request)", wClass = UserRoleLogService.class)
     public void updatePermissionSetting(@Validated @RequestBody PermissionSettingUpdateRequest request) {
         userRoleService.updatePermissionSetting(request);
     }

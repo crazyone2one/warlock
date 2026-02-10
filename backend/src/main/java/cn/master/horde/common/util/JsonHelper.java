@@ -7,6 +7,7 @@ import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -58,6 +59,10 @@ public class JsonHelper {
         return o -> objectMapper.convertValue(o, typeRef);
     }
 
+    public static <T> Function<String, T> stringToObject(TypeReference<T> typeRef) {
+        return o -> objectMapper.readValue(o, typeRef);
+    }
+
     /**
      * JSON Object → 对象
      *
@@ -86,5 +91,10 @@ public class JsonHelper {
 
     public static <T> List<T> parseArray(String content, Class<T> valueType) {
         return objectMapper.readValue(content, objectMapper.getTypeFactory().constructCollectionType(List.class, valueType));
+    }
+
+    public static Map objectToMap(String resultStr) {
+        return objectMapper.readValue(resultStr, new TypeReference<>() {
+        });
     }
 }

@@ -21,8 +21,8 @@ public class LogDTOBuilder {
 
     public LogDTO getLogDTO() {
         LogDTO logDTO = new LogDTO(projectId, sourceId, createUser, type, module, content);
-        logDTO.setUri(path);
-        logDTO.setMethodName(method);
+        logDTO.setPath(path);
+        logDTO.setMethod(method);
         logDTO.setOriginalValue(originalValue);
         logDTO.setModifiedValue(modifiedValue);
         return logDTO;

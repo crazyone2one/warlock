@@ -8,6 +8,7 @@ import cn.master.horde.common.util.Translator;
 import cn.master.horde.model.dto.BaseTreeNode;
 import cn.master.horde.model.dto.LogDTO;
 import cn.master.horde.model.dto.LogDTOBuilder;
+import cn.master.horde.model.entity.ApiDefinition;
 import cn.master.horde.model.entity.ApiDefinitionModule;
 import cn.master.horde.model.mapper.SystemProjectMapper;
 import cn.master.horde.service.OperationLogService;
@@ -89,25 +90,25 @@ public class ApiDefinitionModuleLogService {
         operationLogService.batchAdd(dtoList);
     }
 
-    // public void saveDeleteDataLog(List<ApiDefinition> deleteData, String operator, String projectId) {
-    //     // Project project = projectMapper.selectByPrimaryKey(projectId);
-    //     List<LogDTO> logs = new ArrayList<>();
-    //     deleteData.forEach(item -> {
-    //                 LogDTO dto = LogDTOBuilder.builder()
-    //                         .projectId(projectId)
-    //                         .type(OperationLogType.DELETE.name())
-    //                         .module(OperationLogModule.API_TEST_MANAGEMENT_MODULE)
-    //                         .method(HttpMethodConstants.GET.name())
-    //                         .path(DELETE + "/%s")
-    //                         .sourceId(item.getId())
-    //                         .content(item.getName())
-    //                         .createUser(operator)
-    //                         .build().getLogDTO();
-    //                 logs.add(dto);
-    //             }
-    //     );
-    //     operationLogService.batchAdd(logs);
-    // }
+    public void saveDeleteDataLog(List<ApiDefinition> deleteData, String operator, String projectId) {
+        // Project project = projectMapper.selectByPrimaryKey(projectId);
+        List<LogDTO> logs = new ArrayList<>();
+        deleteData.forEach(item -> {
+                    LogDTO dto = LogDTOBuilder.builder()
+                            .projectId(projectId)
+                            .type(OperationLogType.DELETE.name())
+                            .module(OperationLogModule.API_TEST_MANAGEMENT_MODULE)
+                            .method(HttpMethodConstants.GET.name())
+                            .path(DELETE + "/%s")
+                            .sourceId(item.getId())
+                            .content(item.getName())
+                            .createUser(operator)
+                            .build().getLogDTO();
+                    logs.add(dto);
+                }
+        );
+        operationLogService.batchAdd(logs);
+    }
 
     // public void saveDeleteCaseLog(List<ApiTestCase> apiTestCases, String operator, String projectId) {
     //     Project project = projectMapper.selectByPrimaryKey(projectId);

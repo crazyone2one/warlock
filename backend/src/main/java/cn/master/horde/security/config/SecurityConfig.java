@@ -83,6 +83,7 @@ public class SecurityConfig {
                 auth.requestMatchers("/auth/login", "/auth/refresh-token", "/auth/get-key").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/index.html", "/", "/assets/**", "/vite.svg").permitAll()
+                        .requestMatchers("/dsl/execute").permitAll()
                         .anyRequest().authenticated());
         http.addFilterBefore(restAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         http.authenticationManager(authenticationManager());

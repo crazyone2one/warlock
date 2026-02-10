@@ -266,7 +266,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
                 .stream()
                 .collect(Collectors.groupingBy(i -> i.getUserId() + i.getSourceId()));
         List<UserRoleRelation> addRelations = new ArrayList<>();
-        userRoleRelationMap.forEach((_, relations) -> {
+        userRoleRelationMap.forEach((s, relations) -> {
             // 如果当前用户组只有一个用户，并且就是要删除的用户组，则添加组织成员等默认用户组
             if (relations.size() == 1 && Strings.CS.equals(relations.getFirst().getRoleId(), roleId)) {
                 UserRoleRelation relation = new UserRoleRelation();

@@ -31,10 +31,9 @@ spring:
             class: org.quartz.simpl.SimpleThreadPool
   data:
     redis:
-      host: 172.16.2.19
+      host: localhost
       port: 6379
-      password: 3eCrAw8Ba6Tg
-      database: 5
+      database: 0
 
 jwt:
   secret: 5oiR5piv5Lit5Zu95Lq677yM5oiR54ix5Lit5Zu944CCQ2hpbmEgTk8gMe+8gQ==
@@ -48,3 +47,8 @@ logging:
 springdoc:
   api-docs:
     enabled: false
+
+minio:
+  endpoint: http://172.16.2.19:9000
+  access-key: KLEBHHp8e4eBy98k #7S05zSDCLoymf2IJ
+  secret-key: WkkYJ5BlChznyE5wKEYT1O4rcwoUUlaL #w544BG0Lhr2GxXmaUdqCqXwQxNNodmaL

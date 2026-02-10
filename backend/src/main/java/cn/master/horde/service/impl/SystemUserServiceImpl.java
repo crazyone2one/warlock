@@ -16,11 +16,13 @@ import cn.master.horde.model.dto.request.UserChangeEnableRequest;
 import cn.master.horde.model.dto.request.UserEditRequest;
 import cn.master.horde.model.mapper.SystemUserMapper;
 import cn.master.horde.model.entity.*;
+import cn.master.horde.service.OperationLogService;
 import cn.master.horde.service.SystemUserService;
 import cn.master.horde.service.UserRoleRelationService;
 import cn.master.horde.service.UserRoleService;
 import cn.master.horde.common.util.JsonHelper;
 import cn.master.horde.common.util.Translator;
+import cn.master.horde.service.log.UserLogService;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
@@ -61,6 +63,8 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
     private final UserRoleRelationService userRoleRelationService;
     private final UserRoleService userRoleService;
     private final PasswordEncoder passwordEncoder;
+    private final OperationLogService operationLogService;
+    private final UserLogService userLogService;
 
     @Override
     public UserDTO getUserInfoById(String id) {
@@ -328,6 +332,7 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
                 userRoleRelationService.saveBatch(userRoleRelations);
             });
         }
+        operationLogService.batchAdd(userLogService.getBatchAddLogs(request.getUserInfoList(), SessionUtils.getCurrentUsername(), "/system/user/save"));
         return request.getUserInfoList();
     }
 

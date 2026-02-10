@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
  * @author : 11's papa
  * @since : 2026/2/5, 星期四
  **/
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class ApiModuleRequest extends BaseCondition {
     @Schema(description = "模块ID(根据模块树查询时要把当前节点以及子节点都放在这里。)")

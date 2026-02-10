@@ -1,11 +1,17 @@
 package cn.master.horde.common.util;
 
-import cn.master.horde.security.security.CustomUserDetails;
 import cn.master.horde.model.entity.SystemUser;
+import cn.master.horde.security.security.CustomUserDetails;
 import com.mybatisflex.core.query.QueryChain;
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.util.Objects;
 
 /**
  * 获取当前登录用户信息的工具类
@@ -14,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @since 2026/1/15
  */
 public class SessionUtils {
+    private static final ThreadLocal<String> projectId = new ThreadLocal<>();
 
     /**
      * 获取当前登录用户的用户名
@@ -84,5 +91,29 @@ public class SessionUtils {
     public static boolean isAuthenticated() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal());
+    }
+
+    public static void setCurrentProjectId(String projectId) {
+        SessionUtils.projectId.set(projectId);
+    }
+
+    public static String getCurrentProjectId() {
+        if (StringUtils.isNotEmpty(projectId.get())) {
+            return projectId.get();
+        }
+        try {
+            HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
+            LogUtils.debug("PROJECT: {}", request.getHeader("PROJECT"));
+            if (request.getHeader("PROJECT") != null) {
+                return request.getHeader("PROJECT");
+            }
+        } catch (Exception e) {
+            LogUtils.error(e.getMessage(), e);
+        }
+        return Objects.requireNonNull(getCurrentSystemUser()).getLastProjectId();
+    }
+
+    public static void clearCurrentProjectId() {
+        projectId.remove();
     }
 }
