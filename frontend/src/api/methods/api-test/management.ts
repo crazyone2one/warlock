@@ -1,5 +1,6 @@
 import {globalInstance} from "/@/api";
 import type {ApiDefinitionGetModuleParams, ModuleTreeNode} from "/@/api/types/api-test.ts";
+import type {ApiDefinitionCreateParams, ApiDefinitionUpdateParams} from "/@/api/types/api-test/management.ts";
 
 export const apiTestManagementApi = {
     // 获取模块树
@@ -14,4 +15,8 @@ export const apiTestManagementApi = {
     }) => globalInstance.Post('/api/definition/module/save', data),
     // 删除模块
     deleteModule: (id: string) => globalInstance.Get(`/api/definition/module/remove/${id}`),
+    // 添加接口定义
+    addDefinition: (data: ApiDefinitionCreateParams) => globalInstance.Post(`/api/definition/save`, data),
+    // 更新接口定义
+    updateDefinition: (data: ApiDefinitionUpdateParams) => globalInstance.Post(`/api/definition/save`, data),
 };

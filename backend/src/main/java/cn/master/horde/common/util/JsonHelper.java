@@ -93,7 +93,7 @@ public class JsonHelper {
         return objectMapper.readValue(content, objectMapper.getTypeFactory().constructCollectionType(List.class, valueType));
     }
 
-    public static Map objectToMap(String resultStr) {
+    public static Map<String, Object> objectToMap(String resultStr) {
         return objectMapper.readValue(resultStr, new TypeReference<>() {
         });
     }

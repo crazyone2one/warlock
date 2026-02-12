@@ -12,7 +12,7 @@ export interface ITableQueryParams {
     // 查询条件
     keyword?: string;
 
-    [key: string]: string | number | object | undefined;
+    [key: string]: any;
 }
 
 export interface IPageResponse<T> {

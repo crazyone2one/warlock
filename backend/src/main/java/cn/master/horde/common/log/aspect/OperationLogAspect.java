@@ -181,7 +181,7 @@ public class OperationLogAspect {
         try {
             if (result != null) {
                 String resultStr = JsonHelper.objectToString(result);
-                Map object = JsonHelper.objectToMap(resultStr);
+                Map<String, Object> object = JsonHelper.objectToMap(resultStr);
                 if (MapUtils.isNotEmpty(object) && object.containsKey(ID)) {
                     Object nameValue = object.get(ID);
                     if (ObjectUtils.isNotEmpty(nameValue)) {
