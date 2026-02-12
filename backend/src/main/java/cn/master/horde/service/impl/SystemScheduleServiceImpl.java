@@ -1,17 +1,14 @@
 package cn.master.horde.service.impl;
 
 import cn.master.horde.common.constants.ApplicationNumScope;
-import cn.master.horde.scheduler.ScheduleManager;
 import cn.master.horde.common.result.BizException;
 import cn.master.horde.common.result.ResultCode;
-import cn.master.horde.common.util.SessionUtils;
 import cn.master.horde.common.service.NumGenerator;
-import cn.master.horde.model.dto.ScheduleConfig;
-import cn.master.horde.model.dto.ScheduleCronRequest;
-import cn.master.horde.model.dto.ScheduleDTO;
-import cn.master.horde.model.dto.SchedulePageRequest;
+import cn.master.horde.common.util.SessionUtils;
+import cn.master.horde.model.dto.*;
 import cn.master.horde.model.entity.SystemSchedule;
 import cn.master.horde.model.mapper.SystemScheduleMapper;
+import cn.master.horde.scheduler.ScheduleManager;
 import cn.master.horde.service.SystemScheduleService;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryChain;
@@ -21,10 +18,13 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.*;
+import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static cn.master.horde.model.entity.table.SystemProjectTableDef.SYSTEM_PROJECT;
 import static cn.master.horde.model.entity.table.SystemScheduleTableDef.SYSTEM_SCHEDULE;
@@ -40,6 +40,7 @@ import static cn.master.horde.model.entity.table.SystemScheduleTableDef.SYSTEM_S
 @RequiredArgsConstructor
 public class SystemScheduleServiceImpl extends ServiceImpl<SystemScheduleMapper, SystemSchedule> implements SystemScheduleService {
     private final ScheduleManager scheduleManager;
+    private final Scheduler scheduler;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -204,5 +205,56 @@ public class SystemScheduleServiceImpl extends ServiceImpl<SystemScheduleMapper,
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public List<JobInfo> getAllJobs() throws SchedulerException {
+        List<JobInfo> jobs = new ArrayList<>();
+        List<String> jobGroupNames = scheduler.getJobGroupNames();
+        for (String jobGroupName : jobGroupNames) {
+            for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(jobGroupName))) {
+                String jobName = jobKey.getName();
+                String group = jobKey.getGroup();
+                List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);
+                String cron = "";
+                if (!triggers.isEmpty()) {
+                    Trigger trigger = triggers.getFirst();
+                    if (trigger instanceof CronTrigger) {
+                        cron = ((CronTrigger) trigger).getCronExpression();
+                    }
+                }
+                Trigger.TriggerState state = scheduler.getTriggerState(triggers.getFirst().getKey());
+                jobs.add(new JobInfo(jobName, group, cron, state.name()));
+            }
+        }
+        return jobs;
+    }
+
+    @Override
+    public void deleteJob(String jobName, String group) throws SchedulerException {
+        scheduler.deleteJob(JobKey.jobKey(jobName, group));
+    }
+
+    @Override
+    public void resumeJob(String jobName, String group) throws SchedulerException {
+        scheduler.resumeJob(JobKey.jobKey(jobName, group));
+    }
+
+    @Override
+    public void triggerJob(JobKey jobKey, Map<String, ScheduleConfigParameter> payload) throws SchedulerException {
+
+        // 如果前端传了 paramsJson，则使用它；否则不传（使用默认）
+        if (payload != null && payload.containsKey("paramsJson")) {
+            ScheduleConfigParameter paramsJson = payload.get("paramsJson");
+            // newMap.put("paramsJson", paramsJson);
+            JobDetail oldJob = scheduler.getJobDetail(jobKey);
+            JobDataMap newMap = (JobDataMap) oldJob.getJobDataMap().clone();
+            newMap.put("paramsJson", paramsJson);
+            JobDetail newJob = oldJob.getJobBuilder().usingJobData(newMap).storeDurably(true).build();
+            scheduler.addJob(newJob, true); // true = replace
+        }
+        JobDataMap tempData = (JobDataMap)scheduler.getJobDetail(jobKey).getJobDataMap().clone();
+        tempData.put("manualTrigger", true); // ← 标记为手动触发
+        scheduler.triggerJob(jobKey, tempData);
     }
 }

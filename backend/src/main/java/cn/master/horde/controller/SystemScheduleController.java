@@ -8,9 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.quartz.Job;
-import org.quartz.JobKey;
-import org.quartz.TriggerKey;
+import org.quartz.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 定时任务 控制层。
@@ -91,6 +90,12 @@ public class SystemScheduleController {
         return systemScheduleService.list();
     }
 
+    @GetMapping("/all-job")
+    @PreAuthorize("hasPermission('SYSTEM_SCHEDULE_TASK_CENTER','READ')")
+    public List<JobInfo> getAllJobs() throws SchedulerException {
+        return systemScheduleService.getAllJobs();
+    }
+
     /**
      * 根据主键获取定时任务。
      *
@@ -150,5 +155,23 @@ public class SystemScheduleController {
     @PreAuthorize("hasPermission('SYSTEM_SCHEDULE_TASK_CENTER','READ+UPDATE')")
     public void resume(@PathVariable String id) {
         systemScheduleService.resumeTask(id);
+    }
+
+    @PostMapping("/delete/{jobName}/{group}")
+    public void deleteJob(@PathVariable String jobName, @PathVariable String group) throws SchedulerException {
+        systemScheduleService.deleteJob(jobName, group);
+    }
+
+    @PostMapping("/resume/{jobName}/{group}")
+    public void resumeJob(@PathVariable String jobName, @PathVariable String group) throws SchedulerException {
+        systemScheduleService.resumeJob(jobName, group);
+    }
+
+    @PostMapping("/trigger/{jobName}/{group}")
+    public void triggerJob(@PathVariable String jobName,
+                           @PathVariable String group,
+                           @RequestBody(required = false) Map<String, ScheduleConfigParameter> payload) throws SchedulerException {
+        JobKey jobKey = JobKey.jobKey(jobName, group);
+        systemScheduleService.triggerJob(jobKey, payload);
     }
 }

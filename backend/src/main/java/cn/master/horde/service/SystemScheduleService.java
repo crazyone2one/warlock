@@ -1,19 +1,15 @@
 package cn.master.horde.service;
 
-import cn.master.horde.model.dto.ScheduleConfig;
-import cn.master.horde.model.dto.ScheduleCronRequest;
-import cn.master.horde.model.dto.ScheduleDTO;
-import cn.master.horde.model.dto.SchedulePageRequest;
+import cn.master.horde.model.dto.*;
 import cn.master.horde.model.entity.SystemSchedule;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.service.IService;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import org.quartz.Job;
-import org.quartz.JobKey;
-import org.quartz.TriggerKey;
+import org.quartz.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 定时任务 服务层。
@@ -47,4 +43,12 @@ public interface SystemScheduleService extends IService<SystemSchedule> {
     SystemSchedule getByJobKey(@NotBlank(message = "{api_scenario.id.not_blank}") @Size(min = 1, max = 50, message = "{api_scenario.id.length_range}") String jobKey);
 
     void enable(String id);
+
+    List<JobInfo> getAllJobs() throws SchedulerException;
+
+    void deleteJob(String jobName, String group) throws SchedulerException;
+
+    void resumeJob(String jobName, String group) throws SchedulerException;
+
+    void triggerJob(JobKey jobKey, Map<String, ScheduleConfigParameter> payload) throws SchedulerException;
 }

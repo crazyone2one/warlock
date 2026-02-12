@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +16,9 @@ import java.util.Map;
  **/
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ScheduleConfigParameter {
+public class ScheduleConfigParameter implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     private String sensorId;
     // 用于存放动态字段
     private Map<String, Object> additionalFields = new HashMap<>();

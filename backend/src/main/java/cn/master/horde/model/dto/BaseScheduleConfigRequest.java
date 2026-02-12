@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +14,8 @@ import java.util.Map;
  * @since : 2026/1/19, 星期一
  **/
 @Data
-public class BaseScheduleConfigRequest {
+public class BaseScheduleConfigRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
     @NotBlank(message = "{api_scenario.id.not_blank}")
     @Schema(description = "定时任务资源ID")
     @Size(min = 1, max = 50, message = "{api_scenario.id.length_range}")
